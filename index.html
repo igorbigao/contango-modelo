@@ -261,8 +261,8 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
 <script>
 /* Hide login overlay immediately if valid session stored — prevents flash */
 (function(){
-  var e=localStorage.getItem('ctg_email');
-  var n=localStorage.getItem('ctg_nome');
+  var e=sessionStorage.getItem('ctg_email');
+  var n=sessionStorage.getItem('ctg_nome');
   if(e&&n){
     /* inject style to hide overlay before DOM paints */
     document.write('<style>#loginOverlay{display:none!important}</style>');
@@ -751,27 +751,48 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
 </div>
 
 <!-- FLOATING BUTTONS -->
-<div class="save-float" id="saveFloat" style="display:none">
-  <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:6px">
-    <span id="userBadge" style="
-      background:rgba(16,90,166,0.8);border:1px solid rgba(185,213,67,0.3);
-      border-radius:20px;padding:4px 12px;font-family:var(--mono);font-size:10px;
-      color:rgba(255,255,255,0.7);letter-spacing:0.5px
-    "></span>
+<!-- FLOATING MENU -->
+<div id="saveFloat" style="position:fixed;bottom:28px;right:28px;z-index:9999;display:none;flex-direction:column;align-items:flex-end;gap:0">
+
+  <!-- Dropdown menu (hidden by default) -->
+  <div id="floatMenu" style="
+    display:none;flex-direction:column;gap:4px;margin-bottom:8px;
+    background:#0d1f3c;border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px;padding:8px;min-width:210px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.5)
+  ">
+    <div style="padding:8px 10px 6px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:4px">
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);font-family:var(--mono);letter-spacing:0.5px">logado como</div>
+      <div id="userBadge" style="font-size:12px;color:white;font-weight:600;margin-top:2px"></div>
+    </div>
+    <button id="btnSaveCloud" onclick="saveCloud()" style="
+      display:flex;align-items:center;gap:8px;padding:9px 12px;
+      background:rgba(185,213,67,0.1);border:1px solid rgba(185,213,67,0.25);
+      border-radius:8px;color:#B9D543;font-family:var(--mono);font-size:11px;
+      letter-spacing:1px;cursor:pointer;text-transform:uppercase;width:100%
+    ">☁️ Salvar na Nuvem</button>
+    <button onclick="showSimPanel()" style="
+      display:flex;align-items:center;gap:8px;padding:9px 12px;
+      background:rgba(16,90,166,0.2);border:1px solid rgba(16,90,166,0.3);
+      border-radius:8px;color:rgba(255,255,255,0.7);font-family:var(--mono);font-size:11px;
+      letter-spacing:1px;cursor:pointer;text-transform:uppercase;width:100%
+    ">📂 Minhas Simulações</button>
     <button onclick="logoutUser()" style="
-      background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
-      border-radius:6px;padding:4px 10px;color:rgba(255,255,255,0.5);
-      font-size:10px;cursor:pointer;font-family:var(--mono)
-    ">sair</button>
+      display:flex;align-items:center;gap:8px;padding:9px 12px;
+      background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+      border-radius:8px;color:rgba(255,100,100,0.7);font-family:var(--mono);font-size:11px;
+      letter-spacing:1px;cursor:pointer;text-transform:uppercase;width:100%
+    ">⬡ Sair</button>
   </div>
-  <div style="display:flex;gap:8px;justify-content:flex-end">
-    <button class="btn-save-float" onclick="showSimPanel()" style="background:rgba(16,90,166,0.8)">
-      <span class="icon">📂</span> Minhas Simulações
-    </button>
-    <button class="btn-save-float" id="btnSaveCloud" onclick="saveCloud()">
-      <span class="icon">☁️</span> Salvar na Nuvem
-    </button>
-  </div>
+
+  <!-- Main toggle button -->
+  <button id="btnFloatToggle" onclick="toggleFloatMenu()" style="
+    display:flex;align-items:center;gap:9px;padding:13px 22px;
+    background:var(--green-dk);border:none;border-radius:50px;color:white;
+    cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:1.2px;
+    text-transform:uppercase;box-shadow:0 4px 24px rgba(0,0,0,.4),0 0 0 1px rgba(185,213,67,.25);
+    transition:all .2s
+  ">☁️ Simulações</button>
 </div>
 
 <!-- SIMULAÇÕES PANEL -->
@@ -1646,23 +1667,24 @@ function loginEnter(){
 
   _userEmail = email;
   _userName  = nome;
-  localStorage.setItem('ctg_email', email);
-  localStorage.setItem('ctg_nome',  nome);
+  sessionStorage.setItem('ctg_email', email);
+  sessionStorage.setItem('ctg_nome',  nome);
   document.getElementById('loginOverlay').style.display='none';
-  document.getElementById('saveFloat').style.display='block';
+  document.getElementById('saveFloat').style.display='flex';
   document.getElementById('userBadge').textContent = nome + ' · ' + email;
   loadLastSim();
 }
 
 function logoutUser(){
-  localStorage.removeItem('ctg_email');
-  localStorage.removeItem('ctg_nome');
+  sessionStorage.removeItem('ctg_email');
+  sessionStorage.removeItem('ctg_nome');
   _userEmail=null; _userName=null; _currentSimId=null;
   document.getElementById('loginNome').value='';
   document.getElementById('loginEmail').value='';
   document.getElementById('loginErr').style.display='none';
   document.getElementById('loginOverlay').style.display='flex';
   document.getElementById('saveFloat').style.display='none';
+  document.getElementById('floatMenu').style.display='none';
   document.getElementById('simPanel').style.display='none';
 }
 
@@ -1792,11 +1814,26 @@ async function renameSim(id, btn){
   loadSimList();
 }
 
+
+function toggleFloatMenu(){
+  var m=document.getElementById('floatMenu');
+  m.style.display = m.style.display==='flex' ? 'none' : 'flex';
+}
+
+// Close menu when clicking outside
+document.addEventListener('click',function(e){
+  var float=document.getElementById('saveFloat');
+  if(float && !float.contains(e.target)){
+    var m=document.getElementById('floatMenu');
+    if(m) m.style.display='none';
+  }
+});
+
 /* ── AUTO LOGIN se já tinha sessão ── */
 (function(){
   initSupabase();
-  var email = localStorage.getItem('ctg_email');
-  var nome  = localStorage.getItem('ctg_nome');
+  var email = sessionStorage.getItem('ctg_email');
+  var nome  = sessionStorage.getItem('ctg_nome');
   if(email&&nome){
     // Validate against whitelist before auto-login
     var ALLOWED=['igorbigao@gmail.com','vinyvicente@gmail.com','jm.queiroz@gmail.com','ccolifernandes@gmail.com'];
@@ -1804,13 +1841,13 @@ async function renameSim(id, btn){
     if(ok){
       _userEmail=email; _userName=nome;
       document.getElementById('loginOverlay').style.display='none';
-      document.getElementById('saveFloat').style.display='block';
+      document.getElementById('saveFloat').style.display='flex';
       document.getElementById('userBadge').textContent=nome+' · '+email;
       loadLastSim();
     } else {
       // Email no longer in whitelist — clear and show login
-      localStorage.removeItem('ctg_email');
-      localStorage.removeItem('ctg_nome');
+      sessionStorage.removeItem('ctg_email');
+      sessionStorage.removeItem('ctg_nome');
       document.getElementById('loginOverlay').style.display='flex';
     }
   } else {
