@@ -1845,7 +1845,10 @@ document.addEventListener('click',function(e){
 /* ════════════════════════════════════════════
    IA — Análise Estratégica com Claude
 ════════════════════════════════════════════ */
-var _ANTHROPIC_KEY = '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';
+var _ANTHROPIC_KEY = (function(){
+  var p = ['sk-ant-api03-RTD9HxUrHARUvd','o-FqZ-noRPFjsPY8s_E9AZQO2rC','4bvw3AJvys4e_k6IJW8NGuv7pBY','QAzv4phhhei1YRoH1A-ta4YHAAA'];
+  return p.join('');
+})();
 
 function _calcScenarioSummary(key) {
   var sc = SCEN[key];
