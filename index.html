@@ -258,6 +258,17 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
 .base-rates{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin-bottom:14px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* Hide login overlay immediately if valid session stored — prevents flash */
+(function(){
+  var e=localStorage.getItem('ctg_email');
+  var n=localStorage.getItem('ctg_nome');
+  if(e&&n){
+    /* inject style to hide overlay before DOM paints */
+    document.write('<style>#loginOverlay{display:none!important}</style>');
+  }
+})();
+</script>
 </head>
 <body>
 <div class="page">
@@ -1647,8 +1658,12 @@ function logoutUser(){
   localStorage.removeItem('ctg_email');
   localStorage.removeItem('ctg_nome');
   _userEmail=null; _userName=null; _currentSimId=null;
+  document.getElementById('loginNome').value='';
+  document.getElementById('loginEmail').value='';
+  document.getElementById('loginErr').style.display='none';
   document.getElementById('loginOverlay').style.display='flex';
   document.getElementById('saveFloat').style.display='none';
+  document.getElementById('simPanel').style.display='none';
 }
 
 /* ── SAVE CLOUD ── */
@@ -1783,9 +1798,23 @@ async function renameSim(id, btn){
   var email = localStorage.getItem('ctg_email');
   var nome  = localStorage.getItem('ctg_nome');
   if(email&&nome){
-    document.getElementById('loginNome').value  = nome;
-    document.getElementById('loginEmail').value = email;
-    loginEnter();
+    // Validate against whitelist before auto-login
+    var ALLOWED=['igorbigao@gmail.com','vinyvicente@gmail.com','jm.queiroz@gmail.com','ccolifernandes@gmail.com'];
+    var ok=ALLOWED.some(function(e){return e===email.toLowerCase();});
+    if(ok){
+      _userEmail=email; _userName=nome;
+      document.getElementById('loginOverlay').style.display='none';
+      document.getElementById('saveFloat').style.display='block';
+      document.getElementById('userBadge').textContent=nome+' · '+email;
+      loadLastSim();
+    } else {
+      // Email no longer in whitelist — clear and show login
+      localStorage.removeItem('ctg_email');
+      localStorage.removeItem('ctg_nome');
+      document.getElementById('loginOverlay').style.display='flex';
+    }
+  } else {
+    document.getElementById('loginOverlay').style.display='flex';
   }
 })();
 
