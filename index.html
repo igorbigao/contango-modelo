@@ -1136,6 +1136,7 @@ function buildTable(){
   /* TOTAL */
   const TOT=Array(9).fill(0).map((_,i)=>P[i]+R[i]+O[i]);
   const totalGeral=TOT.reduce((a,b)=>a+b,0);
+  window._burnTotal = totalGeral;
   row([{h:'TOTAL DESEMBOLSO (BRL)'},'',...TOT.map(v=>({h:v?R$(v):'<span class="dash">—</span>'})),{h:`<strong>${R$(totalGeral)}</strong>`}],'total-row');
 
   let acBurn=0;
@@ -1850,123 +1851,111 @@ var _ANTHROPIC_KEY = (function(){
   return p.join('');
 })();
 
-function _calcScenarioSummary(key) {
+function _calcSc(key) {
   var sc = SCEN[key];
   var tons = sc.tons || [];
   var totalTons = tons.reduce(function(a,b){return a+b;},0);
-  var feeT = (RC.feeT||1)/100;
-  var feeC = (RC.feeC||0.5)/100;
-  var minContract = DR.total||500000;
-  var fx = RC.fx||5.3;
-  var revenuePerTon = ((RC.soy||400) * fx * (feeT + feeC));
-  var totalRevenue = totalTons * revenuePerTon;
-
-  // calc burn
-  var burn = 0;
-  var pessoas = DATA.pessoas||[];
-  var recorrentes = DATA.recorrentes||[];
-  var oneshots = DATA.oneshots||[];
-  for(var m=0;m<8;m++){
-    pessoas.forEach(function(p){
-      if(!p.active) return;
-      var mo = p.months[m+1]||{};
-      var mode = mo.mode||'none';
-      if(mode==='fulltime') burn += p.monthlyFull||0;
-      else if(mode==='parttime') burn += p.monthlyPart||0;
-      else if(mode==='hourly') burn += (mo.hours||0)*(p.hourlyRate||0);
-      burn += (mo.extraHours||0)*(p.hourlyRate||0);
-    });
-    recorrentes.forEach(function(r){
-      if(!r.active) return;
-      var mo = r.months[m+1]||{};
-      if(mo.mode==='fixed') burn += (r.monthlyFixed||0) + (mo.hours||0)*(r.hourlyRate||0);
-    });
-  }
-  oneshots.forEach(function(o){
-    if(!o.active) return;
-    burn += o.brl||0;
-  });
-
-  var resultado = totalRevenue - burn;
-  var lastMonthTons = tons[7]||0;
-  var runRateAnual = lastMonthTons * revenuePerTon * 12;
-
+  var pt = perTonBRL();                          // usa a mesma fórmula do buildTable
+  var totalRevenue = Math.round(totalTons * pt);
+  var burnTotal = window._burnTotal || 0;        // lido do buildTable após execução
+  var resultado = totalRevenue - burnTotal;
+  var lastTons = tons[7] || tons[tons.length-1] || 0;
+  var runRateAnual = Math.round(lastTons * pt * 12);
+  // primeiro mês com receita
+  var firstRevM = -1;
+  for(var i=0;i<tons.length;i++){if(tons[i]>0){firstRevM=i+1;break;}}
   return {
-    label: sc.label,
-    pill: sc.pill,
-    totalTons: totalTons,
-    totalRevenue: Math.round(totalRevenue),
-    burn: Math.round(burn),
-    resultado: Math.round(resultado),
-    runRateAnual: Math.round(runRateAnual),
-    revenuePerTon: Math.round(revenuePerTon * 100)/100,
-    tonsByMonth: tons,
-    feeT: (feeT*100).toFixed(1),
-    feeC: (feeC*100).toFixed(1),
-    soyPrice: RC.soy,
-    fx: fx,
-    drateTotal: DR.total,
-    dratePct: DR.pct
+    label: sc.label, pill: sc.pill,
+    tons: tons, totalTons: totalTons,
+    totalRevenue: totalRevenue,
+    burnTotal: burnTotal,
+    resultado: resultado,
+    runRateAnual: runRateAnual,
+    pt: pt,
+    firstRevM: firstRevM,
+    coveragePct: burnTotal>0 ? Math.round(totalRevenue/burnTotal*100) : 0
   };
 }
+
+function _fmt(n){ return Math.abs(n).toLocaleString('pt-BR'); }
+function _fmtR(n){ return 'R$ ' + _fmt(n); }
+function _sign(n){ return n>=0 ? '+'+_fmtR(n) : '−'+_fmtR(n); }
 
 async function gerarAnaliseIA() {
   var btn = document.getElementById('btnGerarAnalise');
   var status = document.getElementById('iaStatus');
-
   btn.disabled = true;
   btn.innerHTML = '⏳ Gerando análise...';
-  status.textContent = 'Conectando com Claude...';
+  status.textContent = 'Calculando métricas...';
 
-  // sync tons from inputs
+  // sync tons inputs to SCEN
   ['c','m','p'].forEach(function(k){
     var inp = document.querySelectorAll('#tons-'+k+' input');
     if(inp.length) SCEN[k].tons = Array.from(inp).map(function(el){return +el.value||0;});
   });
 
-  var sc = {
-    conservador: _calcScenarioSummary('c'),
-    meta:        _calcScenarioSummary('m'),
-    potencial:   _calcScenarioSummary('p')
-  };
+  buildTable(); // garante _burnTotal atualizado
 
-  var prompt = 'Gere a análise estratégica completa para os 3 cenários da Contango Token com base nos seguintes dados financeiros reais do modelo:\n\n' +
-    'PARÂMETROS GERAIS:\n' +
-    '- Preço da soja: US$ ' + sc.conservador.soyPrice + '/ton | Câmbio: R$ ' + sc.conservador.fx + '/USD\n' +
-    '- Fee tokenização: ' + sc.conservador.feeT + '% | Fee custódia: ' + sc.conservador.feeC + '%\n' +
-    '- Receita por tonelada: R$ ' + sc.conservador.revenuePerTon + '\n' +
-    '- Derate projetado: ' + sc.conservador.drateTotal.toLocaleString('pt-BR') + ' ton (' + sc.conservador.dratePct + '% do pipeline)\n' +
-    '- Burn total 8 meses (custos): R$ ' + sc.conservador.burn.toLocaleString('pt-BR') + '\n\n' +
-    'CENÁRIO 1 — ' + sc.conservador.label + ':\n' +
-    '- Volumes mensais (M1 a M8): ' + sc.conservador.tonsByMonth.join(', ') + ' toneladas\n' +
-    '- Total tokenizado: ' + sc.conservador.totalTons.toLocaleString('pt-BR') + ' ton\n' +
-    '- Receita total: R$ ' + sc.conservador.totalRevenue.toLocaleString('pt-BR') + '\n' +
-    '- Resultado acumulado: R$ ' + sc.conservador.resultado.toLocaleString('pt-BR') + '\n' +
-    '- Run rate anual (M8): R$ ' + sc.conservador.runRateAnual.toLocaleString('pt-BR') + '\n\n' +
-    'CENÁRIO 2 — ' + sc.meta.label + ':\n' +
-    '- Volumes mensais (M1 a M8): ' + sc.meta.tonsByMonth.join(', ') + ' toneladas\n' +
-    '- Total tokenizado: ' + sc.meta.totalTons.toLocaleString('pt-BR') + ' ton\n' +
-    '- Receita total: R$ ' + sc.meta.totalRevenue.toLocaleString('pt-BR') + '\n' +
-    '- Resultado acumulado: R$ ' + sc.meta.resultado.toLocaleString('pt-BR') + '\n' +
-    '- Run rate anual (M8): R$ ' + sc.meta.runRateAnual.toLocaleString('pt-BR') + '\n\n' +
-    'CENÁRIO 3 — ' + sc.potencial.label + ':\n' +
-    '- Volumes mensais (M1 a M8): ' + sc.potencial.tonsByMonth.join(', ') + ' toneladas\n' +
-    '- Total tokenizado: ' + sc.potencial.totalTons.toLocaleString('pt-BR') + ' ton\n' +
-    '- Receita total: R$ ' + sc.potencial.totalRevenue.toLocaleString('pt-BR') + '\n' +
-    '- Resultado acumulado: R$ ' + sc.potencial.resultado.toLocaleString('pt-BR') + '\n' +
-    '- Run rate anual (M8): R$ ' + sc.potencial.runRateAnual.toLocaleString('pt-BR') + '\n\n' +
-    'INSTRUÇÕES DE FORMATO:\n' +
-    'Gere HTML puro dividido em 3 seções claramente separadas por comentários HTML: <!-- CENARIO_1 --> <!-- CENARIO_2 --> <!-- CENARIO_3 -->.\n' +
-    'Cada seção deve conter:\n' +
-    '1. Um parágrafo de visão geral do cenário (2-3 parágrafos, use tags <p>)\n' +
-    '2. Uma seção "Condições Necessárias" com 3-4 itens (use <ul><li>)\n' +
-    '3. Uma seção "Implicações Estratégicas" com 2-3 itens (use <ul><li>)\n' +
-    '4. Uma seção "Riscos e Mitigações" com 2-3 itens (use <ul><li>)\n' +
-    '5. Uma "Perspectiva do Investidor" — parágrafo direto para o Coli (use <p class="investor-note">)\n' +
-    'Use <strong> para destacar números. Não use markdown. Não use classes CSS complexas. Apenas HTML semântico simples.';
+  var sc = { c: _calcSc('c'), m: _calcSc('m'), p: _calcSc('p') };
+
+  function scBlock(key, label) {
+    var s = sc[key];
+    return label + ':\n' +
+      '  Volumes M1-M8: ' + s.tons.join(', ') + ' ton\n' +
+      '  Total tokenizado: ' + s.totalTons.toLocaleString('pt-BR') + ' ton\n' +
+      '  Receita total: ' + _fmtR(s.totalRevenue) + ' (a ' + s.pt.toFixed(2) + '/ton)\n' +
+      '  Burn 8 meses: ' + _fmtR(s.burnTotal) + '\n' +
+      '  Resultado acumulado: ' + _sign(s.resultado) + '\n' +
+      '  Receita cobre: ' + s.coveragePct + '% do burn\n' +
+      '  Run rate anual M8: ' + _fmtR(s.runRateAnual) + '\n' +
+      '  Receita inicia: M' + s.firstRevM;
+  }
+
+  var userPrompt =
+    'PARÂMETROS:\n' +
+    '  Preço soja: USD ' + RC.soy + '/ton | Câmbio: R$ ' + RC.fx + '/USD\n' +
+    '  Fee custódia: ' + RC.feeC + '% | Fee tokenização: ' + RC.feeT + '%\n' +
+    '  Receita/ton: R$ ' + perTonBRL().toFixed(2) + '\n' +
+    '  Derate: ' + DR.total.toLocaleString('pt-BR') + ' ton (' + DR.pct + '% do pipeline)\n\n' +
+    scBlock('c', 'CONSERVADOR') + '\n\n' +
+    scBlock('m', 'META') + '\n\n' +
+    scBlock('p', 'POTENCIAL') + '\n\n' +
+    'Retorne EXCLUSIVAMENTE um objeto JSON válido, sem markdown, sem texto antes ou depois, no seguinte formato:\n' +
+    '{"c":{...},"m":{...},"p":{...}}\n\n' +
+    'Cada cenário ("c", "m", "p") deve ter exatamente estes campos:\n' +
+    '  visao_p1: string — parágrafo 1 da visão geral (posicionamento do cenário, o que exige)\n' +
+    '  visao_p2: string — parágrafo 2 (volume total, receita total, resultado, o que isso significa)\n' +
+    '  drivers: array de 5 strings — drivers operacionais do cenário\n' +
+    '  rev_p1: string — parágrafo 1 dinâmica de receita (mês a mês com números reais)\n' +
+    '  rev_p2: string — parágrafo 2 dinâmica de receita (significado estratégico, run rate)\n' +
+    '  prob_range: string — ex: "45–55%"\n' +
+    '  prob_desc: string — 2-3 frases explicando probabilidade\n' +
+    '  vantagens: array de 5 strings — vantagens estratégicas\n' +
+    '  riscos: array de 4 strings — riscos chave\n' +
+    '  mitigacoes: array de 4 strings — estratégias de mitigação\n' +
+    '  cap_chips: array de 3 objetos {icon, titulo, descricao} — implicações de capital\n' +
+    '  perspectiva: string — perspectiva do investidor (tom direto para Coli, 2-3 frases, incluindo os números chave)';
+
+  var systemPrompt =
+    'Você é um analista financeiro sênior especializado em startups deeptech e agronegócio brasileiro. ' +
+    'Está gerando análise estratégica para Claudio Coli — empresário que fundou a Mastersaf (vendida à Thomson Reuters) ' +
+    'e está entrando como parceiro estratégico na Contango Token, já conhece o projeto em profundidade.\n\n' +
+    'CONTANGO TOKEN: protocolo de infraestrutura blockchain (Stellar/Soroban) para tokenização de RWAs agrícolas. ' +
+    'Não é exchange — é a camada de infraestrutura. Ciclo 1:1: grão depositado → token emitido → circula → token queimado → grão liberado. ' +
+    'MVP completo. Time: Igor (CEO), Vinicius (CTO ex-PicPay), João Marcelo (ex-Big Four), Patrícia (relações institucionais Brasília), Maurício (CEO Vinde). ' +
+    'Parcerias: Procer+KeplerWeber (20% armazenagem monitorada BR), GSI (15%), WSYS (precificação), FGV Europa (rastreabilidade). ' +
+    'Captação: US$500k seed para 8 meses piloto → Série A por evidências operacionais.\n\n' +
+    'DIRETRIZES INEGOCIÁVEIS:\n' +
+    '1. OS NÚMEROS DO MODELO SÃO A ÂNCORA. Toda análise parte deles. Use os exatos valores passados no prompt.\n' +
+    '2. Tom de parceiro informado, não pitch. Coli já sabe o que é a Contango.\n' +
+    '3. Volumes conservadores = escolha consciente, não fraqueza.\n' +
+    '4. Seja honesto sobre incógnitas: aprovações internas demoram, ciclos jurídicos são reais, comportamento do produtor é imprevisível.\n' +
+    '5. Resultado negativo no Conservador/Meta = construção de infraestrutura para Série A, não fracasso.\n' +
+    '6. NUNCA invente números. Use apenas os dados fornecidos no prompt.\n' +
+    '7. Retorne APENAS o JSON. Sem explicações, sem markdown, sem texto adicional.';
 
   try {
-    status.textContent = 'Analisando dados...';
+    status.textContent = 'Conectando com Claude...';
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -1978,19 +1967,21 @@ async function gerarAnaliseIA() {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 4000,
-        system: 'Você é um analista financeiro sênior especializado em startups deeptech e agronegócio brasileiro. Está gerando análise estratégica para o investidor-âncora Claudio Coli — empresário experiente que fundou a Mastersaf (vendida à Thomson Reuters) e está entrando como parceiro estratégico na Contango Token, já conhece o projeto em profundidade.\n\nCONTEXTO DO PROJETO:\n- Contango Token: protocolo de infraestrutura blockchain (Stellar/Soroban) para tokenização de RWAs agrícolas no Brasil. Não é exchange nem intermediário — é a camada de infraestrutura.\n- Ciclo 1:1: grão depositado → token emitido → token circula → grão bloqueado → token queimado → grão liberado\n- MVP completo já construído: plataforma web, app móvel, assinaturas digitais, fluxo completo mint→transfer→burn\n- Time: Igor Lachowski (Founder/CEO, 20+ anos em tech e comex), Vinícius Vicente (CTO, ex-PicPay), João Marcelo Queiroz (ex-Big Four, compliance), Patrícia Arantes (relações institucionais, Brasília), Maurício de Moura (CEO da Vinde, maior trading de grãos do país)\n- Parcerias em andamento: Procer+KeplerWeber (20% do market-share de armazenagem monitorada, ~60M ton), GSI americana (15% market-share), WSYS (líder em precificação de grãos), FGV Europa (plataforma de rastreabilidade agro para a Europa)\n- Brasil: maior produtor agrícola mundial (~370M ton/2024), TAM $70-90B+\n- Captação: US$500k seed para 8 meses de piloto → Série A baseada em evidências operacionais reais\n\nDIRETRIZES DE TOM:\n1. Tom de parceiro informado, não de pitch. Coli já conhece o projeto — seja direto e honesto\n2. OS NÚMEROS DO MODELO FINANCEIRO SÃO A ÂNCORA — a análise parte deles e usa o contexto do projeto como pano de fundo\n3. Volumes conservadores são escolha consciente de maturidade, não falta de ambição\n4. Seja honesto sobre incógnitas reais do piloto: aprovação interna de armazenadores demora, ciclos jurídicos são longos, comportamento do produtor em campo é imprevisível\n5. Resultado negativo no Conservador e Meta = construção de infraestrutura que prepara a Série A, não fracasso\n6. O potencial bilionário (Procer, GSI, FGV Europa) é contexto estratégico, nunca justificativa para os números do piloto',
-        messages: [{ role: 'user', content: prompt }]
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
       })
     });
 
     var data = await resp.json();
-    if(data.error) throw new Error(data.error.message);
+    if (data.error) throw new Error(data.error.message);
 
-    var rawHtml = data.content[0].text;
-    status.textContent = 'Análise gerada! Aplicando...';
+    status.textContent = 'Processando resposta...';
+    var raw = data.content[0].text.trim();
+    // strip possible markdown fences
+    raw = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+    var parsed = JSON.parse(raw);
 
-    // Parse the 3 sections and inject into existing panels
-    _applyAnaliseIA(rawHtml, sc);
+    _applyAnaliseIA(parsed, sc);
 
     btn.innerHTML = '✓ Análise Atualizada';
     btn.style.background = 'linear-gradient(135deg,var(--green-dk),var(--green))';
@@ -2011,62 +2002,129 @@ async function gerarAnaliseIA() {
   }
 }
 
-function _applyAnaliseIA(rawHtml, sc) {
-  // Split by scenario comments
-  var parts = { c1: '', c2: '', c3: '' };
-  var m1 = rawHtml.indexOf('<!-- CENARIO_1 -->');
-  var m2 = rawHtml.indexOf('<!-- CENARIO_2 -->');
-  var m3 = rawHtml.indexOf('<!-- CENARIO_3 -->');
+function _li(txt, cls) {
+  return '<li>' + (txt||'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>') + '</li>';
+}
+function _lis(arr, cls) {
+  return (arr||[]).map(function(t){ return _li(t,cls); }).join('');
+}
+function _p(txt) {
+  return '<p>' + (txt||'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>') + '</p>';
+}
 
-  if(m1>=0 && m2>m1) parts.c1 = rawHtml.substring(m1+18, m2).trim();
-  if(m2>=0 && m3>m2) parts.c2 = rawHtml.substring(m2+18, m3).trim();
-  if(m3>=0)           parts.c3 = rawHtml.substring(m3+18).trim();
+function _buildCard(d, s, dotCls) {
+  var dc = dotCls || '';
+  var probBadgeCls = dc === 'g' ? ' g' : (dc === 'r' ? ' r' : '');
+  var tagDot = dc ? '<span class="dot '+dc+'"></span>' : '<span class="dot"></span>';
+  var tagDotG = '<span class="dot g"></span>';
+  var tagDotR = '<span class="dot r"></span>';
 
-  // If markers not found, split roughly in thirds
-  if(!parts.c1 && !parts.c2 && !parts.c3) {
-    var third = Math.floor(rawHtml.length/3);
-    parts.c1 = rawHtml.substring(0, third);
-    parts.c2 = rawHtml.substring(third, third*2);
-    parts.c3 = rawHtml.substring(third*2);
-  }
+  // KPI strip sempre correto
+  var resColor = s.resultado >= 0 ? '#B9D543' : '#ff9f43';
+  var resSign  = s.resultado >= 0 ? '+' : '−';
+  var kpiStrip =
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;' +
+    'margin:16px 0 4px;padding:14px 16px;background:rgba(255,255,255,0.04);' +
+    'border-radius:10px;border:1px solid rgba(255,255,255,0.08)">' +
+      '<div><div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-family:var(--mono)">Total tokenizado</div>' +
+        '<div style="font-size:17px;font-weight:800;color:white;margin-top:2px">' + s.totalTons.toLocaleString('pt-BR') + ' ton</div></div>' +
+      '<div><div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-family:var(--mono)">Receita total</div>' +
+        '<div style="font-size:17px;font-weight:800;color:white;margin-top:2px">' + _fmtR(s.totalRevenue) + '</div></div>' +
+      '<div><div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-family:var(--mono)">Resultado</div>' +
+        '<div style="font-size:17px;font-weight:800;color:'+resColor+';margin-top:2px">' + resSign + _fmtR(s.resultado) + '</div></div>' +
+      '<div><div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-family:var(--mono)">Run rate anual M8</div>' +
+        '<div style="font-size:17px;font-weight:800;color:white;margin-top:2px">' + _fmtR(s.runRateAnual) + '</div></div>' +
+    '</div>';
 
-  // Inject into each scenario panel — find the sc-body divs
-  var panels = ['ssa-1','ssa-2','ssa-3'];
-  var contents = [parts.c1, parts.c2, parts.c3];
-  var labels = [sc.conservador, sc.meta, sc.potencial];
+  // cap-chips
+  var chips = (d.cap_chips||[]).map(function(c){
+    return '<div class="cap-chip">' +
+      '<span class="cap-chip-icon">' + c.icon + '</span>' +
+      '<div class="cap-chip-text"><strong>' + c.titulo + '</strong>' + c.descricao + '</div>' +
+    '</div>';
+  }).join('');
 
-  panels.forEach(function(panelId, i) {
-    var panel = document.getElementById(panelId);
-    if(!panel || !contents[i]) return;
-    var sc_data = labels[i];
+  return (
+    // 1. Visão Geral + KPI strip
+    '<div class="sc-grid"><div class="sc-card full">' +
+      '<div class="sc-card-tag">' + tagDot + 'Scenario Overview</div>' +
+      '<div class="sc-title">Visão Geral — ' + s.label + '</div>' +
+      kpiStrip +
+      '<div class="sc-body">' + _p(d.visao_p1) + _p(d.visao_p2) + '</div>' +
+    '</div></div>' +
 
-    // Build new card HTML with IA content + KPI strip
-    var kpiColor = sc_data.resultado >= 0 ? '#B9D543' : '#ff9f43';
-    var kpiSign  = sc_data.resultado >= 0 ? '+' : '';
+    // 2. Drivers + Revenue Dynamics
+    '<div class="sc-grid">' +
+      '<div class="sc-card">' +
+        '<div class="sc-card-tag">' + tagDotG + 'Operational Drivers</div>' +
+        '<div class="sc-title">Drivers Operacionais</div>' +
+        '<ul class="sc-ul">' + _lis(d.drivers) + '</ul>' +
+      '</div>' +
+      '<div class="sc-card">' +
+        '<div class="sc-card-tag">' + tagDotG + 'Revenue Dynamics</div>' +
+        '<div class="sc-title">Dinâmica de Receita</div>' +
+        '<div class="sc-body">' + _p(d.rev_p1) + _p(d.rev_p2) + '</div>' +
+      '</div>' +
+    '</div>' +
 
-    var newHtml =
-      '<div class="sc-grid">' +
-        '<div class="sc-card full">' +
-          '<div class="sc-card-tag"><span class="dot"></span>Análise gerada por IA · dados do modelo atual</div>' +
-          '<div class="sc-title">Análise Estratégica — ' + sc_data.label + '</div>' +
-          // KPI strip
-          '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:16px 0;padding:14px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.08)">' +
-            '<div><div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-family:var(--mono)">Total tokenizado</div><div style="font-size:18px;font-weight:800;color:white;margin-top:2px">' + sc_data.totalTons.toLocaleString('pt-BR') + ' ton</div></div>' +
-            '<div><div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-family:var(--mono)">Receita total</div><div style="font-size:18px;font-weight:800;color:white;margin-top:2px">R$ ' + sc_data.totalRevenue.toLocaleString('pt-BR') + '</div></div>' +
-            '<div><div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-family:var(--mono)">Resultado</div><div style="font-size:18px;font-weight:800;color:'+kpiColor+';margin-top:2px">' + kpiSign + 'R$ ' + sc_data.resultado.toLocaleString('pt-BR') + '</div></div>' +
-            '<div><div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-family:var(--mono)">Run rate anual M8</div><div style="font-size:18px;font-weight:800;color:white;margin-top:2px">R$ ' + sc_data.runRateAnual.toLocaleString('pt-BR') + '</div></div>' +
-          '</div>' +
-          // IA content
-          '<div class="sc-body" style="line-height:1.8">' + contents[i] + '</div>' +
-        '</div>' +
-      '</div>';
+    // 3. Probabilidade + Vantagens + Riscos
+    '<div class="sc-grid-3">' +
+      '<div class="sc-card" style="text-align:center">' +
+        '<div class="sc-card-tag" style="justify-content:center">' + tagDot + 'Probability Assessment</div>' +
+        '<div class="sc-title" style="text-align:center">Probabilidade Estimada</div>' +
+        '<div class="prob-wrap"><div class="prob-badge' + probBadgeCls + '">' +
+          '<span class="prob-pct">' + (d.prob_range||'—') + '</span>' +
+          '<span class="prob-lbl">Estimativa</span>' +
+        '</div></div>' +
+        '<div class="sc-body" style="font-size:12.5px">' + (d.prob_desc||'') + '</div>' +
+      '</div>' +
+      '<div class="sc-card">' +
+        '<div class="sc-card-tag">' + tagDotG + 'Strategic Advantages</div>' +
+        '<div class="sc-title">Vantagens Estratégicas</div>' +
+        '<ul class="sc-ul">' + _lis(d.vantagens) + '</ul>' +
+      '</div>' +
+      '<div class="sc-card">' +
+        '<div class="sc-card-tag">' + tagDotR + 'Key Risks</div>' +
+        '<div class="sc-title">Principais Riscos</div>' +
+        '<ul class="sc-ul red">' + _lis(d.riscos) + '</ul>' +
+      '</div>' +
+    '</div>' +
 
-    panel.innerHTML = newHtml;
-  });
+    // 4. Mitigações + Capital
+    '<div class="sc-grid">' +
+      '<div class="sc-card">' +
+        '<div class="sc-card-tag">' + tagDotG + 'Mitigation Strategy</div>' +
+        '<div class="sc-title">Estratégias de Mitigação</div>' +
+        '<ul class="sc-ul">' + _lis(d.mitigacoes) + '</ul>' +
+      '</div>' +
+      '<div class="sc-card">' +
+        '<div class="sc-card-tag">' + tagDotG + 'Capital Implications</div>' +
+        '<div class="sc-title">Implicações de Capital</div>' +
+        '<div class="cap-chips">' + chips + '</div>' +
+      '</div>' +
+    '</div>' +
 
-  // Style investor notes
-  document.querySelectorAll('p.investor-note').forEach(function(el){
-    el.style.cssText = 'background:rgba(185,213,67,0.08);border-left:3px solid #B9D543;padding:12px 16px;border-radius:0 8px 8px 0;margin-top:16px;font-style:italic;color:rgba(255,255,255,0.85)';
+    // 5. Perspectiva do Investidor
+    '<div class="sc-card" style="margin-bottom:0">' +
+      '<div class="sc-card-tag">' + tagDot + 'Investor Perspective</div>' +
+      '<div class="sc-title">Perspectiva do Investidor</div>' +
+      '<div class="inv-quote">' + (d.perspectiva||'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>') + '</div>' +
+    '</div>'
+  );
+}
+
+function _applyAnaliseIA(parsed, sc) {
+  var map = {
+    'c': { panelId: 'ssa-1', dot: '' },
+    'm': { panelId: 'ssa-2', dot: 'g' },
+    'p': { panelId: 'ssa-3', dot: 'g' }
+  };
+  Object.keys(map).forEach(function(key){
+    var d = parsed[key];
+    var s = sc[key];
+    var panel = document.getElementById(map[key].panelId);
+    if(!panel || !d) return;
+    panel.innerHTML = _buildCard(d, s, map[key].dot);
   });
 }
 
