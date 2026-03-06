@@ -1618,6 +1618,21 @@ function loginEnter(){
   if(!nome){ err.textContent='Por favor informe seu nome.'; err.style.display='block'; return; }
   if(!email||email.indexOf('@')<0){ err.textContent='Por favor informe um e-mail válido.'; err.style.display='block'; return; }
   err.style.display='none';
+
+  // Email whitelist
+  var ALLOWED = [
+    'igorbigao@gmail.com',
+    'vinyvicente@gmail.com',
+    'jm.queiroz@gmail.com',
+    'ccolifernandes@gmail.com',
+  ];
+  var emailOk = ALLOWED.some(function(e){ return e.toLowerCase()===email; });
+  if(!emailOk){
+    err.textContent='Acesso não autorizado. Entre em contato com a Contango.';
+    err.style.display='block';
+    return;
+  }
+
   _userEmail = email;
   _userName  = nome;
   localStorage.setItem('ctg_email', email);
@@ -1639,6 +1654,13 @@ function logoutUser(){
 /* ── SAVE CLOUD ── */
 async function saveCloud(){
   if(!_sb||!_userEmail)return;
+
+  // Se há uma simulação ativa, perguntar se quer sobrescrever ou criar nova
+  if(_currentSimId){
+    var opcao = confirm('Deseja ATUALIZAR a simulação atual?\n\nOK = Atualizar a simulação atual\nCancelar = Criar uma nova simulação');
+    if(!opcao) _currentSimId = null; // força criação de nova
+  }
+
   var btn=document.getElementById('btnSaveCloud');
   btn.innerHTML='☁️ Salvando...'; btn.disabled=true;
 
@@ -1650,13 +1672,16 @@ async function saveCloud(){
 
   var dados = JSON.stringify({DATA:DATA,RC:RC,DR:DR,SCEN:SCEN});
   var agora = new Date().toISOString();
-  var nomeSim = 'Simulação ' + new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
   var res;
   if(_currentSimId){
+    // Atualizar existente
     res = await _sb.from('simulacoes').update({dados:dados,atualizado_em:agora}).eq('id',_currentSimId);
   } else {
-    res = await _sb.from('simulacoes').insert({usuario_email:_userEmail,nome:nomeSim,dados:dados,atualizado_em:agora}).select();
+    // Criar nova — pede nome
+    var nomeSim = prompt('Nome para esta simulação:', 'Simulação ' + new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) + ' ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+    if(!nomeSim||!nomeSim.trim()){ btn.innerHTML='☁️ Salvar na Nuvem'; btn.disabled=false; return; }
+    res = await _sb.from('simulacoes').insert({usuario_email:_userEmail,nome:nomeSim.trim(),dados:dados,atualizado_em:agora}).select();
     if(res.data&&res.data[0]) _currentSimId = res.data[0].id;
   }
 
@@ -1667,6 +1692,7 @@ async function saveCloud(){
   }
   btn.innerHTML='✓ Salvo!'; btn.style.background='var(--green)'; btn.style.color='var(--blue-dark)';
   setTimeout(function(){btn.innerHTML='☁️ Salvar na Nuvem';btn.style.background='';btn.style.color='';btn.disabled=false;},2500);
+  loadSimList();
 }
 
 /* ── LOAD ── */
