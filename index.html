@@ -1,8 +1,10 @@
-<html lang="pt-BR"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Contango Token — Modelo Financeiro</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&amp;family=IBM+Plex+Mono:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{
   --blue:#105AA6;--blue-mid:#1A75D2;--blue-lt:#2A8FEE;
@@ -255,9 +257,59 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
 /* Contract base fields */
 .base-rates{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin-bottom:14px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="page">
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay" style="
+  position:fixed;inset:0;z-index:99999;
+  background:linear-gradient(135deg,#0a1628 0%,#0d1f3c 60%,#091422 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Nunito',sans-serif;
+">
+  <div style="
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+    border-radius:16px;padding:48px 40px;width:100%;max-width:420px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.5);
+  ">
+    <div style="text-align:center;margin-bottom:32px">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 52" height="36" style="display:inline-block;margin-bottom:16px">
+        <text x="0" y="40" font-family="Nunito,sans-serif" font-weight="800" font-size="38px" fill="white" letter-spacing="-1px">contango</text>
+        <polygon points="104,2 100,12 108,12" fill="white"/>
+        <line x1="104" y1="2" x2="104" y2="14" stroke="white" stroke-width="2"/>
+      </svg>
+      <div style="color:rgba(255,255,255,0.5);font-size:13px;letter-spacing:1px;text-transform:uppercase">Modelo Financeiro — Plano Emergencial</div>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Seu nome</label>
+      <input id="loginNome" type="text" placeholder="Ex: João Marcelo"
+        style="width:100%;box-sizing:border-box;padding:12px 16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:white;font-family:inherit;font-size:15px;outline:none"
+        onkeydown="if(event.key==='Enter')document.getElementById('loginEmail').focus()"
+      />
+    </div>
+    <div style="margin-bottom:24px">
+      <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Seu e-mail</label>
+      <input id="loginEmail" type="email" placeholder="Ex: joao@empresa.com"
+        style="width:100%;box-sizing:border-box;padding:12px 16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:white;font-family:inherit;font-size:15px;outline:none"
+        onkeydown="if(event.key==='Enter')loginEnter()"
+      />
+    </div>
+    <button onclick="loginEnter()" style="
+      width:100%;padding:14px;background:linear-gradient(135deg,#105AA6,#B9D543);
+      border:none;border-radius:8px;color:white;font-family:inherit;font-size:15px;
+      font-weight:700;cursor:pointer;letter-spacing:0.5px;transition:opacity .2s
+    " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+      Acessar o Modelo
+    </button>
+    <div id="loginErr" style="color:#ff6b6b;font-size:13px;text-align:center;margin-top:12px;display:none"></div>
+    <div style="color:rgba(255,255,255,0.25);font-size:11px;text-align:center;margin-top:20px">
+      Suas simulações ficam salvas na nuvem automaticamente
+    </div>
+  </div>
+</div>
+
 
 <header class="header">
   <div class="header-gradient"></div>
@@ -273,13 +325,13 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
   <!-- wordmark -->
   <text x="0" y="40" class="wm">contango</text>
   <!-- upward arrow above the t (approx position) -->
-  <polygon points="104,2 100,12 108,12" fill="white"></polygon>
-  <line x1="104" y1="2" x2="104" y2="14" stroke="white" stroke-width="2"></line>
+  <polygon points="104,2 100,12 108,12" fill="white"/>
+  <line x1="104" y1="2" x2="104" y2="14" stroke="white" stroke-width="2"/>
 </svg>
     </div>
     <div class="doc-info">
       <div class="doc-title">Modelo Financeiro — Plano Emergencial</div>
-      <div class="doc-sub" id="docDate">Plano Emergencial 8 Meses · 04 de março de 2026</div>
+      <div class="doc-sub" id="docDate"></div>
     </div>
   </div>
 </header>
@@ -295,11 +347,11 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
   <div class="controls">
     <span class="ctrl-label">Cenário</span>
     <div class="tg">
-      <button class="tg-btn sc-cons" onclick="setScenario('c',this)">1 · Conservador</button>
+      <button class="tg-btn sc-cons active" onclick="setScenario('c',this)">1 · Conservador</button>
       <button class="tg-btn sc-meta" onclick="setScenario('m',this)">2 · Meta</button>
-      <button class="tg-btn sc-pot active" onclick="setScenario('p',this)">3 · Potencial</button>
+      <button class="tg-btn sc-pot" onclick="setScenario('p',this)">3 · Potencial</button>
     </div>
-    <div class="info-pill" id="scenPill">Receita inicia no Mês 3 — superação expressiva</div>
+    <div class="info-pill" id="scenPill">Receita nos Meses 2–3</div>
   </div>
   <div class="tbl-outer">
     <table class="model">
@@ -309,23 +361,23 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
         <th>M1</th><th>M2</th><th>M3</th><th>M4</th><th>M5</th><th>M6</th><th>M7</th><th>M8</th>
         <th style="border-left:1px solid var(--blue-bd)">Total</th>
       </tr></thead>
-      <tbody id="tableBody"><tr class="sec-hdr"><td style="background: var(--surface);"><span class="si">▸</span>PESSOAS — Equipe</td><td style="background: var(--surface);"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td style="background: var(--surface);">Igor<span class="item-note">Founder / CEO &amp; Produto</span></td><td style="background: var(--surface);">Full</td><td><span class="dash">—</span></td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 240.000</td></tr><tr><td style="background: var(--surface);">Vinicius<span class="item-note">Co-founder / CTO</span></td><td style="background: var(--surface);">Full</td><td><span class="dash">—</span></td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 30.000</td><td>R$ 240.000</td></tr><tr><td style="background: var(--surface);">David <span class="hr-badge">≈</span><span class="item-note">Operações</span></td><td style="background: var(--surface);">Hora/Full</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td>R$ 6.400</td><td>R$ 6.400</td><td>R$ 6.400</td><td>R$ 9.600</td><td>R$ 25.000</td><td>R$ 25.000</td><td>R$ 25.000</td><td>R$ 103.800</td></tr><tr><td style="background: var(--surface);">Designer <span class="hr-badge">≈</span><span class="item-note">UI/UX &amp; Marca</span></td><td style="background: var(--surface);">Hora/Part</td><td><span class="dash">—</span></td><td>R$ 3.600</td><td>R$ 3.600</td><td>R$ 3.600</td><td>R$ 2.400</td><td>R$ 2.400</td><td>R$ 2.400</td><td>R$ 2.400</td><td>R$ 3.500</td><td>R$ 23.900</td></tr><tr><td style="background: var(--surface);">William<span class="item-note">Engenharia — hora → full</span></td><td style="background: var(--surface);">Full</td><td><span class="dash">—</span></td><td>R$ 9.000</td><td>R$ 9.000</td><td>R$ 9.000</td><td>R$ 9.000</td><td>R$ 9.000</td><td>R$ 9.000</td><td>R$ 9.000</td><td>R$ 9.000</td><td>R$ 72.000</td></tr><tr><td style="background: var(--surface);">Pedro <span class="hr-badge">≈</span><span class="item-note">Produto — hora → part</span></td><td style="background: var(--surface);">Hora/Full</td><td><span class="dash">—</span></td><td>R$ 5.600</td><td>R$ 5.600</td><td>R$ 5.600</td><td>R$ 5.600</td><td>R$ 8.000</td><td>R$ 8.000</td><td>R$ 8.000</td><td>R$ 8.000</td><td>R$ 54.400</td></tr><tr><td style="background: var(--surface);">Mateus <span class="hr-badge">≈</span><span class="item-note">Comercial — hora → part</span></td><td style="background: var(--surface);">Hora/Part</td><td><span class="dash">—</span></td><td>R$ 5.600</td><td>R$ 5.600</td><td>R$ 5.600</td><td>R$ 5.600</td><td>R$ 9.000</td><td>R$ 9.000</td><td>R$ 9.000</td><td>R$ 9.000</td><td>R$ 58.400</td></tr><tr><td style="background: var(--surface);">Patrícia <span class="hr-badge">≈</span><span class="item-note">Jurídico — retainer + hora variável</span></td><td style="background: var(--surface);">Hora</td><td><span class="dash">—</span></td><td>R$ 2.400</td><td>R$ 2.400</td><td>R$ 2.400</td><td>R$ 2.400</td><td>R$ 2.400</td><td>R$ 2.400</td><td>R$ 2.400</td><td>R$ 2.400</td><td>R$ 19.200</td></tr><tr class="subtotal"><td style="background: var(--surface);">Subtotal Pessoas</td><td style="background: var(--surface);"></td><td><span class="dash">—</span></td><td>R$ 86.200</td><td>R$ 92.600</td><td>R$ 92.600</td><td>R$ 91.400</td><td>R$ 100.400</td><td>R$ 115.800</td><td>R$ 115.800</td><td>R$ 116.900</td><td>R$ 811.700</td></tr><tr class="sec-hdr"><td style="background: var(--surface);"><span class="si">▸</span>TECNOLOGIA &amp; INFRAESTRUTURA</td><td style="background: var(--surface);"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td style="background: var(--surface);">Contabilidade<span class="item-note">Ativação com receita</span></td><td style="background: var(--surface);">Fixo</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td>R$ 1.700</td><td>R$ 1.700</td><td>R$ 1.700</td><td>R$ 1.700</td><td>R$ 1.700</td><td>R$ 8.500</td></tr><tr><td style="background: var(--surface);">Wilton — Infra<span class="item-note">DevOps — retainer + hora variável</span></td><td style="background: var(--surface);">Fixo</td><td><span class="dash">—</span></td><td>R$ 3.000</td><td>R$ 3.000</td><td>R$ 3.000</td><td>R$ 3.000</td><td>R$ 3.000</td><td>R$ 3.000</td><td>R$ 3.000</td><td>R$ 3.000</td><td>R$ 24.000</td></tr><tr><td style="background: var(--surface);">Ferramentas<span class="item-note">Gmail, AWS, GitHub, IAs…</span></td><td style="background: var(--surface);">Fixo</td><td><span class="dash">—</span></td><td>R$ 5.000</td><td>R$ 5.000</td><td>R$ 5.000</td><td>R$ 5.000</td><td>R$ 5.000</td><td>R$ 5.000</td><td>R$ 5.000</td><td>R$ 5.000</td><td>R$ 40.000</td></tr><tr class="subtotal"><td style="background: var(--surface);">Subtotal Recorrentes</td><td style="background: var(--surface);"></td><td><span class="dash">—</span></td><td>R$ 8.000</td><td>R$ 8.000</td><td>R$ 8.000</td><td>R$ 9.700</td><td>R$ 9.700</td><td>R$ 9.700</td><td>R$ 9.700</td><td>R$ 9.700</td><td>R$ 72.500</td></tr><tr class="sec-hdr"><td style="background: var(--surface);"><span class="si">▸</span>DESPESAS ONE-SHOT</td><td style="background: var(--surface);"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td style="background: var(--surface);">Abertura SA<span class="item-note">Constituição jurídica</span></td><td style="background: var(--surface);">1×</td><td>R$ 5.000</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td>R$ 5.000</td></tr><tr><td style="background: var(--surface);">Equipamentos<span class="item-note">Hardware e periféricos</span></td><td style="background: var(--surface);">1×</td><td>R$ 10.000</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td>R$ 10.000</td></tr><tr><td style="background: var(--surface);">Marcas e Patentes<span class="item-note">Registro de IP</span></td><td style="background: var(--surface);">1×</td><td>R$ 5.000</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td>R$ 5.000</td></tr><tr><td style="background: var(--surface);">Acerto Evguen<span class="item-note">One-shot</span></td><td style="background: var(--surface);">1×</td><td><span class="dash">—</span></td><td>R$ 3.700</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td>R$ 3.700</td></tr><tr class="subtotal"><td style="background: var(--surface);">Subtotal One-Shot</td><td style="background: var(--surface);"></td><td>R$ 20.000</td><td>R$ 3.700</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td>R$ 23.700</td></tr><tr class="total-row"><td style="background: var(--surface);">TOTAL DESEMBOLSO (BRL)</td><td style="background: var(--surface);"></td><td>R$ 20.000</td><td>R$ 97.900</td><td>R$ 100.600</td><td>R$ 100.600</td><td>R$ 101.100</td><td>R$ 110.100</td><td>R$ 125.500</td><td>R$ 125.500</td><td>R$ 126.600</td><td><strong>R$ 907.900</strong></td></tr><tr class="acum-row"><td style="background: var(--surface);">Desembolso Acumulado</td><td style="background: var(--surface);"></td><td><span style="color:var(--blue-lt)">R$ 20.000</span></td><td><span style="color:var(--blue-lt)">R$ 117.900</span></td><td><span style="color:var(--blue-lt)">R$ 218.500</span></td><td><span style="color:var(--blue-lt)">R$ 319.100</span></td><td><span style="color:var(--blue-lt)">R$ 420.200</span></td><td><span style="color:var(--blue-lt)">R$ 530.300</span></td><td><span style="color:var(--blue-lt)">R$ 655.800</span></td><td><span style="color:var(--blue-lt)">R$ 781.300</span></td><td><span style="color:var(--blue-lt)">R$ 907.900</span></td><td><span style="color:var(--blue-lt)">R$ 907.900</span></td></tr><tr class="rev-hdr"><td style="background: var(--surface);"><span class="si">▸</span>RECEITA — POTENCIAL &gt; META · R$ 10,60/ton</td><td style="background: var(--surface);"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td style="background: var(--surface);">Toneladas Tokenizadas</td><td style="background: var(--surface);">ton</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td>5.000 t</td><td>12.000 t</td><td>22.000 t</td><td>38.000 t</td><td>60.000 t</td><td>80.000 t</td><td>217.000 t</td></tr><tr><td style="background: var(--surface);">Receita Mensal (BRL)</td><td style="background: var(--surface);">R$</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="c-pos">R$ 53.000</span></td><td><span class="c-pos">R$ 127.200</span></td><td><span class="c-pos">R$ 233.200</span></td><td><span class="c-pos">R$ 402.800</span></td><td><span class="c-pos">R$ 636.000</span></td><td><span class="c-pos">R$ 848.000</span></td><td><span class="c-pos">R$ 2.300.200</span></td></tr><tr class="rev-sub"><td style="background: var(--surface);">Receita Acumulada (BRL)</td><td style="background: var(--surface);">R$</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="c-pos">R$ 53.000</span></td><td><span class="c-pos">R$ 180.200</span></td><td><span class="c-pos">R$ 413.400</span></td><td><span class="c-pos">R$ 816.200</span></td><td><span class="c-pos">R$ 1.452.200</span></td><td><span class="c-pos">R$ 2.300.200</span></td><td><span class="c-pos">R$ 2.300.200</span></td></tr><tr class="res-hdr"><td style="background: var(--surface);"><span class="si">▸</span>RESULTADO CONSOLIDADO</td><td style="background: var(--surface);"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr class="res-total"><td style="background: var(--surface);">Resultado Acumulado (BRL)</td><td style="background: var(--surface);">R$</td><td><span class="c-neg">−R$ 20.000</span></td><td><span class="c-neg">−R$ 117.900</span></td><td><span class="c-neg">−R$ 218.500</span></td><td><span class="c-neg">−R$ 266.100</span></td><td><span class="c-neg">−R$ 240.000</span></td><td><span class="c-neg">−R$ 116.900</span></td><td><span class="c-pos">R$ 160.400</span></td><td><span class="c-pos">R$ 670.900</span></td><td><span class="c-pos">R$ 1.392.300</span></td><td><span class="c-pos">R$ 1.392.300</span></td></tr><tr class="dre-hdr"><td style="background: var(--surface);"><span class="si">▸</span>DRE — DEMONSTRATIVO DE RESULTADO</td><td style="background: var(--surface);"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td style="background: var(--surface);">Receita Bruta Mensal</td><td style="background: var(--surface);">R$</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="c-pos">R$ 53.000</span></td><td><span class="c-pos">R$ 127.200</span></td><td><span class="c-pos">R$ 233.200</span></td><td><span class="c-pos">R$ 402.800</span></td><td><span class="c-pos">R$ 636.000</span></td><td><span class="c-pos">R$ 848.000</span></td><td><span class="c-pos">R$ 2.300.200</span></td></tr><tr><td style="background: var(--surface);">Custos Totais Mensais</td><td style="background: var(--surface);">R$</td><td><span class="dash">—</span></td><td><span class="c-neg">− 20.000</span></td><td><span class="c-neg">− 97.900</span></td><td><span class="c-neg">− 100.600</span></td><td><span class="c-neg">− 100.600</span></td><td><span class="c-neg">− 101.100</span></td><td><span class="c-neg">− 110.100</span></td><td><span class="c-neg">− 125.500</span></td><td><span class="c-neg">− 125.500</span></td><td><span class="c-neg">− 126.600</span></td><td><span class="c-neg">− 907.900</span></td></tr><tr class="dre-mb"><td style="background: var(--surface);">Margem Bruta</td><td style="background: var(--surface);">R$</td><td><span class="c-pos"><span class="dash">—</span></span></td><td><span class="c-neg">−R$ 20.000</span></td><td><span class="c-neg">−R$ 97.900</span></td><td><span class="c-neg">−R$ 47.600</span></td><td><span class="c-pos">R$ 26.600</span></td><td><span class="c-pos">R$ 132.100</span></td><td><span class="c-pos">R$ 292.700</span></td><td><span class="c-pos">R$ 510.500</span></td><td><span class="c-pos">R$ 722.500</span></td><td><span class="c-pos">R$ 1.392.300</span></td></tr><tr class="dre-pct"><td style="background: var(--surface);">Margem Bruta %</td><td style="background: var(--surface);">%</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="c-neg">−90%</span></td><td><span class="c-pos">21%</span></td><td><span class="c-pos">57%</span></td><td><span class="c-pos">73%</span></td><td><span class="c-pos">80%</span></td><td><span class="c-pos">85%</span></td><td><span class="c-pos">61%</span></td></tr></tbody>
+      <tbody id="tableBody"></tbody>
     </table>
   </div>
   <div class="model-note">Todos os valores em BRL (R$) · Itens <span style="color:var(--green);font-size:10px">▸ hora</span> têm custo variável por mês conforme horas configuradas</div>
-  <div class="sum-strip" id="sumStrip"><div class="sum-card "><div class="sum-label">Captação Alvo</div><div class="sum-val b">R$ 795.000</div><div class="sum-note">Equiv. US$ 150k @ R$ 5.3</div></div><div class="sum-card l-card"><div class="sum-label">Custo Total</div><div class="sum-val l">R$ 907.900</div><div class="sum-note">8 meses de operação</div></div><div class="sum-card g-card"><div class="sum-label">Receita — Potencial &gt; Meta</div><div class="sum-val g">R$ 2.300.200</div><div class="sum-note">217.000 toneladas</div></div><div class="sum-card g-card"><div class="sum-label">Resultado Final</div><div class="sum-val g">R$ 1.392.300</div><div class="sum-note">Caixa positivo ao final</div></div></div>
+  <div class="sum-strip" id="sumStrip"></div>
 </div>
 
 <!-- TAB: CONFIGURAÇÕES -->
 <div class="tab-panel" id="tab-config">
-  <div class="apply-bar" id="applyBar" style="display: none; border-color: rgba(185, 213, 67, 0.25);">
-    <span class="apply-bar-txt">✦  Você tem alterações não aplicadas ao modelo</span>
+  <div class="apply-bar" id="applyBar">
+    <span class="apply-bar-txt">✦ &nbsp;Você tem alterações não aplicadas ao modelo</span>
     <button class="btn-apply" onclick="applyChanges()">Aplicar ao Modelo</button>
   </div>
 
   <!-- MERCADO & DERATE -->
   <div class="cfg-section">
-    <div class="cfg-stitle">Mercado &amp; Derate <span class="cs-tag g">Volumetria Realista Ano 1</span></div>
+    <div class="cfg-stitle">Mercado & Derate <span class="cs-tag g">Volumetria Realista Ano 1</span></div>
     <div class="derate-card">
       <div class="prem-grid">
         <div class="cfg-field"><label>Volume Total Endereçável (ton)</label>
@@ -333,29 +385,25 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
         <div class="cfg-field"><label>Derate Ano 1 (%)</label>
           <input type="number" id="dr-pct" value="5" step="0.5" min="0.1" max="100" onchange="updateDerate()"></div>
       </div>
-      <div class="dr-result" id="derateResult">
-    <div class="dr-item"><div class="dr-lbl">Volume Total (referência)</div><div class="dr-val white">500.000 ton</div></div>
-    <div class="dr-item"><div class="dr-lbl">Derate Ano 1</div><div class="dr-val blue">5%</div></div>
-    <div class="dr-item"><div class="dr-lbl">Volume Realista Ano 1</div><div class="dr-val">25.000 ton</div></div>
-    <div class="dr-item"><div class="dr-lbl">Potencial de Receita</div><div class="dr-val">R$ 265.000</div></div></div>
+      <div class="dr-result" id="derateResult"></div>
 
       <div class="sc-tons-title">
         <span class="chip" style="background:rgba(16,90,166,.3);color:var(--blue-lt)">CENÁRIO 1 — CONSERVADOR</span>
         <span style="color:var(--text3);font-size:10px">Toneladas por mês (M1–M8)</span>
       </div>
-      <div class="sc-tons-grid" id="tons-c"><div class="tc"><label>M1</label><input type="number" value="0" min="0" step="500" onchange="SCEN['c'].tons[0]=+this.value;markDirty()"></div><div class="tc"><label>M2</label><input type="number" value="0" min="0" step="500" onchange="SCEN['c'].tons[1]=+this.value;markDirty()"></div><div class="tc"><label>M3</label><input type="number" value="0" min="0" step="500" onchange="SCEN['c'].tons[2]=+this.value;markDirty()"></div><div class="tc"><label>M4</label><input type="number" value="0" min="0" step="500" onchange="SCEN['c'].tons[3]=+this.value;markDirty()"></div><div class="tc"><label>M5</label><input type="number" value="0" min="0" step="500" onchange="SCEN['c'].tons[4]=+this.value;markDirty()"></div><div class="tc"><label>M6</label><input type="number" value="5000" min="0" step="500" onchange="SCEN['c'].tons[5]=+this.value;markDirty()"></div><div class="tc"><label>M7</label><input type="number" value="8000" min="0" step="500" onchange="SCEN['c'].tons[6]=+this.value;markDirty()"></div><div class="tc"><label>M8</label><input type="number" value="10000" min="0" step="500" onchange="SCEN['c'].tons[7]=+this.value;markDirty()"></div></div>
+      <div class="sc-tons-grid" id="tons-c"></div>
 
       <div class="sc-tons-title">
         <span class="chip" style="background:rgba(143,168,50,.2);color:var(--green)">CENÁRIO 2 — META</span>
         <span style="color:var(--text3);font-size:10px">Toneladas por mês (M1–M8)</span>
       </div>
-      <div class="sc-tons-grid" id="tons-m"><div class="tc"><label>M1</label><input type="number" value="0" min="0" step="500" onchange="SCEN['m'].tons[0]=+this.value;markDirty()"></div><div class="tc"><label>M2</label><input type="number" value="0" min="0" step="500" onchange="SCEN['m'].tons[1]=+this.value;markDirty()"></div><div class="tc"><label>M3</label><input type="number" value="3000" min="0" step="500" onchange="SCEN['m'].tons[2]=+this.value;markDirty()"></div><div class="tc"><label>M4</label><input type="number" value="8000" min="0" step="500" onchange="SCEN['m'].tons[3]=+this.value;markDirty()"></div><div class="tc"><label>M5</label><input type="number" value="15000" min="0" step="500" onchange="SCEN['m'].tons[4]=+this.value;markDirty()"></div><div class="tc"><label>M6</label><input type="number" value="22000" min="0" step="500" onchange="SCEN['m'].tons[5]=+this.value;markDirty()"></div><div class="tc"><label>M7</label><input type="number" value="25000" min="0" step="500" onchange="SCEN['m'].tons[6]=+this.value;markDirty()"></div><div class="tc"><label>M8</label><input type="number" value="24000" min="0" step="500" onchange="SCEN['m'].tons[7]=+this.value;markDirty()"></div></div>
+      <div class="sc-tons-grid" id="tons-m"></div>
 
       <div class="sc-tons-title">
         <span class="chip" style="background:rgba(185,213,67,.18);color:var(--green)">CENÁRIO 3 — POTENCIAL &gt; META</span>
         <span style="color:var(--text3);font-size:10px">Toneladas por mês (M1–M8)</span>
       </div>
-      <div class="sc-tons-grid" id="tons-p"><div class="tc"><label>M1</label><input type="number" value="0" min="0" step="500" onchange="SCEN['p'].tons[0]=+this.value;markDirty()"></div><div class="tc"><label>M2</label><input type="number" value="0" min="0" step="500" onchange="SCEN['p'].tons[1]=+this.value;markDirty()"></div><div class="tc"><label>M3</label><input type="number" value="5000" min="0" step="500" onchange="SCEN['p'].tons[2]=+this.value;markDirty()"></div><div class="tc"><label>M4</label><input type="number" value="12000" min="0" step="500" onchange="SCEN['p'].tons[3]=+this.value;markDirty()"></div><div class="tc"><label>M5</label><input type="number" value="22000" min="0" step="500" onchange="SCEN['p'].tons[4]=+this.value;markDirty()"></div><div class="tc"><label>M6</label><input type="number" value="38000" min="0" step="500" onchange="SCEN['p'].tons[5]=+this.value;markDirty()"></div><div class="tc"><label>M7</label><input type="number" value="60000" min="0" step="500" onchange="SCEN['p'].tons[6]=+this.value;markDirty()"></div><div class="tc"><label>M8</label><input type="number" value="80000" min="0" step="500" onchange="SCEN['p'].tons[7]=+this.value;markDirty()"></div></div>
+      <div class="sc-tons-grid" id="tons-p"></div>
     </div>
   </div>
 
@@ -375,11 +423,7 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
         <div class="cfg-field"><label>Split Contango (%)</label>
           <input type="number" id="rc-feeC" value="0.5" step="0.05" min="0" max="10" onchange="updateRevCalc()"></div>
       </div>
-      <div class="dr-result" id="revCalcResult">
-    <div class="dr-item"><div class="dr-lbl">Soja em BRL/ton</div><div class="dr-val white">R$ 2.120</div></div>
-    <div class="dr-item"><div class="dr-lbl">Fee Contango</div><div class="dr-val blue">0,50%</div></div>
-    <div class="dr-item"><div class="dr-lbl">Receita / Tonelada</div><div class="dr-val">R$ 10,60</div></div>
-    <div class="dr-item"><div class="dr-lbl">5.000 ton (exemplo)</div><div class="dr-val">R$ 53.000</div></div></div>
+      <div class="dr-result" id="revCalcResult"></div>
     </div>
   </div>
 
@@ -388,784 +432,21 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
   <!-- EQUIPE -->
   <div class="cfg-section">
     <div class="cfg-stitle">Equipe <span class="cs-tag">Fixo ou Por Hora</span></div>
-    <div class="cfg-grid" id="cfg-pessoas"><div class="cfg-card" id="cc-igor">
-  <div class="cch" onclick="toggleCard('igor')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('pessoas','igor',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Igor</span>
-    <span class="cch-chips" id="chips-igor"><span class="chip">Full: R$ 30.000</span><span class="chip">Part: R$ 15.000</span><span class="chip">Full</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('pessoas','igor');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-igor"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Igor" onchange="updF('pessoas','igor','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Founder / CEO &amp; Produto" onchange="updF('pessoas','igor','note',this.value)"></div>
-    <div class="cfg-field"><label>Salário Full-time (R$/mês)</label>
-      <input type="number" value="30000" step="500" min="0" onchange="updF('pessoas','igor','monthlyFull',+this.value)"></div>
-    <div class="cfg-field"><label>Salário Part-time (R$/mês)</label>
-      <input type="number" value="15000" step="500" min="0" onchange="updF('pessoas','igor','monthlyPart',+this.value)"></div>
-    <div class="cfg-field"><label>Horas incluídas no Part</label>
-      <input type="number" value="80" step="5" min="0" title="Horas mensais incluídas no contrato part-time. Horas além disso = extra." onchange="updF('pessoas','igor','partHoursIncluded',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora extra (R$/h)</label>
-      <input type="number" value="0" step="10" min="0" onchange="updF('pessoas','igor','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Contrato por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-igor"><div class="mg-col" id="mc-igor-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('pessoas','igor',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-igor-0"></div>
-    </div><div class="mg-col" id="mc-igor-1">
-      <div class="mg-hdr">M1</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','igor',1,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-igor-1">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-igor-2">
-      <div class="mg-hdr">M2</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','igor',2,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-igor-2">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-igor-3">
-      <div class="mg-hdr">M3</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','igor',3,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-igor-3">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-igor-4">
-      <div class="mg-hdr">M4</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','igor',4,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-igor-4">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-igor-5">
-      <div class="mg-hdr">M5</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','igor',5,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-igor-5">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-igor-6">
-      <div class="mg-hdr">M6</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','igor',6,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-igor-6">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-igor-7">
-      <div class="mg-hdr">M7</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','igor',7,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-igor-7">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-igor-8">
-      <div class="mg-hdr">M8</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','igor',8,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-igor-8">R$ 30.000</div>
-    </div></div></div></div></div><div class="cfg-card" id="cc-vini">
-  <div class="cch" onclick="toggleCard('vini')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('pessoas','vini',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Vinicius</span>
-    <span class="cch-chips" id="chips-vini"><span class="chip">Full: R$ 30.000</span><span class="chip">Part: R$ 15.000</span><span class="chip">Full</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('pessoas','vini');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-vini"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Vinicius" onchange="updF('pessoas','vini','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Co-founder / CTO" onchange="updF('pessoas','vini','note',this.value)"></div>
-    <div class="cfg-field"><label>Salário Full-time (R$/mês)</label>
-      <input type="number" value="30000" step="500" min="0" onchange="updF('pessoas','vini','monthlyFull',+this.value)"></div>
-    <div class="cfg-field"><label>Salário Part-time (R$/mês)</label>
-      <input type="number" value="15000" step="500" min="0" onchange="updF('pessoas','vini','monthlyPart',+this.value)"></div>
-    <div class="cfg-field"><label>Horas incluídas no Part</label>
-      <input type="number" value="80" step="5" min="0" title="Horas mensais incluídas no contrato part-time. Horas além disso = extra." onchange="updF('pessoas','vini','partHoursIncluded',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora extra (R$/h)</label>
-      <input type="number" value="0" step="10" min="0" onchange="updF('pessoas','vini','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Contrato por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-vini"><div class="mg-col" id="mc-vini-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('pessoas','vini',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-vini-0"></div>
-    </div><div class="mg-col" id="mc-vini-1">
-      <div class="mg-hdr">M1</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','vini',1,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-vini-1">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-vini-2">
-      <div class="mg-hdr">M2</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','vini',2,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-vini-2">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-vini-3">
-      <div class="mg-hdr">M3</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','vini',3,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-vini-3">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-vini-4">
-      <div class="mg-hdr">M4</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','vini',4,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-vini-4">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-vini-5">
-      <div class="mg-hdr">M5</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','vini',5,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-vini-5">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-vini-6">
-      <div class="mg-hdr">M6</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','vini',6,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-vini-6">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-vini-7">
-      <div class="mg-hdr">M7</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','vini',7,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-vini-7">R$ 30.000</div>
-    </div><div class="mg-col" id="mc-vini-8">
-      <div class="mg-hdr">M8</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','vini',8,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-vini-8">R$ 30.000</div>
-    </div></div></div></div></div><div class="cfg-card open" id="cc-david">
-  <div class="cch" onclick="toggleCard('david')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" onchange="toggleActive('pessoas','david',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">David</span>
-    <span class="cch-chips" id="chips-david"><span class="chip">Full: R$ 25.000</span><span class="chip">Part: R$ 12.500</span><span class="chip hr">R$ 160/h</span><span class="chip">Hora/Full</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('pessoas','david');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-david"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="David" onchange="updF('pessoas','david','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Operações" onchange="updF('pessoas','david','note',this.value)"></div>
-    <div class="cfg-field"><label>Salário Full-time (R$/mês)</label>
-      <input type="number" value="25000" step="500" min="0" onchange="updF('pessoas','david','monthlyFull',+this.value)"></div>
-    <div class="cfg-field"><label>Salário Part-time (R$/mês)</label>
-      <input type="number" value="12500" step="500" min="0" onchange="updF('pessoas','david','monthlyPart',+this.value)"></div>
-    <div class="cfg-field"><label>Horas incluídas no Part</label>
-      <input type="number" value="80" step="5" min="0" title="Horas mensais incluídas no contrato part-time. Horas além disso = extra." onchange="updF('pessoas','david','partHoursIncluded',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora extra (R$/h)</label>
-      <input type="number" value="160" step="10" min="0" onchange="updF('pessoas','david','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Contrato por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-david"><div class="mg-col" id="mc-david-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('pessoas','david',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-david-0"></div>
-    </div><div class="mg-col" id="mc-david-1">
-      <div class="mg-hdr">M1</div>
-      <select class="mg-mode mode-none" onchange="updMonth('pessoas','david',1,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-david-1"></div>
-    </div><div class="mg-col" id="mc-david-2">
-    <div class="mg-hdr">M2</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','david',2,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','david',2,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 6.400</div>
-  </div><div class="mg-col" id="mc-david-3">
-    <div class="mg-hdr">M3</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','david',3,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','david',3,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 6.400</div>
-  </div><div class="mg-col" id="mc-david-4">
-    <div class="mg-hdr">M4</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','david',4,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','david',4,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 6.400</div>
-  </div><div class="mg-col" id="mc-david-5">
-    <div class="mg-hdr">M5</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','david',5,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="60" min="0" step="5" onchange="updMonth('pessoas','david',5,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 9.600</div>
-  </div><div class="mg-col" id="mc-david-6">
-      <div class="mg-hdr">M6</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','david',6,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-david-6">R$ 25.000</div>
-    </div><div class="mg-col" id="mc-david-7">
-      <div class="mg-hdr">M7</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','david',7,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-david-7">R$ 25.000</div>
-    </div><div class="mg-col" id="mc-david-8">
-      <div class="mg-hdr">M8</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','david',8,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-david-8">R$ 25.000</div>
-    </div></div></div></div></div><div class="cfg-card open" id="cc-designer">
-  <div class="cch" onclick="toggleCard('designer')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" onchange="toggleActive('pessoas','designer',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Designer</span>
-    <span class="cch-chips" id="chips-designer"><span class="chip">Full: R$ 6.000</span><span class="chip">Part: R$ 3.500</span><span class="chip hr">R$ 60/h</span><span class="chip">Hora/Part</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('pessoas','designer');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-designer"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Designer" onchange="updF('pessoas','designer','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="UI/UX &amp; Marca" onchange="updF('pessoas','designer','note',this.value)"></div>
-    <div class="cfg-field"><label>Salário Full-time (R$/mês)</label>
-      <input type="number" value="6000" step="500" min="0" onchange="updF('pessoas','designer','monthlyFull',+this.value)"></div>
-    <div class="cfg-field"><label>Salário Part-time (R$/mês)</label>
-      <input type="number" value="3500" step="500" min="0" onchange="updF('pessoas','designer','monthlyPart',+this.value)"></div>
-    <div class="cfg-field"><label>Horas incluídas no Part</label>
-      <input type="number" value="80" step="5" min="0" title="Horas mensais incluídas no contrato part-time. Horas além disso = extra." onchange="updF('pessoas','designer','partHoursIncluded',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora extra (R$/h)</label>
-      <input type="number" value="60" step="10" min="0" onchange="updF('pessoas','designer','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Contrato por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-designer"><div class="mg-col" id="mc-designer-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('pessoas','designer',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-designer-0"></div>
-    </div><div class="mg-col" id="mc-designer-1">
-      <div class="mg-hdr">M1</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','designer',1,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="60" min="0" step="5" onchange="updMonth('pessoas','designer',1,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-designer-1">R$ 3.600</div>
-    </div><div class="mg-col" id="mc-designer-2">
-      <div class="mg-hdr">M2</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','designer',2,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="60" min="0" step="5" onchange="updMonth('pessoas','designer',2,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-designer-2">R$ 3.600</div>
-    </div><div class="mg-col" id="mc-designer-3">
-      <div class="mg-hdr">M3</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','designer',3,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="60" min="0" step="5" onchange="updMonth('pessoas','designer',3,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-designer-3">R$ 3.600</div>
-    </div><div class="mg-col" id="mc-designer-4">
-      <div class="mg-hdr">M4</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','designer',4,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','designer',4,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-designer-4">R$ 2.400</div>
-    </div><div class="mg-col" id="mc-designer-5">
-      <div class="mg-hdr">M5</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','designer',5,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','designer',5,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-designer-5">R$ 2.400</div>
-    </div><div class="mg-col" id="mc-designer-6">
-      <div class="mg-hdr">M6</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','designer',6,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','designer',6,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-designer-6">R$ 2.400</div>
-    </div><div class="mg-col" id="mc-designer-7">
-      <div class="mg-hdr">M7</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','designer',7,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','designer',7,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-designer-7">R$ 2.400</div>
-    </div><div class="mg-col" id="mc-designer-8">
-      <div class="mg-hdr">M8</div>
-      <select class="mg-mode mode-part" onchange="updMonth('pessoas','designer',8,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime" selected="">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">+hrs extra</div>
-          <input class="mg-inp" type="number" value="0" min="0" step="1" title="Horas extras além do contrato part-time" onchange="updMonth('pessoas','designer',8,'extraHours',+this.value)"><div class="mg-cost has-val" id="mc-cost-designer-8">R$ 3.500</div>
-    </div></div></div></div></div><div class="cfg-card open" id="cc-william">
-  <div class="cch" onclick="toggleCard('william')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" onchange="toggleActive('pessoas','william',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">William</span>
-    <span class="cch-chips" id="chips-william"><span class="chip">Full: R$ 9.000</span><span class="chip">Part: R$ 4.500</span><span class="chip hr">R$ 120/h</span><span class="chip">Full</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('pessoas','william');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-william"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="William" onchange="updF('pessoas','william','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Engenharia — hora → full" onchange="updF('pessoas','william','note',this.value)"></div>
-    <div class="cfg-field"><label>Salário Full-time (R$/mês)</label>
-      <input type="number" value="9000" step="500" min="0" onchange="updF('pessoas','william','monthlyFull',+this.value)"></div>
-    <div class="cfg-field"><label>Salário Part-time (R$/mês)</label>
-      <input type="number" value="4500" step="500" min="0" onchange="updF('pessoas','william','monthlyPart',+this.value)"></div>
-    <div class="cfg-field"><label>Horas incluídas no Part</label>
-      <input type="number" value="80" step="5" min="0" title="Horas mensais incluídas no contrato part-time. Horas além disso = extra." onchange="updF('pessoas','william','partHoursIncluded',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora extra (R$/h)</label>
-      <input type="number" value="120" step="10" min="0" onchange="updF('pessoas','william','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Contrato por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-william"><div class="mg-col" id="mc-william-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('pessoas','william',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-william-0"></div>
-    </div><div class="mg-col" id="mc-william-1">
-      <div class="mg-hdr">M1</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','william',1,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-william-1">R$ 9.000</div>
-    </div><div class="mg-col" id="mc-william-2">
-      <div class="mg-hdr">M2</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','william',2,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-william-2">R$ 9.000</div>
-    </div><div class="mg-col" id="mc-william-3">
-      <div class="mg-hdr">M3</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','william',3,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-william-3">R$ 9.000</div>
-    </div><div class="mg-col" id="mc-william-4">
-      <div class="mg-hdr">M4</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','william',4,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-william-4">R$ 9.000</div>
-    </div><div class="mg-col" id="mc-william-5">
-      <div class="mg-hdr">M5</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','william',5,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-william-5">R$ 9.000</div>
-    </div><div class="mg-col" id="mc-william-6">
-      <div class="mg-hdr">M6</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','william',6,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-william-6">R$ 9.000</div>
-    </div><div class="mg-col" id="mc-william-7">
-      <div class="mg-hdr">M7</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','william',7,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-william-7">R$ 9.000</div>
-    </div><div class="mg-col" id="mc-william-8">
-      <div class="mg-hdr">M8</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','william',8,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-william-8">R$ 9.000</div>
-    </div></div></div></div></div><div class="cfg-card open" id="cc-pedro">
-  <div class="cch" onclick="toggleCard('pedro')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" onchange="toggleActive('pessoas','pedro',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Pedro</span>
-    <span class="cch-chips" id="chips-pedro"><span class="chip">Full: R$ 8.000</span><span class="chip">Part: R$ 5.000</span><span class="chip hr">R$ 140/h</span><span class="chip">Hora/Full</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('pessoas','pedro');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-pedro"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Pedro" onchange="updF('pessoas','pedro','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Produto — hora → part" onchange="updF('pessoas','pedro','note',this.value)"></div>
-    <div class="cfg-field"><label>Salário Full-time (R$/mês)</label>
-      <input type="number" value="8000" step="500" min="0" onchange="updF('pessoas','pedro','monthlyFull',+this.value)"></div>
-    <div class="cfg-field"><label>Salário Part-time (R$/mês)</label>
-      <input type="number" value="5000" step="500" min="0" onchange="updF('pessoas','pedro','monthlyPart',+this.value)"></div>
-    <div class="cfg-field"><label>Horas incluídas no Part</label>
-      <input type="number" value="80" step="5" min="0" title="Horas mensais incluídas no contrato part-time. Horas além disso = extra." onchange="updF('pessoas','pedro','partHoursIncluded',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora extra (R$/h)</label>
-      <input type="number" value="140" step="10" min="0" onchange="updF('pessoas','pedro','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Contrato por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-pedro"><div class="mg-col" id="mc-pedro-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('pessoas','pedro',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-pedro-0"></div>
-    </div><div class="mg-col" id="mc-pedro-1">
-    <div class="mg-hdr">M1</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','pedro',1,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','pedro',1,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 5.600</div>
-  </div><div class="mg-col" id="mc-pedro-2">
-    <div class="mg-hdr">M2</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','pedro',2,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','pedro',2,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 5.600</div>
-  </div><div class="mg-col" id="mc-pedro-3">
-    <div class="mg-hdr">M3</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','pedro',3,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','pedro',3,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 5.600</div>
-  </div><div class="mg-col" id="mc-pedro-4">
-    <div class="mg-hdr">M4</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','pedro',4,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','pedro',4,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 5.600</div>
-  </div><div class="mg-col" id="mc-pedro-5">
-      <div class="mg-hdr">M5</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','pedro',5,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-pedro-5">R$ 8.000</div>
-    </div><div class="mg-col" id="mc-pedro-6">
-      <div class="mg-hdr">M6</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','pedro',6,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-pedro-6">R$ 8.000</div>
-    </div><div class="mg-col" id="mc-pedro-7">
-      <div class="mg-hdr">M7</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','pedro',7,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-pedro-7">R$ 8.000</div>
-    </div><div class="mg-col" id="mc-pedro-8">
-      <div class="mg-hdr">M8</div>
-      <select class="mg-mode mode-full" onchange="updMonth('pessoas','pedro',8,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime" selected="">Full</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-pedro-8">R$ 8.000</div>
-    </div></div></div></div></div><div class="cfg-card open" id="cc-mateus">
-  <div class="cch" onclick="toggleCard('mateus')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('pessoas','mateus',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Mateus</span>
-    <span class="cch-chips" id="chips-mateus"><span class="chip">Full: R$ 18.000</span><span class="chip">Part: R$ 9.000</span><span class="chip hr">R$ 140/h</span><span class="chip">Hora/Part</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('pessoas','mateus');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-mateus"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Mateus" onchange="updF('pessoas','mateus','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Comercial — hora → part" onchange="updF('pessoas','mateus','note',this.value)"></div>
-    <div class="cfg-field"><label>Salário Full-time (R$/mês)</label>
-      <input type="number" value="18000" step="500" min="0" onchange="updF('pessoas','mateus','monthlyFull',+this.value)"></div>
-    <div class="cfg-field"><label>Salário Part-time (R$/mês)</label>
-      <input type="number" value="9000" step="500" min="0" onchange="updF('pessoas','mateus','monthlyPart',+this.value)"></div>
-    <div class="cfg-field"><label>Horas incluídas no Part</label>
-      <input type="number" value="80" step="5" min="0" title="Horas mensais incluídas no contrato part-time. Horas além disso = extra." onchange="updF('pessoas','mateus','partHoursIncluded',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora extra (R$/h)</label>
-      <input type="number" value="140" step="10" min="0" onchange="updF('pessoas','mateus','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Contrato por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-mateus"><div class="mg-col" id="mc-mateus-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('pessoas','mateus',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-mateus-0"></div>
-    </div><div class="mg-col" id="mc-mateus-1">
-      <div class="mg-hdr">M1</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','mateus',1,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','mateus',1,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-mateus-1">R$ 5.600</div>
-    </div><div class="mg-col" id="mc-mateus-2">
-      <div class="mg-hdr">M2</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','mateus',2,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','mateus',2,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-mateus-2">R$ 5.600</div>
-    </div><div class="mg-col" id="mc-mateus-3">
-      <div class="mg-hdr">M3</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','mateus',3,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','mateus',3,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-mateus-3">R$ 5.600</div>
-    </div><div class="mg-col" id="mc-mateus-4">
-      <div class="mg-hdr">M4</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','mateus',4,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="40" min="0" step="5" onchange="updMonth('pessoas','mateus',4,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-mateus-4">R$ 5.600</div>
-    </div><div class="mg-col" id="mc-mateus-5">
-      <div class="mg-hdr">M5</div>
-      <select class="mg-mode mode-part" onchange="updMonth('pessoas','mateus',5,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime" selected="">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">+hrs extra</div>
-          <input class="mg-inp" type="number" value="0" min="0" step="1" title="Horas extras além do contrato part-time" onchange="updMonth('pessoas','mateus',5,'extraHours',+this.value)"><div class="mg-cost has-val" id="mc-cost-mateus-5">R$ 9.000</div>
-    </div><div class="mg-col" id="mc-mateus-6">
-      <div class="mg-hdr">M6</div>
-      <select class="mg-mode mode-part" onchange="updMonth('pessoas','mateus',6,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime" selected="">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">+hrs extra</div>
-          <input class="mg-inp" type="number" value="0" min="0" step="1" title="Horas extras além do contrato part-time" onchange="updMonth('pessoas','mateus',6,'extraHours',+this.value)"><div class="mg-cost has-val" id="mc-cost-mateus-6">R$ 9.000</div>
-    </div><div class="mg-col" id="mc-mateus-7">
-      <div class="mg-hdr">M7</div>
-      <select class="mg-mode mode-part" onchange="updMonth('pessoas','mateus',7,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime" selected="">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">+hrs extra</div>
-          <input class="mg-inp" type="number" value="0" min="0" step="1" title="Horas extras além do contrato part-time" onchange="updMonth('pessoas','mateus',7,'extraHours',+this.value)"><div class="mg-cost has-val" id="mc-cost-mateus-7">R$ 9.000</div>
-    </div><div class="mg-col" id="mc-mateus-8">
-      <div class="mg-hdr">M8</div>
-      <select class="mg-mode mode-part" onchange="updMonth('pessoas','mateus',8,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="parttime" selected="">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">+hrs extra</div>
-          <input class="mg-inp" type="number" value="0" min="0" step="1" title="Horas extras além do contrato part-time" onchange="updMonth('pessoas','mateus',8,'extraHours',+this.value)"><div class="mg-cost has-val" id="mc-cost-mateus-8">R$ 9.000</div>
-    </div></div></div></div></div><div class="cfg-card open" id="cc-patricia">
-  <div class="cch" onclick="toggleCard('patricia')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('pessoas','patricia',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Patrícia</span>
-    <span class="cch-chips" id="chips-patricia"><span class="chip">Full: R$ 15.000</span><span class="chip">Part: R$ 5.000</span><span class="chip hr">R$ 300/h</span><span class="chip">Hora</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('pessoas','patricia');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-patricia"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Patrícia" onchange="updF('pessoas','patricia','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Jurídico — retainer + hora variável" onchange="updF('pessoas','patricia','note',this.value)"></div>
-    <div class="cfg-field"><label>Salário Full-time (R$/mês)</label>
-      <input type="number" value="15000" step="500" min="0" onchange="updF('pessoas','patricia','monthlyFull',+this.value)"></div>
-    <div class="cfg-field"><label>Salário Part-time (R$/mês)</label>
-      <input type="number" value="5000" step="500" min="0" onchange="updF('pessoas','patricia','monthlyPart',+this.value)"></div>
-    <div class="cfg-field"><label>Horas incluídas no Part</label>
-      <input type="number" value="80" step="5" min="0" title="Horas mensais incluídas no contrato part-time. Horas além disso = extra." onchange="updF('pessoas','patricia','partHoursIncluded',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora extra (R$/h)</label>
-      <input type="number" value="300" step="10" min="0" onchange="updF('pessoas','patricia','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Contrato por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-patricia"><div class="mg-col" id="mc-patricia-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('pessoas','patricia',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-patricia-0"></div>
-    </div><div class="mg-col" id="mc-patricia-1">
-      <div class="mg-hdr">M1</div>
-      <select class="mg-mode mode-hour" onchange="updMonth('pessoas','patricia',1,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select><div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="8" min="0" step="5" onchange="updMonth('pessoas','patricia',1,'hours',+this.value)"><div class="mg-cost has-val" id="mc-cost-patricia-1">R$ 2.400</div>
-    </div><div class="mg-col" id="mc-patricia-2">
-    <div class="mg-hdr">M2</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','patricia',2,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="8" min="0" step="5" onchange="updMonth('pessoas','patricia',2,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 2.400</div>
-  </div><div class="mg-col" id="mc-patricia-3">
-    <div class="mg-hdr">M3</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','patricia',3,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="8" min="0" step="5" onchange="updMonth('pessoas','patricia',3,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 2.400</div>
-  </div><div class="mg-col" id="mc-patricia-4">
-    <div class="mg-hdr">M4</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','patricia',4,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="8" min="0" step="5" onchange="updMonth('pessoas','patricia',4,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 2.400</div>
-  </div><div class="mg-col" id="mc-patricia-5">
-    <div class="mg-hdr">M5</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','patricia',5,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="8" min="0" step="5" onchange="updMonth('pessoas','patricia',5,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 2.400</div>
-  </div><div class="mg-col" id="mc-patricia-6">
-    <div class="mg-hdr">M6</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','patricia',6,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="8" min="0" step="5" onchange="updMonth('pessoas','patricia',6,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 2.400</div>
-  </div><div class="mg-col" id="mc-patricia-7">
-    <div class="mg-hdr">M7</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','patricia',7,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="8" min="0" step="5" onchange="updMonth('pessoas','patricia',7,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 2.400</div>
-  </div><div class="mg-col" id="mc-patricia-8">
-    <div class="mg-hdr">M8</div>
-    <select class="mg-mode mode-hour" onchange="updMonth('pessoas','patricia',8,'mode',this.value)"><option value="none">—</option><option value="hourly" selected="">Hora</option><option value="parttime">Part</option><option value="fulltime">Full</option></select>
-    <div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="8" min="0" step="5" onchange="updMonth('pessoas','patricia',8,'hours',+this.value)">
-    <div class="mg-cost has-val">R$ 2.400</div>
-  </div></div></div></div></div></div>
+    <div class="cfg-grid" id="cfg-pessoas"></div>
     <button class="btn-add" onclick="addItem('pessoas')">＋ &nbsp;Adicionar membro</button>
   </div>
 
   <!-- RECORRENTES -->
   <div class="cfg-section">
     <div class="cfg-stitle">Despesas Recorrentes <span class="cs-tag">Fixo ou Por Hora</span></div>
-    <div class="cfg-grid" id="cfg-recorrentes"><div class="cfg-card open" id="cc-contab">
-  <div class="cch" onclick="toggleCard('contab')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('recorrentes','contab',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Contabilidade</span>
-    <span class="cch-chips" id="chips-contab"><span class="chip">Fixo: R$ 1.700</span><span class="chip hr">R$ 200/h</span><span class="chip">Fixo</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('recorrentes','contab');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-contab"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Contabilidade" onchange="updF('recorrentes','contab','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Ativação com receita" onchange="updF('recorrentes','contab','note',this.value)"></div>
-    <div class="cfg-field"><label>Valor Fixo Mensal (R$)</label>
-      <input type="number" value="1700" step="500" min="0" onchange="updF('recorrentes','contab','monthlyFixed',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora (R$/h)</label>
-      <input type="number" value="200" step="10" min="0" onchange="updF('recorrentes','contab','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Modo por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-contab"><div class="mg-col" id="mc-contab-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','contab',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="fixed">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-contab-0"></div>
-    </div><div class="mg-col" id="mc-contab-1">
-      <div class="mg-hdr">M1</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','contab',1,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="fixed">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-contab-1"></div>
-    </div><div class="mg-col" id="mc-contab-2">
-      <div class="mg-hdr">M2</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','contab',2,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="fixed">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-contab-2"></div>
-    </div><div class="mg-col" id="mc-contab-3">
-      <div class="mg-hdr">M3</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','contab',3,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="fixed">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-contab-3"></div>
-    </div><div class="mg-col" id="mc-contab-4">
-      <div class="mg-hdr">M4</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','contab',4,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-contab-4">R$ 1.700</div>
-    </div><div class="mg-col" id="mc-contab-5">
-      <div class="mg-hdr">M5</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','contab',5,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-contab-5">R$ 1.700</div>
-    </div><div class="mg-col" id="mc-contab-6">
-      <div class="mg-hdr">M6</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','contab',6,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-contab-6">R$ 1.700</div>
-    </div><div class="mg-col" id="mc-contab-7">
-      <div class="mg-hdr">M7</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','contab',7,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-contab-7">R$ 1.700</div>
-    </div><div class="mg-col" id="mc-contab-8">
-      <div class="mg-hdr">M8</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','contab',8,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-contab-8">R$ 1.700</div>
-    </div></div></div></div></div><div class="cfg-card open" id="cc-wiltonm">
-  <div class="cch" onclick="toggleCard('wiltonm')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('recorrentes','wiltonm',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Wilton — Infra</span>
-    <span class="cch-chips" id="chips-wiltonm"><span class="chip">Fixo: R$ 3.000</span><span class="chip hr">R$ 150/h</span><span class="chip">Fixo</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('recorrentes','wiltonm');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-wiltonm"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Wilton — Infra" onchange="updF('recorrentes','wiltonm','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="DevOps — retainer + hora variável" onchange="updF('recorrentes','wiltonm','note',this.value)"></div>
-    <div class="cfg-field"><label>Valor Fixo Mensal (R$)</label>
-      <input type="number" value="3000" step="500" min="0" onchange="updF('recorrentes','wiltonm','monthlyFixed',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora (R$/h)</label>
-      <input type="number" value="150" step="10" min="0" onchange="updF('recorrentes','wiltonm','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Modo por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-wiltonm"><div class="mg-col" id="mc-wiltonm-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','wiltonm',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="fixed">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-wiltonm-0"></div>
-    </div><div class="mg-col" id="mc-wiltonm-1">
-      <div class="mg-hdr">M1</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','wiltonm',1,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-wiltonm-1">R$ 3.000</div>
-    </div><div class="mg-col" id="mc-wiltonm-2">
-      <div class="mg-hdr">M2</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','wiltonm',2,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-wiltonm-2">R$ 3.000</div>
-    </div><div class="mg-col" id="mc-wiltonm-3">
-      <div class="mg-hdr">M3</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','wiltonm',3,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-wiltonm-3">R$ 3.000</div>
-    </div><div class="mg-col" id="mc-wiltonm-4">
-      <div class="mg-hdr">M4</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','wiltonm',4,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-wiltonm-4">R$ 3.000</div>
-    </div><div class="mg-col" id="mc-wiltonm-5">
-      <div class="mg-hdr">M5</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','wiltonm',5,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-wiltonm-5">R$ 3.000</div>
-    </div><div class="mg-col" id="mc-wiltonm-6">
-      <div class="mg-hdr">M6</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','wiltonm',6,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-wiltonm-6">R$ 3.000</div>
-    </div><div class="mg-col" id="mc-wiltonm-7">
-      <div class="mg-hdr">M7</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','wiltonm',7,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-wiltonm-7">R$ 3.000</div>
-    </div><div class="mg-col" id="mc-wiltonm-8">
-      <div class="mg-hdr">M8</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','wiltonm',8,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-wiltonm-8">R$ 3.000</div>
-    </div></div></div></div></div><div class="cfg-card" id="cc-tools">
-  <div class="cch" onclick="toggleCard('tools')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('recorrentes','tools',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Ferramentas</span>
-    <span class="cch-chips" id="chips-tools"><span class="chip">Fixo: R$ 5.000</span><span class="chip">Fixo</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('recorrentes','tools');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-tools"><div class="base-rates">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Ferramentas" onchange="updF('recorrentes','tools','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Gmail, AWS, GitHub, IAs…" onchange="updF('recorrentes','tools','note',this.value)"></div>
-    <div class="cfg-field"><label>Valor Fixo Mensal (R$)</label>
-      <input type="number" value="5000" step="500" min="0" onchange="updF('recorrentes','tools','monthlyFixed',+this.value)"></div>
-    <div class="cfg-field"><label>Taxa por hora (R$/h)</label>
-      <input type="number" value="0" step="10" min="0" onchange="updF('recorrentes','tools','hourlyRate',+this.value)"></div>
-  </div><div class="month-grid-wrap">
-    <span class="month-grid-lbl">Modo por Mês — M0 a M8</span>
-    <div class="month-grid" id="mgrid-tools"><div class="mg-col" id="mc-tools-0">
-      <div class="mg-hdr">M0</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','tools',0,'mode',this.value)"><option value="none" selected="">—</option><option value="hourly">Hora</option><option value="fixed">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost " id="mc-cost-tools-0"></div>
-    </div><div class="mg-col" id="mc-tools-1">
-      <div class="mg-hdr">M1</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','tools',1,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-tools-1">R$ 5.000</div>
-    </div><div class="mg-col" id="mc-tools-2">
-      <div class="mg-hdr">M2</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','tools',2,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-tools-2">R$ 5.000</div>
-    </div><div class="mg-col" id="mc-tools-3">
-      <div class="mg-hdr">M3</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','tools',3,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-tools-3">R$ 5.000</div>
-    </div><div class="mg-col" id="mc-tools-4">
-      <div class="mg-hdr">M4</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','tools',4,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-tools-4">R$ 5.000</div>
-    </div><div class="mg-col" id="mc-tools-5">
-      <div class="mg-hdr">M5</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','tools',5,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-tools-5">R$ 5.000</div>
-    </div><div class="mg-col" id="mc-tools-6">
-      <div class="mg-hdr">M6</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','tools',6,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-tools-6">R$ 5.000</div>
-    </div><div class="mg-col" id="mc-tools-7">
-      <div class="mg-hdr">M7</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','tools',7,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-tools-7">R$ 5.000</div>
-    </div><div class="mg-col" id="mc-tools-8">
-      <div class="mg-hdr">M8</div>
-      <select class="mg-mode mode-none" onchange="updMonth('recorrentes','tools',8,'mode',this.value)"><option value="none">—</option><option value="hourly">Hora</option><option value="fixed" selected="">Fixo</option><option value="hybrid">Fix+H</option></select><div style="height:30px"></div><div class="mg-cost has-val" id="mc-cost-tools-8">R$ 5.000</div>
-    </div></div></div></div></div></div>
+    <div class="cfg-grid" id="cfg-recorrentes"></div>
     <button class="btn-add" onclick="addItem('recorrentes')">＋ &nbsp;Adicionar despesa recorrente</button>
   </div>
 
   <!-- ONE-SHOTS -->
   <div class="cfg-section">
     <div class="cfg-stitle">Despesas One-Shot <span class="cs-tag">Parcelável</span></div>
-    <div class="cfg-grid" id="cfg-oneshots"><div class="cfg-card" id="cc-wsetup">
-  <div class="cch" onclick="toggleCard('wsetup')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('oneshots','wsetup',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Wilton — Setup Infra</span>
-    <span class="cch-chips" id="chips-wsetup"><span class="chip">R$ 20.000</span><span class="chip">M1 · 4×</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('oneshots','wsetup');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-wsetup"><div class="cfg-fields">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Wilton — Setup Infra" onchange="updF('oneshots','wsetup','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Configuração inicial" onchange="updF('oneshots','wsetup','note',this.value)"></div>
-    <div class="cfg-field"><label>Valor Total (R$)</label>
-      <input type="number" value="20000" step="500" min="0" onchange="updF('oneshots','wsetup','brl',+this.value)"></div>
-  </div>
-  <div class="inst-row"><span class="inst-lbl">Condições de Pagamento</span>
-  <div class="cfg-fields">
-    <div class="cfg-field"><label>Mês de Início</label>
-      <select onchange="updF('oneshots','wsetup','month',+this.value)"><option value="0">M0 (Pré)</option><option value="1" selected="">M1</option><option value="2">M2</option><option value="3">M3</option><option value="4">M4</option><option value="5">M5</option><option value="6">M6</option><option value="7">M7</option><option value="8">M8</option></select></div>
-    <div class="cfg-field"><label>Parcelamento</label>
-      <select onchange="updF('oneshots','wsetup','installments',+this.value)"><option value="1">À vista</option><option value="2">2x parcelas</option><option value="3">3x parcelas</option><option value="4" selected="">4x parcelas</option><option value="5">5x parcelas</option><option value="6">6x parcelas</option></select></div>
-    <div class="cfg-field"><label>Parcela/mês (R$)</label>
-      <input type="text" readonly="" value="R$ 5.000"></div>
-  </div></div></div></div><div class="cfg-card" id="cc-abertu">
-  <div class="cch" onclick="toggleCard('abertu')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('oneshots','abertu',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Abertura SA</span>
-    <span class="cch-chips" id="chips-abertu"><span class="chip">R$ 5.000</span><span class="chip">M0</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('oneshots','abertu');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-abertu"><div class="cfg-fields">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Abertura SA" onchange="updF('oneshots','abertu','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Constituição jurídica" onchange="updF('oneshots','abertu','note',this.value)"></div>
-    <div class="cfg-field"><label>Valor Total (R$)</label>
-      <input type="number" value="5000" step="500" min="0" onchange="updF('oneshots','abertu','brl',+this.value)"></div>
-  </div>
-  <div class="inst-row"><span class="inst-lbl">Condições de Pagamento</span>
-  <div class="cfg-fields">
-    <div class="cfg-field"><label>Mês de Início</label>
-      <select onchange="updF('oneshots','abertu','month',+this.value)"><option value="0" selected="">M0 (Pré)</option><option value="1">M1</option><option value="2">M2</option><option value="3">M3</option><option value="4">M4</option><option value="5">M5</option><option value="6">M6</option><option value="7">M7</option><option value="8">M8</option></select></div>
-    <div class="cfg-field"><label>Parcelamento</label>
-      <select onchange="updF('oneshots','abertu','installments',+this.value)"><option value="1" selected="">À vista</option><option value="2">2x parcelas</option><option value="3">3x parcelas</option><option value="4">4x parcelas</option><option value="5">5x parcelas</option><option value="6">6x parcelas</option></select></div>
-    <div class="cfg-field"><label>Parcela/mês (R$)</label>
-      <input type="text" readonly="" value="R$ 5.000"></div>
-  </div></div></div></div><div class="cfg-card" id="cc-equip">
-  <div class="cch" onclick="toggleCard('equip')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('oneshots','equip',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Equipamentos</span>
-    <span class="cch-chips" id="chips-equip"><span class="chip">R$ 10.000</span><span class="chip">M0</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('oneshots','equip');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-equip"><div class="cfg-fields">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Equipamentos" onchange="updF('oneshots','equip','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Hardware e periféricos" onchange="updF('oneshots','equip','note',this.value)"></div>
-    <div class="cfg-field"><label>Valor Total (R$)</label>
-      <input type="number" value="10000" step="500" min="0" onchange="updF('oneshots','equip','brl',+this.value)"></div>
-  </div>
-  <div class="inst-row"><span class="inst-lbl">Condições de Pagamento</span>
-  <div class="cfg-fields">
-    <div class="cfg-field"><label>Mês de Início</label>
-      <select onchange="updF('oneshots','equip','month',+this.value)"><option value="0" selected="">M0 (Pré)</option><option value="1">M1</option><option value="2">M2</option><option value="3">M3</option><option value="4">M4</option><option value="5">M5</option><option value="6">M6</option><option value="7">M7</option><option value="8">M8</option></select></div>
-    <div class="cfg-field"><label>Parcelamento</label>
-      <select onchange="updF('oneshots','equip','installments',+this.value)"><option value="1" selected="">À vista</option><option value="2">2x parcelas</option><option value="3">3x parcelas</option><option value="4">4x parcelas</option><option value="5">5x parcelas</option><option value="6">6x parcelas</option></select></div>
-    <div class="cfg-field"><label>Parcela/mês (R$)</label>
-      <input type="text" readonly="" value="R$ 10.000"></div>
-  </div></div></div></div><div class="cfg-card" id="cc-marcas">
-  <div class="cch" onclick="toggleCard('marcas')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('oneshots','marcas',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Marcas e Patentes</span>
-    <span class="cch-chips" id="chips-marcas"><span class="chip">R$ 5.000</span><span class="chip">M0</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('oneshots','marcas');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-marcas"><div class="cfg-fields">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Marcas e Patentes" onchange="updF('oneshots','marcas','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Registro de IP" onchange="updF('oneshots','marcas','note',this.value)"></div>
-    <div class="cfg-field"><label>Valor Total (R$)</label>
-      <input type="number" value="5000" step="500" min="0" onchange="updF('oneshots','marcas','brl',+this.value)"></div>
-  </div>
-  <div class="inst-row"><span class="inst-lbl">Condições de Pagamento</span>
-  <div class="cfg-fields">
-    <div class="cfg-field"><label>Mês de Início</label>
-      <select onchange="updF('oneshots','marcas','month',+this.value)"><option value="0" selected="">M0 (Pré)</option><option value="1">M1</option><option value="2">M2</option><option value="3">M3</option><option value="4">M4</option><option value="5">M5</option><option value="6">M6</option><option value="7">M7</option><option value="8">M8</option></select></div>
-    <div class="cfg-field"><label>Parcelamento</label>
-      <select onchange="updF('oneshots','marcas','installments',+this.value)"><option value="1" selected="">À vista</option><option value="2">2x parcelas</option><option value="3">3x parcelas</option><option value="4">4x parcelas</option><option value="5">5x parcelas</option><option value="6">6x parcelas</option></select></div>
-    <div class="cfg-field"><label>Parcela/mês (R$)</label>
-      <input type="text" readonly="" value="R$ 5.000"></div>
-  </div></div></div></div><div class="cfg-card" id="cc-evguen">
-  <div class="cch" onclick="toggleCard('evguen')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" checked="" onchange="toggleActive('oneshots','evguen',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Acerto Evguen</span>
-    <span class="cch-chips" id="chips-evguen"><span class="chip">R$ 3.700</span><span class="chip">M1</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('oneshots','evguen');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-evguen"><div class="cfg-fields">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Acerto Evguen" onchange="updF('oneshots','evguen','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="One-shot" onchange="updF('oneshots','evguen','note',this.value)"></div>
-    <div class="cfg-field"><label>Valor Total (R$)</label>
-      <input type="number" value="3700" step="500" min="0" onchange="updF('oneshots','evguen','brl',+this.value)"></div>
-  </div>
-  <div class="inst-row"><span class="inst-lbl">Condições de Pagamento</span>
-  <div class="cfg-fields">
-    <div class="cfg-field"><label>Mês de Início</label>
-      <select onchange="updF('oneshots','evguen','month',+this.value)"><option value="0">M0 (Pré)</option><option value="1" selected="">M1</option><option value="2">M2</option><option value="3">M3</option><option value="4">M4</option><option value="5">M5</option><option value="6">M6</option><option value="7">M7</option><option value="8">M8</option></select></div>
-    <div class="cfg-field"><label>Parcelamento</label>
-      <select onchange="updF('oneshots','evguen','installments',+this.value)"><option value="1" selected="">À vista</option><option value="2">2x parcelas</option><option value="3">3x parcelas</option><option value="4">4x parcelas</option><option value="5">5x parcelas</option><option value="6">6x parcelas</option></select></div>
-    <div class="cfg-field"><label>Parcela/mês (R$)</label>
-      <input type="text" readonly="" value="R$ 3.700"></div>
-  </div></div></div></div><div class="cfg-card" id="cc-namba">
-  <div class="cch" onclick="toggleCard('namba')">
-    <label class="tsw" onclick="event.stopPropagation()">
-      <input type="checkbox" onchange="toggleActive('oneshots','namba',this.checked)"><span class="trk"></span>
-    </label>
-    <span class="cch-name">Acerto Namba</span>
-    <span class="cch-chips" id="chips-namba"><span class="chip">R$ 5.000</span><span class="chip">M1</span></span>
-    <span class="cch-arrow">▶</span>
-    <button class="btn-del" onclick="deleteItem('oneshots','namba');event.stopPropagation()" title="Remover">✕</button>
-  </div>
-  <div class="ccb" id="ccb-namba"><div class="cfg-fields">
-    <div class="cfg-field"><label>Nome</label>
-      <input type="text" value="Acerto Namba" onchange="updF('oneshots','namba','name',this.value)"></div>
-    <div class="cfg-field"><label>Descrição</label>
-      <input type="text" value="Registro de marca" onchange="updF('oneshots','namba','note',this.value)"></div>
-    <div class="cfg-field"><label>Valor Total (R$)</label>
-      <input type="number" value="5000" step="500" min="0" onchange="updF('oneshots','namba','brl',+this.value)"></div>
-  </div>
-  <div class="inst-row"><span class="inst-lbl">Condições de Pagamento</span>
-  <div class="cfg-fields">
-    <div class="cfg-field"><label>Mês de Início</label>
-      <select onchange="updF('oneshots','namba','month',+this.value)"><option value="0">M0 (Pré)</option><option value="1" selected="">M1</option><option value="2">M2</option><option value="3">M3</option><option value="4">M4</option><option value="5">M5</option><option value="6">M6</option><option value="7">M7</option><option value="8">M8</option></select></div>
-    <div class="cfg-field"><label>Parcelamento</label>
-      <select onchange="updF('oneshots','namba','installments',+this.value)"><option value="1" selected="">À vista</option><option value="2">2x parcelas</option><option value="3">3x parcelas</option><option value="4">4x parcelas</option><option value="5">5x parcelas</option><option value="6">6x parcelas</option></select></div>
-    <div class="cfg-field"><label>Parcela/mês (R$)</label>
-      <input type="text" readonly="" value="R$ 5.000"></div>
-  </div></div></div></div></div>
+    <div class="cfg-grid" id="cfg-oneshots"></div>
     <button class="btn-add" onclick="addItem('oneshots')">＋ &nbsp;Adicionar despesa one-shot</button>
   </div>
 
@@ -1458,22 +739,63 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
   </div>
 </div>
 
-<!-- FLOATING SAVE BUTTON — always visible -->
-<div class="save-float">
-  <button class="btn-save-float" onclick="saveHTML()">
-    <span class="icon">💾</span> Salvar HTML
-  </button>
+<!-- FLOATING BUTTONS -->
+<div class="save-float" id="saveFloat" style="display:none">
+  <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:6px">
+    <span id="userBadge" style="
+      background:rgba(16,90,166,0.8);border:1px solid rgba(185,213,67,0.3);
+      border-radius:20px;padding:4px 12px;font-family:var(--mono);font-size:10px;
+      color:rgba(255,255,255,0.7);letter-spacing:0.5px
+    "></span>
+    <button onclick="logoutUser()" style="
+      background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+      border-radius:6px;padding:4px 10px;color:rgba(255,255,255,0.5);
+      font-size:10px;cursor:pointer;font-family:var(--mono)
+    ">sair</button>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end">
+    <button class="btn-save-float" onclick="showSimPanel()" style="background:rgba(16,90,166,0.8)">
+      <span class="icon">📂</span> Minhas Simulações
+    </button>
+    <button class="btn-save-float" id="btnSaveCloud" onclick="saveCloud()">
+      <span class="icon">☁️</span> Salvar na Nuvem
+    </button>
+  </div>
 </div>
+
+<!-- SIMULAÇÕES PANEL -->
+<div id="simPanel" style="
+  display:none;position:fixed;top:0;right:0;bottom:0;width:340px;z-index:9998;
+  background:#0d1f3c;border-left:1px solid rgba(255,255,255,0.1);
+  font-family:var(--body);padding:24px;overflow-y:auto;
+  box-shadow:-8px 0 32px rgba(0,0,0,0.4)
+">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div style="font-weight:700;font-size:16px;color:white">Minhas Simulações</div>
+    <button onclick="hideSimPanel()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer">✕</button>
+  </div>
+  <button onclick="newSim()" style="
+    width:100%;padding:10px;background:rgba(185,213,67,0.15);border:1px solid rgba(185,213,67,0.4);
+    border-radius:8px;color:#B9D543;font-family:inherit;font-size:13px;cursor:pointer;margin-bottom:16px
+  ">+ Nova Simulação</button>
+  <div id="simList" style="display:flex;flex-direction:column;gap:8px">
+    <div style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;padding:20px">Carregando...</div>
+  </div>
+</div>
+
 
 <footer class="footer">
   <div class="footer-gradient"></div>
   <div class="footer-inner">
     <div class="footer-l">Documento estratégico interno — Contango &nbsp;|&nbsp; Confidencial &nbsp;|&nbsp; contangotoken.com</div>
-    <img class="footer-logo" src="https://drive.google.com/uc?export=view&amp;id=1LRf7XIGkVaFobcmo3YLQmR2ZuuiveNYl" alt="Contango" onerror="this.style.display='none';document.getElementById('ftxt').style.display='block'" style="display: none;">
-    <span id="ftxt" style="display: block;" class="footer-logo-txt">CONTANGO</span>
+    <img class="footer-logo"
+      src="https://drive.google.com/uc?export=view&id=1LRf7XIGkVaFobcmo3YLQmR2ZuuiveNYl"
+      alt="Contango"
+      onerror="this.style.display='none';document.getElementById('ftxt').style.display='block'"/>
+    <span id="ftxt" style="display:none" class="footer-logo-txt">CONTANGO</span>
   </div>
 </footer>
-
+</div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
@@ -2269,16 +1591,178 @@ buildTable();
 
 
 
-
-
 /* __SNAPSHOT_START__ */
-(function(){var s={"DATA":{"pessoas":[{"id":"igor","name":"Igor","note":"Founder / CEO & Produto","active":true,"hourlyRate":0,"monthlyFull":30000,"monthlyPart":15000,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"}]},{"id":"vini","name":"Vinicius","note":"Co-founder / CTO","active":true,"hourlyRate":0,"monthlyFull":30000,"monthlyPart":15000,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"}]},{"id":"david","name":"David","note":"Operações","active":false,"hourlyRate":160,"monthlyFull":25000,"monthlyPart":12500,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"none"},{"hours":40,"extraHours":40,"mode":"parttime"},{"hours":40,"extraHours":40,"mode":"parttime"},{"hours":40,"extraHours":40,"mode":"parttime"},{"hours":60,"extraHours":60,"mode":"parttime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"}]},{"id":"designer","name":"Designer","note":"UI/UX & Marca","active":false,"hourlyRate":60,"monthlyFull":6000,"monthlyPart":3500,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":60,"extraHours":0,"mode":"hourly"},{"hours":60,"extraHours":60,"mode":"hourly"},{"hours":60,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":0,"extraHours":0,"mode":"parttime"}]},{"id":"william","name":"William","note":"Engenharia — hora → full","active":false,"hourlyRate":120,"monthlyFull":9000,"monthlyPart":4500,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":80,"extraHours":0,"mode":"fulltime"},{"hours":80,"extraHours":0,"mode":"fulltime"},{"hours":80,"extraHours":0,"mode":"fulltime"},{"hours":80,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"}]},{"id":"pedro","name":"Pedro","note":"Produto — hora → part","active":false,"hourlyRate":140,"monthlyFull":8000,"monthlyPart":5000,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":60,"extraHours":0,"mode":"hourly"},{"hours":60,"extraHours":0,"mode":"hourly"},{"hours":60,"extraHours":0,"mode":"hourly"},{"hours":60,"extraHours":0,"mode":"hourly"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"}]},{"id":"mateus","name":"Mateus","note":"Comercial — hora → part","active":true,"hourlyRate":140,"monthlyFull":18000,"monthlyPart":9000,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":0,"extraHours":0,"mode":"parttime"},{"hours":0,"extraHours":0,"mode":"parttime"},{"hours":0,"extraHours":0,"mode":"parttime"},{"hours":0,"extraHours":0,"mode":"parttime"}]},{"id":"patricia","name":"Patrícia","note":"Jurídico — retainer + hora variável","active":true,"hourlyRate":200,"monthlyFull":15000,"monthlyPart":5000,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":20,"mode":"parttime"},{"hours":0,"extraHours":20,"mode":"parttime"},{"hours":0,"extraHours":20,"mode":"parttime"},{"hours":0,"extraHours":20,"mode":"parttime"},{"hours":0,"extraHours":20,"mode":"parttime"},{"hours":0,"extraHours":20,"mode":"parttime"},{"hours":0,"extraHours":20,"mode":"parttime"},{"hours":0,"extraHours":20,"mode":"parttime"}]}],"recorrentes":[{"id":"contab","name":"Contabilidade","note":"Ativação com receita","active":true,"hourlyRate":200,"monthlyFixed":1700,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":15,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"}]},{"id":"wiltonm","name":"Wilton — Infra","note":"DevOps — retainer + hora variável","active":true,"hourlyRate":150,"monthlyFixed":1400,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"}]},{"id":"tools","name":"Ferramentas","note":"Gmail, AWS, GitHub, IAs…","active":true,"hourlyRate":0,"monthlyFixed":5000,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"}]}],"oneshots":[{"id":"wsetup","name":"Wilton — Setup Infra","note":"Configuração inicial","brl":20000,"month":1,"installments":4,"active":true},{"id":"abertu","name":"Abertura SA","note":"Constituição jurídica","brl":5000,"month":0,"installments":1,"active":true},{"id":"equip","name":"Equipamentos","note":"Hardware e periféricos","brl":10000,"month":0,"installments":1,"active":true},{"id":"marcas","name":"Marcas e Patentes","note":"Registro de IP","brl":5000,"month":0,"installments":1,"active":true},{"id":"evguen","name":"Acerto Evguen","note":"One-shot","brl":3700,"month":1,"installments":1,"active":true},{"id":"namba","name":"Acerto Namba","note":"Registro de marca","brl":5000,"month":1,"installments":1,"active":false}]},"RC":{"soy":400,"fx":5.3,"feeT":1,"feeC":0.5},"DR":{"total":500000,"pct":5},"SCEN":{"c":{"label":"Conservador","pill":"Receita inicia no Mês 6","tons":[0,0,0,0,0,5000,8000,10000]},"m":{"label":"Meta","pill":"Receita inicia no Mês 3 — próximo do break-even","tons":[0,0,3000,8000,15000,22000,25000,24000]},"p":{"label":"Potencial > Meta","pill":"Receita inicia no Mês 3 — superação expressiva","tons":[0,0,5000,12000,22000,38000,60000,80000]}}};DATA=s.DATA;RC=s.RC;DR=s.DR;SCEN=s.SCEN;buildTable();buildTable();})();
+(function(){
+var s={"DATA": {"pessoas": [{"id": "igor", "name": "Igor", "note": "Founder / CEO & Produto", "active": true, "hourlyRate": 0, "monthlyFull": 30000, "monthlyPart": 15000, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}]}, {"id": "vini", "name": "Vinicius", "note": "Co-founder / CTO", "active": true, "hourlyRate": 0, "monthlyFull": 30000, "monthlyPart": 15000, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}]}, {"id": "david", "name": "David", "note": "Opera\u00e7\u00f5es", "active": true, "hourlyRate": 160, "monthlyFull": 25000, "monthlyPart": 12500, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 40, "extraHours": 40, "mode": "parttime"}, {"hours": 40, "extraHours": 40, "mode": "parttime"}, {"hours": 40, "extraHours": 40, "mode": "parttime"}, {"hours": 60, "extraHours": 60, "mode": "parttime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}]}, {"id": "designer", "name": "Designer", "note": "UI/UX & Marca", "active": true, "hourlyRate": 60, "monthlyFull": 6000, "monthlyPart": 3500, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 60, "extraHours": 60, "mode": "hourly"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 0, "extraHours": 0, "mode": "parttime"}]}, {"id": "william", "name": "William", "note": "Engenharia \u2014 hora \u2192 full", "active": true, "hourlyRate": 120, "monthlyFull": 9000, "monthlyPart": 4500, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 80, "extraHours": 0, "mode": "fulltime"}, {"hours": 80, "extraHours": 0, "mode": "fulltime"}, {"hours": 80, "extraHours": 0, "mode": "fulltime"}, {"hours": 80, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}]}, {"id": "pedro", "name": "Pedro", "note": "Produto \u2014 hora \u2192 part", "active": true, "hourlyRate": 140, "monthlyFull": 8000, "monthlyPart": 5000, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}]}, {"id": "mateus", "name": "Mateus", "note": "Comercial \u2014 hora \u2192 part", "active": true, "hourlyRate": 140, "monthlyFull": 18000, "monthlyPart": 9000, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 0, "extraHours": 0, "mode": "parttime"}, {"hours": 0, "extraHours": 0, "mode": "parttime"}, {"hours": 0, "extraHours": 0, "mode": "parttime"}, {"hours": 0, "extraHours": 0, "mode": "parttime"}]}, {"id": "patricia", "name": "Patr\u00edcia", "note": "Jur\u00eddico \u2014 retainer + hora vari\u00e1vel", "active": true, "hourlyRate": 200, "monthlyFull": 15000, "monthlyPart": 5000, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}]}], "recorrentes": [{"id": "contab", "name": "Contabilidade", "note": "Ativa\u00e7\u00e3o com receita", "active": true, "hourlyRate": 200, "monthlyFixed": 1700, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 15, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}]}, {"id": "wiltonm", "name": "Wilton \u2014 Infra", "note": "DevOps \u2014 retainer + hora vari\u00e1vel", "active": true, "hourlyRate": 150, "monthlyFixed": 1400, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}]}, {"id": "tools", "name": "Ferramentas", "note": "Gmail, AWS, GitHub, IAs\u2026", "active": true, "hourlyRate": 0, "monthlyFixed": 5000, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}]}], "oneshots": [{"id": "wsetup", "name": "Wilton \u2014 Setup Infra", "note": "Configura\u00e7\u00e3o inicial", "brl": 20000, "month": 1, "installments": 4, "active": true}, {"id": "abertu", "name": "Abertura SA", "note": "Constitui\u00e7\u00e3o jur\u00eddica", "brl": 5000, "month": 0, "installments": 1, "active": true}, {"id": "equip", "name": "Equipamentos", "note": "Hardware e perif\u00e9ricos", "brl": 10000, "month": 0, "installments": 1, "active": true}, {"id": "marcas", "name": "Marcas e Patentes", "note": "Registro de IP", "brl": 5000, "month": 0, "installments": 1, "active": true}, {"id": "evguen", "name": "Acerto Evguen", "note": "One-shot", "brl": 3700, "month": 1, "installments": 1, "active": true}, {"id": "namba", "name": "Acerto Namba", "note": "Registro de marca", "brl": 5000, "month": 1, "installments": 1, "active": false}]}, "RC": {"soy": 400, "fx": 5.3, "feeT": 1, "feeC": 0.5}, "DR": {"total": 500000, "pct": 5}, "SCEN": {"c": {"label": "Conservador", "pill": "Receita inicia no M\u00eas 6", "tons": [0, 0, 0, 0, 0, 5000, 8000, 10000]}, "m": {"label": "Meta", "pill": "Receita inicia no M\u00eas 3 \u2014 pr\u00f3ximo do break-even", "tons": [0, 0, 3000, 8000, 15000, 22000, 25000, 24000]}, "p": {"label": "Potencial > Meta", "pill": "Receita inicia no M\u00eas 3 \u2014 supera\u00e7\u00e3o expressiva", "tons": [0, 0, 5000, 12000, 22000, 38000, 60000, 80000]}}};
+DATA=s.DATA;RC=s.RC;DR=s.DR;SCEN=s.SCEN;buildTable();
+})();
 /* __SNAPSHOT_END__ */
 
-/* __SNAPSHOT_START__ */
-(function(){var s={"DATA":{"pessoas":[{"id":"igor","name":"Igor","note":"Founder / CEO & Produto","active":true,"hourlyRate":0,"monthlyFull":30000,"monthlyPart":15000,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"}]},{"id":"vini","name":"Vinicius","note":"Co-founder / CTO","active":true,"hourlyRate":0,"monthlyFull":30000,"monthlyPart":15000,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"}]},{"id":"david","name":"David","note":"Operações","active":true,"hourlyRate":160,"monthlyFull":25000,"monthlyPart":12500,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"none"},{"hours":40,"extraHours":40,"mode":"hourly"},{"hours":40,"extraHours":40,"mode":"hourly"},{"hours":40,"extraHours":40,"mode":"hourly"},{"hours":60,"extraHours":60,"mode":"hourly"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"}]},{"id":"designer","name":"Designer","note":"UI/UX & Marca","active":true,"hourlyRate":60,"monthlyFull":6000,"monthlyPart":3500,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":60,"extraHours":0,"mode":"hourly"},{"hours":60,"extraHours":60,"mode":"hourly"},{"hours":60,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":0,"extraHours":0,"mode":"parttime"}]},{"id":"william","name":"William","note":"Engenharia — hora → full","active":true,"hourlyRate":120,"monthlyFull":9000,"monthlyPart":4500,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":80,"extraHours":0,"mode":"fulltime"},{"hours":80,"extraHours":0,"mode":"fulltime"},{"hours":80,"extraHours":0,"mode":"fulltime"},{"hours":80,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"}]},{"id":"pedro","name":"Pedro","note":"Produto — hora → part","active":true,"hourlyRate":140,"monthlyFull":8000,"monthlyPart":5000,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"},{"hours":0,"extraHours":0,"mode":"fulltime"}]},{"id":"mateus","name":"Mateus","note":"Comercial — hora → part","active":true,"hourlyRate":140,"monthlyFull":18000,"monthlyPart":9000,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":40,"extraHours":0,"mode":"hourly"},{"hours":0,"extraHours":0,"mode":"parttime"},{"hours":0,"extraHours":0,"mode":"parttime"},{"hours":0,"extraHours":0,"mode":"parttime"},{"hours":0,"extraHours":0,"mode":"parttime"}]},{"id":"patricia","name":"Patrícia","note":"Jurídico — retainer + hora variável","active":true,"hourlyRate":300,"monthlyFull":15000,"monthlyPart":5000,"partHoursIncluded":80,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":8,"extraHours":20,"mode":"hourly"},{"hours":8,"extraHours":20,"mode":"hourly"},{"hours":8,"extraHours":20,"mode":"hourly"},{"hours":8,"extraHours":20,"mode":"hourly"},{"hours":8,"extraHours":20,"mode":"hourly"},{"hours":8,"extraHours":20,"mode":"hourly"},{"hours":8,"extraHours":20,"mode":"hourly"},{"hours":8,"extraHours":20,"mode":"hourly"}]}],"recorrentes":[{"id":"contab","name":"Contabilidade","note":"Ativação com receita","active":true,"hourlyRate":200,"monthlyFixed":1700,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":15,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"}]},{"id":"wiltonm","name":"Wilton — Infra","note":"DevOps — retainer + hora variável","active":true,"hourlyRate":150,"monthlyFixed":3000,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"},{"hours":10,"extraHours":0,"mode":"fixed"}]},{"id":"tools","name":"Ferramentas","note":"Gmail, AWS, GitHub, IAs…","active":true,"hourlyRate":0,"monthlyFixed":5000,"months":[{"hours":0,"extraHours":0,"mode":"none"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"},{"hours":0,"extraHours":0,"mode":"fixed"}]}],"oneshots":[{"id":"wsetup","name":"Wilton — Setup Infra","note":"Configuração inicial","brl":20000,"month":1,"installments":4,"active":false},{"id":"abertu","name":"Abertura SA","note":"Constituição jurídica","brl":5000,"month":0,"installments":1,"active":true},{"id":"equip","name":"Equipamentos","note":"Hardware e periféricos","brl":10000,"month":0,"installments":1,"active":true},{"id":"marcas","name":"Marcas e Patentes","note":"Registro de IP","brl":5000,"month":0,"installments":1,"active":true},{"id":"evguen","name":"Acerto Evguen","note":"One-shot","brl":3700,"month":1,"installments":1,"active":true},{"id":"namba","name":"Acerto Namba","note":"Registro de marca","brl":5000,"month":1,"installments":1,"active":false}]},"RC":{"soy":400,"fx":5.3,"feeT":1,"feeC":0.5},"DR":{"total":500000,"pct":5},"SCEN":{"c":{"label":"Conservador","pill":"Receita inicia no Mês 6","tons":[0,0,0,0,0,3000,5000,10000]},"m":{"label":"Meta","pill":"Receita inicia no Mês 3 — próximo do break-even","tons":[0,0,3000,5000,10000,22000,25000,24000]},"p":{"label":"Potencial > Meta","pill":"Receita inicia no Mês 3 — superação expressiva","tons":[0,0,5000,12000,22000,38000,60000,80000]}}};DATA=s.DATA;RC=s.RC;DR=s.DR;SCEN=s.SCEN;buildTable();buildTable();})();
-/* __SNAPSHOT_END__ */
+/* ════════════════════════════════════════════
+   SUPABASE — Cloud Save / Load
+════════════════════════════════════════════ */
+var _sb = null;
+var _userEmail = null;
+var _userName  = null;
+var _currentSimId = null;
+
+function initSupabase(){
+  _sb = supabase.createClient('https://ttgqjpisxmvylpsfzijv.supabase.co', 'sb_publishable_rnTVM_vTFPl294nGi3vb4w_8jmEpKSW');
+}
+
+/* ── LOGIN ── */
+function loginEnter(){
+  var nome  = (document.getElementById('loginNome').value||'').trim();
+  var email = (document.getElementById('loginEmail').value||'').trim().toLowerCase();
+  var err   = document.getElementById('loginErr');
+  if(!nome){ err.textContent='Por favor informe seu nome.'; err.style.display='block'; return; }
+  if(!email||email.indexOf('@')<0){ err.textContent='Por favor informe um e-mail válido.'; err.style.display='block'; return; }
+  err.style.display='none';
+  _userEmail = email;
+  _userName  = nome;
+  localStorage.setItem('ctg_email', email);
+  localStorage.setItem('ctg_nome',  nome);
+  document.getElementById('loginOverlay').style.display='none';
+  document.getElementById('saveFloat').style.display='block';
+  document.getElementById('userBadge').textContent = nome + ' · ' + email;
+  loadLastSim();
+}
+
+function logoutUser(){
+  localStorage.removeItem('ctg_email');
+  localStorage.removeItem('ctg_nome');
+  _userEmail=null; _userName=null; _currentSimId=null;
+  document.getElementById('loginOverlay').style.display='flex';
+  document.getElementById('saveFloat').style.display='none';
+}
+
+/* ── SAVE CLOUD ── */
+async function saveCloud(){
+  if(!_sb||!_userEmail)return;
+  var btn=document.getElementById('btnSaveCloud');
+  btn.innerHTML='☁️ Salvando...'; btn.disabled=true;
+
+  // sync tons inputs first
+  ['c','m','p'].forEach(function(k){
+    var inp=document.querySelectorAll('#tons-'+k+' input');
+    if(inp.length) SCEN[k].tons=Array.from(inp).map(function(el){return +el.value||0;});
+  });
+
+  var dados = JSON.stringify({DATA:DATA,RC:RC,DR:DR,SCEN:SCEN});
+  var agora = new Date().toISOString();
+  var nomeSim = 'Simulação ' + new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+  var res;
+  if(_currentSimId){
+    res = await _sb.from('simulacoes').update({dados:dados,atualizado_em:agora}).eq('id',_currentSimId);
+  } else {
+    res = await _sb.from('simulacoes').insert({usuario_email:_userEmail,nome:nomeSim,dados:dados,atualizado_em:agora}).select();
+    if(res.data&&res.data[0]) _currentSimId = res.data[0].id;
+  }
+
+  if(res.error){
+    btn.innerHTML='☁️ Salvar na Nuvem'; btn.disabled=false;
+    alert('Erro ao salvar: '+res.error.message);
+    return;
+  }
+  btn.innerHTML='✓ Salvo!'; btn.style.background='var(--green)'; btn.style.color='var(--blue-dark)';
+  setTimeout(function(){btn.innerHTML='☁️ Salvar na Nuvem';btn.style.background='';btn.style.color='';btn.disabled=false;},2500);
+}
+
+/* ── LOAD ── */
+async function loadLastSim(){
+  if(!_sb||!_userEmail)return;
+  var res = await _sb.from('simulacoes')
+    .select('*')
+    .eq('usuario_email',_userEmail)
+    .order('atualizado_em',{ascending:false})
+    .limit(1);
+  if(res.data&&res.data.length>0){
+    var sim = res.data[0];
+    _currentSimId = sim.id;
+    try{
+      var s = JSON.parse(sim.dados);
+      DATA=s.DATA; RC=s.RC; DR=s.DR; SCEN=s.SCEN;
+      buildTable(); renderConfig();
+    }catch(e){}
+  }
+}
+
+async function loadSim(id){
+  if(!_sb)return;
+  var res = await _sb.from('simulacoes').select('*').eq('id',id).single();
+  if(res.data){
+    _currentSimId = res.data.id;
+    try{
+      var s = JSON.parse(res.data.dados);
+      DATA=s.DATA; RC=s.RC; DR=s.DR; SCEN=s.SCEN;
+      buildTable(); renderConfig();
+    }catch(e){}
+    hideSimPanel();
+  }
+}
+
+async function deleteSim(id){
+  if(!_sb||!confirm('Deletar esta simulação?'))return;
+  await _sb.from('simulacoes').delete().eq('id',id);
+  if(_currentSimId===id) _currentSimId=null;
+  loadSimList();
+}
+
+/* ── SIM LIST PANEL ── */
+function showSimPanel(){
+  document.getElementById('simPanel').style.display='block';
+  loadSimList();
+}
+
+function hideSimPanel(){
+  document.getElementById('simPanel').style.display='none';
+}
+
+async function loadSimList(){
+  var list = document.getElementById('simList');
+  list.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;padding:20px">Carregando...</div>';
+  if(!_sb||!_userEmail)return;
+  var res = await _sb.from('simulacoes')
+    .select('id,nome,atualizado_em')
+    .eq('usuario_email',_userEmail)
+    .order('atualizado_em',{ascending:false});
+  if(!res.data||res.data.length===0){
+    list.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;padding:20px">Nenhuma simulação salva ainda.</div>';
+    return;
+  }
+  list.innerHTML = res.data.map(function(sim){
+    var ativa = sim.id===_currentSimId;
+    var dt = new Date(sim.atualizado_em).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return '<div style="background:'+(ativa?'rgba(185,213,67,0.1)':'rgba(255,255,255,0.04)')+';border:1px solid '+(ativa?'rgba(185,213,67,0.4)':'rgba(255,255,255,0.08)')+';border-radius:8px;padding:12px 14px;cursor:pointer" onclick="loadSim('+sim.id+')"><div style="font-size:13px;font-weight:600;color:white;margin-bottom:4px">'+sim.nome+'</div><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:11px;color:rgba(255,255,255,0.4)">'+dt+'</span><button onclick="event.stopPropagation();renameSim('+sim.id+',this)" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:11px;cursor:pointer;padding:0 4px">renomear</button><button onclick="event.stopPropagation();deleteSim('+sim.id+')" style="background:none;border:none;color:#ff6b6b;font-size:11px;cursor:pointer;padding:0 4px">✕</button></div></div>';
+  }).join('');
+}
+
+async function newSim(){
+  _currentSimId=null;
+  hideSimPanel();
+  alert('Nova simulação criada. Faça suas alterações e clique em "Salvar na Nuvem".');
+}
+
+async function renameSim(id, btn){
+  var novoNome = prompt('Novo nome para a simulação:');
+  if(!novoNome||!novoNome.trim())return;
+  await _sb.from('simulacoes').update({nome:novoNome.trim()}).eq('id',id);
+  loadSimList();
+}
+
+/* ── AUTO LOGIN se já tinha sessão ── */
+(function(){
+  initSupabase();
+  var email = localStorage.getItem('ctg_email');
+  var nome  = localStorage.getItem('ctg_nome');
+  if(email&&nome){
+    document.getElementById('loginNome').value  = nome;
+    document.getElementById('loginEmail').value = email;
+    loginEnter();
+  }
+})();
+
 </script>
-
-
-</body></html>
+</body>
+</html>
