@@ -1955,32 +1955,62 @@ async function gerarAnaliseIA() {
     '7. Retorne APENAS o JSON. Sem explicações, sem markdown, sem texto adicional.';
 
   try {
-    status.textContent = 'Conectando com Claude...';
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': _ANTHROPIC_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4000,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }]
-      })
-    });
+    // Chamadas separadas por cenário para evitar truncamento
+    async function _callIA(prompt) {
+      var r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': _ANTHROPIC_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 2500,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      var d = await r.json();
+      if (d.error) throw new Error(d.error.message);
+      var raw = d.content[0].text.trim()
+        .replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+      return JSON.parse(raw);
+    }
 
-    var data = await resp.json();
-    if (data.error) throw new Error(data.error.message);
+    function _scPrompt(key, label) {
+      var s = sc[key];
+      return 'Gere a análise estratégica para o cenário ' + label + ' da Contango Token.\n\n' +
+        'DADOS DO MODELO:\n' +
+        '  Receita/ton: R$ ' + s.pt.toFixed(2) + '\n' +
+        '  Volumes M1-M8: ' + s.tons.join(', ') + ' ton\n' +
+        '  Total tokenizado: ' + s.totalTons.toLocaleString('pt-BR') + ' ton\n' +
+        '  Receita total: ' + _fmtR(s.totalRevenue) + '\n' +
+        '  Burn 8 meses: ' + _fmtR(s.burnTotal) + '\n' +
+        '  Resultado acumulado: ' + _sign(s.resultado) + '\n' +
+        '  Receita cobre: ' + s.coveragePct + '% do burn\n' +
+        '  Run rate anual M8: ' + _fmtR(s.runRateAnual) + '\n' +
+        '  Receita inicia: M' + s.firstRevM + '\n\n' +
+        'Retorne EXCLUSIVAMENTE um objeto JSON (sem markdown, sem texto extra) com estes campos:\n' +
+        '  visao_p1: string\n  visao_p2: string\n' +
+        '  drivers: array de 5 strings\n' +
+        '  rev_p1: string\n  rev_p2: string\n' +
+        '  prob_range: string (ex: "45–55%")\n  prob_desc: string\n' +
+        '  vantagens: array de 5 strings\n  riscos: array de 4 strings\n' +
+        '  mitigacoes: array de 4 strings\n' +
+        '  cap_chips: array de 3 objetos {icon, titulo, descricao}\n' +
+        '  perspectiva: string';
+    }
 
-    status.textContent = 'Processando resposta...';
-    var raw = data.content[0].text.trim();
-    // strip possible markdown fences
-    raw = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
-    var parsed = JSON.parse(raw);
+    status.textContent = 'Analisando Conservador...';
+    var dc = await _callIA(_scPrompt('c', 'CONSERVADOR'));
+    status.textContent = 'Analisando Meta...';
+    var dm = await _callIA(_scPrompt('m', 'META'));
+    status.textContent = 'Analisando Potencial...';
+    var dp = await _callIA(_scPrompt('p', 'POTENCIAL'));
 
+    var parsed = { c: dc, m: dm, p: dp };
     _applyAnaliseIA(parsed, sc);
 
     btn.innerHTML = '✓ Análise Atualizada';
