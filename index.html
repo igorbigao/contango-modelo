@@ -1967,7 +1967,7 @@ async function gerarAnaliseIA() {
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 2500,
+          max_tokens: 4000,
           system: systemPrompt,
           messages: [{ role: 'user', content: prompt }]
         })
@@ -1976,31 +1976,53 @@ async function gerarAnaliseIA() {
       if (d.error) throw new Error(d.error.message);
       var raw = d.content[0].text.trim()
         .replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
-      return JSON.parse(raw);
+      // repair truncated JSON: close open strings/arrays/objects
+      function _repairJSON(s) {
+        // count unclosed braces/brackets
+        var depth = 0; var inStr = false; var esc = false;
+        for (var i = 0; i < s.length; i++) {
+          var c = s[i];
+          if (esc) { esc = false; continue; }
+          if (c === '\\') { esc = true; continue; }
+          if (c === '"' && !inStr) { inStr = true; continue; }
+          if (c === '"' && inStr) { inStr = false; continue; }
+          if (!inStr) {
+            if (c === '{' || c === '[') depth++;
+            if (c === '}' || c === ']') depth--;
+          }
+        }
+        var tail = s;
+        if (inStr) tail += '"';  // close open string
+        // close open arrays/objects
+        for (var d = 0; d < Math.abs(depth); d++) {
+          // heuristic: add closing
+          if (depth > 0) tail += depth > 1 ? '"]}}' : '"]}';
+        }
+        return tail;
+      }
+      try { return JSON.parse(raw); }
+      catch(e) {
+        try { return JSON.parse(_repairJSON(raw)); }
+        catch(e2) { throw new Error('JSON inválido: ' + e2.message + ' | raw: ' + raw.substring(0,120)); }
+      }
     }
 
     function _scPrompt(key, label) {
       var s = sc[key];
-      return 'Gere a análise estratégica para o cenário ' + label + ' da Contango Token.\n\n' +
-        'DADOS DO MODELO:\n' +
-        '  Receita/ton: R$ ' + s.pt.toFixed(2) + '\n' +
-        '  Volumes M1-M8: ' + s.tons.join(', ') + ' ton\n' +
-        '  Total tokenizado: ' + s.totalTons.toLocaleString('pt-BR') + ' ton\n' +
-        '  Receita total: ' + _fmtR(s.totalRevenue) + '\n' +
-        '  Burn 8 meses: ' + _fmtR(s.burnTotal) + '\n' +
-        '  Resultado acumulado: ' + _sign(s.resultado) + '\n' +
-        '  Receita cobre: ' + s.coveragePct + '% do burn\n' +
-        '  Run rate anual M8: ' + _fmtR(s.runRateAnual) + '\n' +
-        '  Receita inicia: M' + s.firstRevM + '\n\n' +
-        'Retorne EXCLUSIVAMENTE um objeto JSON (sem markdown, sem texto extra) com estes campos:\n' +
-        '  visao_p1: string\n  visao_p2: string\n' +
-        '  drivers: array de 5 strings\n' +
-        '  rev_p1: string\n  rev_p2: string\n' +
-        '  prob_range: string (ex: "45–55%")\n  prob_desc: string\n' +
-        '  vantagens: array de 5 strings\n  riscos: array de 4 strings\n' +
-        '  mitigacoes: array de 4 strings\n' +
-        '  cap_chips: array de 3 objetos {icon, titulo, descricao}\n' +
-        '  perspectiva: string';
+      return 'Analise o cenário ' + label + ' da Contango Token com os dados abaixo. ' +
+        'Seja conciso — máx 2 frases por campo de texto.\n\n' +
+        'Volumes M1-M8: ' + s.tons.join(',') + ' ton | Total: ' + s.totalTons.toLocaleString('pt-BR') + ' ton\n' +
+        'Receita total: ' + _fmtR(s.totalRevenue) + ' (R$' + s.pt.toFixed(2) + '/ton)\n' +
+        'Burn 8 meses: ' + _fmtR(s.burnTotal) + ' | Resultado: ' + _sign(s.resultado) + '\n' +
+        'Cobertura: ' + s.coveragePct + '% do burn | Run rate M8: ' + _fmtR(s.runRateAnual) + '/ano\n' +
+        'Receita inicia: M' + s.firstRevM + '\n\n' +
+        'Retorne SOMENTE JSON (sem markdown):\n' +
+        '{"visao_p1":"...","visao_p2":"...","drivers":["...","...","...","...","..."],' +
+        '"rev_p1":"...","rev_p2":"...","prob_range":"xx–yy%","prob_desc":"...",' +
+        '"vantagens":["...","...","...","...","..."],"riscos":["...","...","...","..."],' +
+        '"mitigacoes":["...","...","...","..."],' +
+        '"cap_chips":[{"icon":"💰","titulo":"...","descricao":"..."},{"icon":"📈","titulo":"...","descricao":"..."},{"icon":"🚀","titulo":"...","descricao":"..."}],' +
+        '"perspectiva":"..."}';
     }
 
     status.textContent = 'Analisando Conservador...';
