@@ -1955,7 +1955,7 @@ async function gerarAnaliseIA() {
     '7. Retorne APENAS o JSON. Sem explicações, sem markdown, sem texto adicional.';
 
   try {
-    // Chamadas separadas por cenário para evitar truncamento
+    // Chamadas separadas por cenário — formato delimitado (sem JSON)
     async function _callIA(prompt) {
       var r = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -1967,72 +1967,72 @@ async function gerarAnaliseIA() {
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 4000,
+          max_tokens: 3000,
           system: systemPrompt,
           messages: [{ role: 'user', content: prompt }]
         })
       });
       var d = await r.json();
       if (d.error) throw new Error(d.error.message);
-      var raw = d.content[0].text.trim()
-        .replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
-      // repair truncated JSON: close open strings/arrays/objects
-      function _repairJSON(s) {
-        // count unclosed braces/brackets
-        var depth = 0; var inStr = false; var esc = false;
-        for (var i = 0; i < s.length; i++) {
-          var c = s[i];
-          if (esc) { esc = false; continue; }
-          if (c === '\\') { esc = true; continue; }
-          if (c === '"' && !inStr) { inStr = true; continue; }
-          if (c === '"' && inStr) { inStr = false; continue; }
-          if (!inStr) {
-            if (c === '{' || c === '[') depth++;
-            if (c === '}' || c === ']') depth--;
-          }
-        }
-        var tail = s;
-        if (inStr) tail += '"';  // close open string
-        // close open arrays/objects
-        for (var d = 0; d < Math.abs(depth); d++) {
-          // heuristic: add closing
-          if (depth > 0) tail += depth > 1 ? '"]}}' : '"]}';
-        }
-        return tail;
-      }
-      try { return JSON.parse(raw); }
-      catch(e) {
-        try { return JSON.parse(_repairJSON(raw)); }
-        catch(e2) { throw new Error('JSON inválido: ' + e2.message + ' | raw: ' + raw.substring(0,120)); }
-      }
+      return d.content[0].text.trim();
+    }
+
+    function _parseDelimited(raw) {
+      var fields = ['visao_p1','visao_p2','drivers','rev_p1','rev_p2',
+                    'prob_range','prob_desc','vantagens','riscos','mitigacoes',
+                    'cap_chip1','cap_chip2','cap_chip3','perspectiva'];
+      var result = {};
+      fields.forEach(function(f) {
+        var re = new RegExp(f + ':\|\|\|([\s\S]*?)\|\|\|', 'm');
+        var m = raw.match(re);
+        result[f] = m ? m[1].trim() : '';
+      });
+      // parse array fields (pipe-separated)
+      ['drivers','vantagens','riscos','mitigacoes'].forEach(function(f){
+        result[f] = result[f] ? result[f].split('\n').map(function(s){return s.replace(/^[-•*]\s*/,'').trim();}).filter(Boolean) : [];
+      });
+      // parse cap_chips
+      result.cap_chips = [result.cap_chip1, result.cap_chip2, result.cap_chip3].map(function(c,i){
+        var icons = ['💰','📈','🚀'];
+        if(!c) return {icon:icons[i],titulo:'',descricao:''};
+        var parts = c.split('|');
+        return {icon: parts[0]||icons[i], titulo: parts[1]||'', descricao: parts[2]||''};
+      });
+      return result;
     }
 
     function _scPrompt(key, label) {
       var s = sc[key];
-      return 'Analise o cenário ' + label + ' da Contango Token com os dados abaixo. ' +
-        'Seja conciso — máx 2 frases por campo de texto.\n\n' +
-        'Volumes M1-M8: ' + s.tons.join(',') + ' ton | Total: ' + s.totalTons.toLocaleString('pt-BR') + ' ton\n' +
-        'Receita total: ' + _fmtR(s.totalRevenue) + ' (R$' + s.pt.toFixed(2) + '/ton)\n' +
-        'Burn 8 meses: ' + _fmtR(s.burnTotal) + ' | Resultado: ' + _sign(s.resultado) + '\n' +
-        'Cobertura: ' + s.coveragePct + '% do burn | Run rate M8: ' + _fmtR(s.runRateAnual) + '/ano\n' +
-        'Receita inicia: M' + s.firstRevM + '\n\n' +
-        'Retorne SOMENTE JSON (sem markdown):\n' +
-        '{"visao_p1":"...","visao_p2":"...","drivers":["...","...","...","...","..."],' +
-        '"rev_p1":"...","rev_p2":"...","prob_range":"xx–yy%","prob_desc":"...",' +
-        '"vantagens":["...","...","...","...","..."],"riscos":["...","...","...","..."],' +
-        '"mitigacoes":["...","...","...","..."],' +
-        '"cap_chips":[{"icon":"💰","titulo":"...","descricao":"..."},{"icon":"📈","titulo":"...","descricao":"..."},{"icon":"🚀","titulo":"...","descricao":"..."}],' +
-        '"perspectiva":"..."}';
+      return 'Cenário ' + label + ' — Contango Token\n' +
+        'Total: ' + s.totalTons.toLocaleString('pt-BR') + ' ton | Receita: ' + _fmtR(s.totalRevenue) +
+        ' | Burn: ' + _fmtR(s.burnTotal) + ' | Resultado: ' + _sign(s.resultado) +
+        ' | Cobertura: ' + s.coveragePct + '% | Run rate M8: ' + _fmtR(s.runRateAnual) + '/ano' +
+        ' | Receita inicia M' + s.firstRevM + '\n\n' +
+        'Responda EXATAMENTE neste formato (sem nada fora dele):\n\n' +
+        'visao_p1:|||Parágrafo posicionamento do cenário (2 frases max)|||\n' +
+        'visao_p2:|||Parágrafo com números de volume/receita/resultado (2 frases max)|||\n' +
+        'drivers:|||\n- driver 1\n- driver 2\n- driver 3\n- driver 4\n- driver 5\n|||\n' +
+        'rev_p1:|||Dinâmica de receita mês a mês com números reais (2 frases)|||\n' +
+        'rev_p2:|||Significado estratégico e run rate (2 frases)|||\n' +
+        'prob_range:|||XX–YY%|||\n' +
+        'prob_desc:|||Explicação probabilidade (2 frases)|||\n' +
+        'vantagens:|||\n- vantagem 1\n- vantagem 2\n- vantagem 3\n- vantagem 4\n- vantagem 5\n|||\n' +
+        'riscos:|||\n- risco 1\n- risco 2\n- risco 3\n- risco 4\n|||\n' +
+        'mitigacoes:|||\n- mitigação 1\n- mitigação 2\n- mitigação 3\n- mitigação 4\n|||\n' +
+        'cap_chip1:|||💰|Título chip 1|Descrição chip 1|||\n' +
+        'cap_chip2:|||📈|Título chip 2|Descrição chip 2|||\n' +
+        'cap_chip3:|||🚀|Título chip 3|Descrição chip 3|||\n' +
+        'perspectiva:|||Perspectiva direta para Coli com números chave (2-3 frases)|||';
     }
 
     status.textContent = 'Analisando Conservador...';
-    var dc = await _callIA(_scPrompt('c', 'CONSERVADOR'));
+    var rc = await _callIA(_scPrompt('c', 'CONSERVADOR'));
     status.textContent = 'Analisando Meta...';
-    var dm = await _callIA(_scPrompt('m', 'META'));
+    var rm = await _callIA(_scPrompt('m', 'META'));
     status.textContent = 'Analisando Potencial...';
-    var dp = await _callIA(_scPrompt('p', 'POTENCIAL'));
+    var rp = await _callIA(_scPrompt('p', 'POTENCIAL'));
 
-    var parsed = { c: dc, m: dm, p: dp };
+    var parsed = { c: _parseDelimited(rc), m: _parseDelimited(rm), p: _parseDelimited(rp) };
     _applyAnaliseIA(parsed, sc);
 
     btn.innerHTML = '✓ Análise Atualizada';
