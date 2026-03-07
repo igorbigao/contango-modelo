@@ -1936,6 +1936,8 @@ async function gerarAnaliseIA() {
     '  cap_chips: array de 3 objetos {icon, titulo, descricao} — implicações de capital\n' +
     '  perspectiva: string — perspectiva do investidor (tom direto para Coli, 2-3 frases, incluindo os números chave)';
 
+  var _anoAtual = new Date().getFullYear();
+  var _seedBRL = Math.round(150000 * RC.fx);
   var systemPrompt =
     'Você é um analista financeiro sênior especializado em startups deeptech e agronegócio brasileiro. ' +
     'Está gerando análise estratégica para Claudio Coli — empresário que fundou a Mastersaf (vendida à Thomson Reuters) ' +
@@ -1944,14 +1946,19 @@ async function gerarAnaliseIA() {
     'Não é exchange — é a camada de infraestrutura. Ciclo 1:1: grão depositado → token emitido → circula → token queimado → grão liberado. ' +
     'MVP completo. Time: Igor (CEO), Vinicius (CTO ex-PicPay), João Marcelo (ex-Big Four), Patrícia (relações institucionais Brasília), Maurício (CEO Vinde). ' +
     'Parcerias: Procer+KeplerWeber (20% armazenagem monitorada BR), GSI (15%), WSYS (precificação), FGV Europa (rastreabilidade). ' +
-    'Captação: US$500k seed para 8 meses piloto → Série A por evidências operacionais.\n\n' +
+    'Captação: US$ 150k seed (R$ ' + _seedBRL.toLocaleString('pt-BR') + ') para 8 meses piloto → Série A por evidências operacionais.\n\n' +
+    'SOBRE RUN RATE: run rate anual = toneladas do ÚLTIMO MÊS do modelo × receita/ton × 12. ' +
+    'Representa o ritmo atual anualizado — "se continuar no ritmo do M8 por 12 meses". ' +
+    'Sempre explique isso ao mencionar run rate. É diferente da receita total acumulada dos 8 meses.\n\n' +
+    'SOBRE DATAS E ANOS: o ano atual é ' + _anoAtual + '. Use este ano como referência para contexto temporal. ' +
+    'Não mencione anos específicos além deste a menos que seja estritamente necessário e contextualmente correto.\n\n' +
     'DIRETRIZES INEGOCIÁVEIS:\n' +
-    '1. OS NÚMEROS DO MODELO SÃO A ÂNCORA. Toda análise parte deles. Use os exatos valores passados no prompt.\n' +
+    '1. OS NÚMEROS DO MODELO SÃO A ÂNCORA. Use APENAS os valores passados no prompt — nunca invente ou extrapole.\n' +
     '2. Tom de parceiro informado, não pitch. Coli já sabe o que é a Contango.\n' +
-    '3. Volumes conservadores = escolha consciente, não fraqueza.\n' +
-    '4. Seja honesto sobre incógnitas: aprovações internas demoram, ciclos jurídicos são reais, comportamento do produtor é imprevisível.\n' +
-    '5. Resultado negativo no Conservador/Meta = construção de infraestrutura para Série A, não fracasso.\n' +
-    '6. NUNCA invente números. Use apenas os dados fornecidos no prompt.\n' +
+    '3. Volumes conservadores = escolha consciente de maturidade, não fraqueza.\n' +
+    '4. Seja honesto sobre incógnitas reais: aprovações internas demoram, ciclos jurídicos são longos, comportamento do produtor em campo é imprevisível.\n' +
+    '5. Resultado negativo no Conservador/Meta = construção de infraestrutura que prepara a Série A, não fracasso.\n' +
+    '6. NUNCA use informações externas ao prompt (notícias, eventos, datas não fornecidas).\n' +
     '7. Retorne APENAS o JSON. Sem explicações, sem markdown, sem texto adicional.';
 
   try {
