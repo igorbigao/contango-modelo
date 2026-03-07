@@ -1974,6 +1974,7 @@ async function gerarAnaliseIA() {
       });
       var d = await r.json();
       if (d.error) throw new Error(d.error.message);
+      if (!d.content || !d.content[0]) throw new Error('Resposta vazia da API: ' + JSON.stringify(d));
       return d.content[0].text.trim();
     }
 
