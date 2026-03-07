@@ -1975,32 +1975,35 @@ async function gerarAnaliseIA() {
       var d = await r.json();
       if (d.error) throw new Error(d.error.message);
       if (!d.content || !d.content[0]) throw new Error('Resposta vazia da API: ' + JSON.stringify(d));
-      return d.content[0].text.trim();
+      var raw = d.content[0].text.trim()
+        .replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+      var obj = JSON.parse(raw);
+      // normalize: drivers/vantagens/riscos/mitigacoes may be string or array
+      ['drivers','vantagens','riscos','mitigacoes'].forEach(function(f){
+        if(typeof obj[f] === 'string'){
+          obj[f] = obj[f].split('\n').map(function(s){return s.replace(/^[-•*]\s*/,'').trim();}).filter(Boolean);
+        }
+      });
+      // normalize cap_chips: may be array of objects or strings
+      if(!obj.cap_chips){
+        obj.cap_chips = [obj.cap_chip1, obj.cap_chip2, obj.cap_chip3].map(function(c,i){
+          var icons=['💰','📈','🚀'];
+          if(!c) return {icon:icons[i],titulo:'',descricao:''};
+          if(typeof c === 'object') return {icon:c.icon||icons[i], titulo:c.titulo||'', descricao:c.descricao||''};
+          var parts = c.split('|');
+          return {icon:parts[0]||icons[i], titulo:parts[1]||'', descricao:parts[2]||''};
+        });
+      } else {
+        obj.cap_chips = obj.cap_chips.map(function(c,i){
+          var icons=['💰','📈','🚀'];
+          if(!c) return {icon:icons[i],titulo:'',descricao:''};
+          return {icon:c.icon||icons[i], titulo:c.titulo||c.titulo||'', descricao:c.descricao||''};
+        });
+      }
+      return obj;
     }
 
-    function _parseDelimited(raw) {
-      var fields = ['visao_p1','visao_p2','drivers','rev_p1','rev_p2',
-                    'prob_range','prob_desc','vantagens','riscos','mitigacoes',
-                    'cap_chip1','cap_chip2','cap_chip3','perspectiva'];
-      var result = {};
-      fields.forEach(function(f) {
-        var re = new RegExp(f + ':\|\|\|([\s\S]*?)\|\|\|', 'm');
-        var m = raw.match(re);
-        result[f] = m ? m[1].trim() : '';
-      });
-      // parse array fields (pipe-separated)
-      ['drivers','vantagens','riscos','mitigacoes'].forEach(function(f){
-        result[f] = result[f] ? result[f].split('\n').map(function(s){return s.replace(/^[-•*]\s*/,'').trim();}).filter(Boolean) : [];
-      });
-      // parse cap_chips
-      result.cap_chips = [result.cap_chip1, result.cap_chip2, result.cap_chip3].map(function(c,i){
-        var icons = ['💰','📈','🚀'];
-        if(!c) return {icon:icons[i],titulo:'',descricao:''};
-        var parts = c.split('|');
-        return {icon: parts[0]||icons[i], titulo: parts[1]||'', descricao: parts[2]||''};
-      });
-      return result;
-    }
+    function _parseDelimited(obj){ return obj; }
 
     function _scPrompt(key, label) {
       var s = sc[key];
@@ -2028,13 +2031,10 @@ async function gerarAnaliseIA() {
 
     status.textContent = 'Analisando Conservador...';
     var rc = await _callIA(_scPrompt('c', 'CONSERVADOR'));
-    console.log('RC RAW:', rc);
     status.textContent = 'Analisando Meta...';
     var rm = await _callIA(_scPrompt('m', 'META'));
-    console.log('RM RAW:', rm);
     status.textContent = 'Analisando Potencial...';
     var rp = await _callIA(_scPrompt('p', 'POTENCIAL'));
-    console.log('RP RAW:', rp);
 
     var parsed = { c: _parseDelimited(rc||''), m: _parseDelimited(rm||''), p: _parseDelimited(rp||'') };
     _applyAnaliseIA(parsed, sc);
