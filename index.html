@@ -2028,12 +2028,15 @@ async function gerarAnaliseIA() {
 
     status.textContent = 'Analisando Conservador...';
     var rc = await _callIA(_scPrompt('c', 'CONSERVADOR'));
+    console.log('RC RAW:', rc);
     status.textContent = 'Analisando Meta...';
     var rm = await _callIA(_scPrompt('m', 'META'));
+    console.log('RM RAW:', rm);
     status.textContent = 'Analisando Potencial...';
     var rp = await _callIA(_scPrompt('p', 'POTENCIAL'));
+    console.log('RP RAW:', rp);
 
-    var parsed = { c: _parseDelimited(rc), m: _parseDelimited(rm), p: _parseDelimited(rp) };
+    var parsed = { c: _parseDelimited(rc||''), m: _parseDelimited(rm||''), p: _parseDelimited(rp||'') };
     _applyAnaliseIA(parsed, sc);
 
     btn.innerHTML = '✓ Análise Atualizada';
