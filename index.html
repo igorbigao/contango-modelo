@@ -63,10 +63,35 @@ body::before{content:'';position:fixed;inset:0;
 .info-pill{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 11px;border-radius:20px;background:var(--green-dim);color:var(--green);border:1px solid rgba(185,213,67,.25);white-space:nowrap}
 
 /* TABLE */
-.tbl-outer{overflow-x:auto;border:1px solid var(--blue-bd);border-radius:12px;box-shadow:0 8px 48px rgba(0,0,0,.4);background:var(--surface)}
+.tbl-outer{overflow-x:auto;border:1px solid var(--blue-bd);border-radius:12px;box-shadow:0 8px 48px rgba(0,0,0,.4);background:var(--surface);scrollbar-width:thin;scrollbar-color:var(--blue-bd) transparent}
+.tbl-outer::-webkit-scrollbar{height:7px}.tbl-outer::-webkit-scrollbar-track{background:rgba(26,58,106,.2);border-radius:4px}.tbl-outer::-webkit-scrollbar-thumb{background:var(--blue-bd);border-radius:4px}
+.tbl-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.tbl-nav-info{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.5px}
+.tbl-scroll-btns{display:flex;gap:4px}
+.tbl-scroll-btn{padding:4px 10px;background:rgba(16,90,166,.12);border:1px solid var(--blue-bd);border-radius:5px;color:var(--text3);cursor:pointer;font-size:12px;transition:all .15s}
+.tbl-scroll-btn:hover{background:rgba(16,90,166,.3);color:var(--white)}
 table.model{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;min-width:980px}
-table.model td:first-child,table.model th:first-child{position:sticky;left:0;z-index:2;background:inherit;min-width:200px;max-width:230px;box-shadow:2px 0 8px rgba(0,0,0,.3)}
-table.model td:nth-child(2),table.model th:nth-child(2){position:sticky;left:200px;z-index:2;background:inherit;box-shadow:2px 0 6px rgba(0,0,0,.15)}
+table.model td:first-child,table.model th:first-child{position:sticky;left:0;z-index:3;background:#0e1e3a;min-width:200px;max-width:230px;box-shadow:3px 0 10px rgba(0,0,0,.5)}
+table.model td:nth-child(2),table.model th:nth-child(2){position:sticky;left:200px;z-index:2;background:#0e1e3a;box-shadow:2px 0 6px rgba(0,0,0,.3)}
+/* Override background para linhas coloridas — sticky cells precisam herdar a cor da linha */
+tr.sec-hdr td:first-child{background:rgba(16,90,166,.22)!important}
+tr.subtotal td:first-child,tr.subtotal td:nth-child(2){background:rgba(16,90,166,.18)!important}
+tr.total-row td:first-child,tr.total-row td:nth-child(2){background:rgba(16,90,166,.3)!important}
+tr.rev-hdr td:first-child{background:rgba(143,168,50,.22)!important}
+tr.rev-sub td:first-child{background:rgba(143,168,50,.1)!important}
+tr.res-hdr td:first-child{background:rgba(9,22,40,.95)!important}
+tr.res-total td:first-child{background:rgba(9,22,40,.8)!important}
+tr.dre-hdr td:first-child{background:rgba(80,40,120,.35)!important}
+tr.dre-section td:first-child{background:rgba(16,50,100,.25)!important}
+tr.dre-sub td:first-child{background:rgba(13,27,56,.55)!important}
+tr.dre-tax td:first-child{background:rgba(155,58,74,.1)!important}
+tr.dre-netliq td:first-child{background:rgba(26,58,106,.28)!important}
+tr.dre-total td:first-child{background:rgba(26,58,106,.25)!important}
+tr.dre-gp td:first-child{background:rgba(26,80,40,.25)!important}
+tr.dre-ebitda td:first-child{background:rgba(185,213,67,.16)!important}
+tr.dre-net td:first-child{background:rgba(16,90,166,.35)!important}
+tr.dre-margin td:first-child{background:rgba(13,27,56,.65)!important}
+tr.acum-row td:first-child{background:rgba(10,90,166,.2)!important}
 .th-hdr{background:rgba(16,90,166,.35)!important}
 table.model th{padding:9px 11px;text-align:right;font-size:9.5px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);border-bottom:1px solid var(--blue-bd);white-space:nowrap}
 table.model th:first-child{text-align:left}
@@ -118,7 +143,110 @@ tr.res-total td{font-weight:700;font-size:12.5px;background:rgba(9,22,40,.6)!imp
 .dr-val.blue{color:var(--blue-lt)}.dr-val.white{color:var(--white)}
 .prem-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;margin-bottom:14px}
 .sc-tons-title{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;margin-top:16px;display:flex;align-items:center;gap:8px}
-.sc-tons-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:4px}
+.sc-tons-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:8px;margin-bottom:4px}
+/* Filtro de ano */
+.yr-filter{display:flex;border:1px solid var(--blue-bd);border-radius:6px;overflow:hidden;margin-left:4px}
+.yr-btn{padding:5px 13px;background:transparent;border:none;border-right:1px solid var(--blue-bd);color:var(--text3);cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:.8px;text-transform:uppercase;transition:all .2s;white-space:nowrap}
+.yr-btn:last-child{border-right:none}
+.yr-btn:hover{color:var(--text);background:rgba(16,90,166,.15)}
+.yr-btn.active{background:var(--blue-muted);color:var(--white)}
+.cfg-yr-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--blue-bd)}
+.cfg-yr-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+/* DRE rows — existente */
+tr.dre-hdr td{background:rgba(80,40,120,.3)!important;padding:6px 11px;font-family:var(--body);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#C4A0FF;border-top:3px solid rgba(140,80,220,.4);border-bottom:1px solid rgba(140,80,220,.2)}
+tr.dre-mb td{background:rgba(80,40,120,.15)!important;font-weight:600;border-top:1px solid rgba(140,80,220,.25)}
+tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);font-size:11px;border-bottom:2px solid rgba(140,80,220,.25)}
+/* DRE P&L completo */
+tr.dre-section td{background:rgba(16,50,100,.22)!important;padding:5px 11px;font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text2);border-top:1px solid var(--blue-bd)}
+tr.dre-sub td{background:rgba(13,27,56,.5)!important;color:var(--text2)!important}
+tr.dre-sub td:first-child{padding-left:24px!important;font-size:11.5px!important}
+tr.dre-tax td{background:rgba(155,58,74,.08)!important;color:rgba(192,74,94,.9)!important;font-size:11.5px}
+tr.dre-netliq td{background:rgba(26,58,106,.25)!important;color:var(--white)!important;font-weight:600;font-size:12.5px;border-top:2px solid rgba(42,100,180,.5)}
+tr.dre-total td{background:rgba(26,58,106,.2)!important;color:var(--white)!important;font-weight:600;font-size:12.5px;border-top:2px solid var(--blue-bd)}
+tr.dre-gp td{background:rgba(26,80,40,.2)!important;color:var(--text)!important;font-weight:600;font-size:12.5px;border-top:2px solid rgba(80,160,80,.35)}
+tr.dre-ebitda td{background:rgba(185,213,67,.14)!important;color:var(--green)!important;font-weight:700;font-size:12.5px;border-top:2px solid rgba(185,213,67,.45)}
+tr.dre-net td{background:rgba(16,90,166,.3)!important;color:var(--white)!important;font-weight:700;font-size:12.5px;border-top:3px solid var(--blue-mid)}
+tr.dre-margin td{background:rgba(13,27,56,.6)!important;color:var(--text3)!important;font-family:var(--mono);font-size:11px}
+/* P&L category badge */
+.pnl-cat-wrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--blue-bd)}
+.pnl-cat-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:block}
+.pnl-cat-select{width:100%;background:rgba(80,40,120,.15);border:1px solid rgba(140,80,220,.3);border-radius:6px;color:var(--text);padding:7px 10px;font-family:var(--mono);font-size:11px;outline:none;cursor:pointer}
+.pnl-cat-select:focus{border-color:rgba(140,80,220,.7)}
+.pnl-cat-select option{background:#0D1B38;color:var(--text)}
+.chip.pnl{background:rgba(80,40,120,.25);color:#C4A0FF;border:1px solid rgba(140,80,220,.3)}
+/* Bulk-fill shortcuts */
+.bulk-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;padding:8px 12px;background:rgba(16,90,166,.07);border:1px solid var(--blue-bd);border-radius:7px}
+.bulk-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;flex-shrink:0}
+.bulk-btn{padding:4px 10px;background:rgba(16,90,166,.15);border:1px solid var(--blue-bd);border-radius:5px;color:var(--text2);cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.5px;transition:all .15s;white-space:nowrap}
+.bulk-btn:hover{background:rgba(16,90,166,.3);color:var(--white)}
+.bulk-sep{width:1px;height:16px;background:var(--blue-bd);flex-shrink:0;margin:0 2px}
+.bulk-inp{width:52px;background:rgba(16,90,166,.1);border:1px solid var(--blue-bd);border-radius:5px;color:var(--text);padding:3px 6px;font-family:var(--mono);font-size:10px;outline:none;text-align:center}
+/* Previsto x Realizado */
+/* Resultados table — células com budget+actual empilhados */
+table.res-table td.res-cell{padding:2px 5px!important;vertical-align:top;min-width:100px}
+.res-cell-budget{font-size:9px;color:var(--text3);margin-bottom:2px;white-space:nowrap;text-align:right}
+.res-cell-input{width:86px;background:rgba(185,213,67,.06);border:1px solid rgba(185,213,67,.15);border-radius:4px;color:var(--text2);padding:3px 5px;font-family:var(--mono);font-size:10.5px;text-align:right;outline:none;transition:all .15s;display:block}
+.res-cell-input:focus{border-color:rgba(185,213,67,.5);background:rgba(185,213,67,.1);color:var(--green)}
+.res-cell-input.has-val{background:rgba(185,213,67,.1);border-color:rgba(185,213,67,.3);color:var(--green)}
+table.res-table tbody tr{height:auto!important}
+/* BvA DRE — scroll horizontal como o modelo, coluna Item fixa */
+table.bva-tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;min-width:900px}
+table.bva-tbl td:first-child,table.bva-tbl th:first-child{position:sticky;left:0;z-index:3;background:#0e1e3a;min-width:200px;max-width:220px;text-align:left;box-shadow:3px 0 10px rgba(0,0,0,.5)}
+table.bva-tbl th{padding:7px 10px;text-align:right;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);border-bottom:1px solid var(--blue-bd);white-space:nowrap}
+table.bva-tbl td{padding:5px 10px;vertical-align:middle;text-align:right;color:var(--text2);font-size:11.5px;white-space:nowrap}
+table.bva-tbl td:first-child{color:var(--text);font-size:12px}
+table.bva-tbl tbody tr{border-bottom:1px solid rgba(26,58,106,.2);transition:background .15s}
+table.bva-tbl tbody tr:hover{background:rgba(16,90,166,.06)}
+/* Sticky background per row type */
+tr.dre-hdr td:first-child{background:rgba(30,10,60,.95)!important}
+tr.dre-section td:first-child{background:rgba(16,40,90,.95)!important}
+tr.dre-sub td:first-child{background:rgba(10,22,50,.95)!important}
+tr.bva-b-row td:first-child{background:#0e1e3a!important}
+tr.bva-b-row.dre-tax td:first-child{background:rgba(50,15,20,.95)!important}
+tr.bva-b-row.dre-netliq td:first-child{background:rgba(20,40,80,.95)!important}
+tr.bva-b-row.dre-gp td:first-child{background:rgba(15,40,20,.95)!important}
+tr.bva-b-row.dre-ebitda td:first-child{background:rgba(30,40,10,.95)!important}
+.bva-th-budget{color:#90b8f8!important}.bva-th-actual{color:var(--green)!important}.bva-th-delta{color:#C4A0FF!important}
+.bva-inp{width:80px;background:rgba(185,213,67,.07);border:1px solid rgba(185,213,67,.18);border-radius:3px;color:var(--green);padding:2px 4px;font-family:var(--mono);font-size:10.5px;text-align:right;outline:none}
+.bva-inp:focus{border-color:rgba(185,213,67,.5);background:rgba(185,213,67,.12)}
+.bva-inp.has-val{background:rgba(185,213,67,.1);border-color:rgba(185,213,67,.28)}
+/* BvA redesigned — rows not sub-cols */
+tr.bva-budget-hdr td{background:rgba(16,90,166,.3)!important;padding:5px 11px;font-family:var(--body);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#90b8f8;border-top:2px solid var(--blue-bd)}
+tr.bva-actual-hdr td{background:rgba(185,213,67,.22)!important;padding:5px 11px;font-family:var(--body);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);border-top:2px solid rgba(185,213,67,.5)}
+tr.bva-delta-hdr td{background:rgba(80,40,120,.22)!important;padding:5px 11px;font-family:var(--body);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C4A0FF;border-top:2px solid rgba(140,80,220,.4)}
+tr.bva-b-row td{background:rgba(16,90,166,.08)!important;color:var(--text2)!important}
+tr.bva-b-row.bold td{background:rgba(16,90,166,.18)!important;color:var(--white)!important;font-weight:600}
+tr.bva-a-row td{background:rgba(185,213,67,.06)!important;color:var(--green)!important}
+tr.bva-a-row.bold td{background:rgba(185,213,67,.14)!important;color:var(--green)!important;font-weight:700}
+tr.bva-d-row td{background:rgba(80,40,120,.08)!important;font-family:var(--mono);font-size:11px}
+tr.bva-d-row.bold td{background:rgba(80,40,120,.18)!important;font-weight:600}
+table.model td.actual-cell{background:rgba(185,213,67,.05)!important;padding:3px 6px!important}
+table.model td.actual-cell input{width:88px;background:rgba(185,213,67,.07);border:1px solid rgba(185,213,67,.2);border-radius:4px;color:var(--green);padding:3px 6px;font-family:var(--mono);font-size:11px;text-align:right;outline:none;transition:border-color .15s}
+table.model td.actual-cell input:focus{border-color:rgba(185,213,67,.6);background:rgba(185,213,67,.12)}
+.delta-pos{color:var(--green)!important}.delta-neg{color:var(--loss-lt)!important}.delta-zero{color:var(--text3)!important;opacity:.5}
+tr.bva-section-hdr td{background:rgba(16,90,166,.22)!important;padding:5px 11px;font-family:var(--body);font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text2)}
+tr.bva-subtotal td{background:rgba(16,90,166,.15)!important;font-weight:600;border-top:1px solid var(--blue-bd)}
+tr.bva-total td{background:rgba(16,90,166,.28)!important;color:var(--white)!important;font-weight:700;font-size:12.5px;border-top:2px solid var(--blue-bd)}
+tr.bva-rev td{background:rgba(143,168,50,.12)!important;font-weight:600}
+tr.bva-res td{background:rgba(9,22,40,.8)!important;font-weight:700;font-size:12.5px;border-top:2px solid var(--blue-bd)}
+tr.bva-ebitda td{background:rgba(185,213,67,.1)!important;color:var(--green)!important;font-weight:700;border-top:2px solid rgba(185,213,67,.4)}
+.bva-kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+.bva-kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
+.bva-kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--blue)}
+.bva-kpi.g::before{background:var(--green)}.bva-kpi.r::before{background:var(--loss)}
+.bva-kpi .lbl{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.bva-kpi .val{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--white)}
+.bva-kpi .val.g{color:var(--green)}.bva-kpi .val.r{color:var(--loss-lt)}
+.bva-kpi .sub{font-size:11px;color:var(--text3);margin-top:2px}
+/* Bulk fill melhorado */
+.bulk-from-row{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}
+.bulk-from-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;flex-shrink:0}
+.bulk-from-sel{background:rgba(16,90,166,.1);border:1px solid var(--blue-bd);border-radius:5px;color:var(--text);padding:3px 7px;font-family:var(--mono);font-size:10px;outline:none}
+.bulk-from-sel option{background:#0D1B38;color:#e8eaf6}
+.bulk-from-inp{width:72px;background:rgba(16,90,166,.1);border:1px solid var(--blue-bd);border-radius:5px;color:var(--text);padding:3px 7px;font-family:var(--mono);font-size:10px;outline:none;text-align:center}
+.bulk-from-inp:focus,.bulk-from-sel:focus{border-color:var(--blue-lt)}
+/* Versão */
+.version-badge{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.1)}
 .tc{display:flex;flex-direction:column;gap:4px}
 .tc label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;text-align:center}
 .tc input{width:100%;background:rgba(16,90,166,.1);border:1px solid var(--blue-bd);border-radius:5px;color:var(--text);padding:6px 4px;font-family:var(--mono);font-size:11px;outline:none;text-align:center;transition:border-color .2s}
@@ -233,6 +361,24 @@ tr.res-total td{font-weight:700;font-size:12.5px;background:rgba(9,22,40,.6)!imp
 tr.dre-hdr td{background:rgba(80,40,120,.3)!important;padding:6px 11px;font-family:var(--body);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#C4A0FF;border-top:3px solid rgba(140,80,220,.4);border-bottom:1px solid rgba(140,80,220,.2)}
 tr.dre-mb td{background:rgba(80,40,120,.15)!important;font-weight:600;border-top:1px solid rgba(140,80,220,.25)}
 tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);font-size:11px;border-bottom:2px solid rgba(140,80,220,.25)}
+/* DRE P&L completo */
+tr.dre-section td{background:rgba(16,50,100,.22)!important;padding:5px 11px;font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text2);border-top:1px solid var(--blue-bd)}
+tr.dre-sub td{background:rgba(13,27,56,.5)!important;color:var(--text2)!important}
+tr.dre-sub td:first-child{padding-left:24px!important;font-size:11.5px!important}
+tr.dre-tax td{background:rgba(155,58,74,.08)!important;color:rgba(192,74,94,.9)!important;font-size:11.5px}
+tr.dre-netliq td{background:rgba(26,58,106,.25)!important;color:var(--white)!important;font-weight:600;font-size:12.5px;border-top:2px solid rgba(42,100,180,.5)}
+tr.dre-total td{background:rgba(26,58,106,.2)!important;color:var(--white)!important;font-weight:600;font-size:12.5px;border-top:2px solid var(--blue-bd)}
+tr.dre-gp td{background:rgba(26,80,40,.2)!important;color:var(--text)!important;font-weight:600;font-size:12.5px;border-top:2px solid rgba(80,160,80,.35)}
+tr.dre-ebitda td{background:rgba(185,213,67,.14)!important;color:var(--green)!important;font-weight:700;font-size:12.5px;border-top:2px solid rgba(185,213,67,.45)}
+tr.dre-net td{background:rgba(16,90,166,.3)!important;color:var(--white)!important;font-weight:700;font-size:12.5px;border-top:3px solid var(--blue-mid)}
+tr.dre-margin td{background:rgba(13,27,56,.6)!important;color:var(--text3)!important;font-family:var(--mono);font-size:11px}
+/* P&L category badge */
+.pnl-cat-wrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--blue-bd)}
+.pnl-cat-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:block}
+.pnl-cat-select{width:100%;background:rgba(80,40,120,.15);border:1px solid rgba(140,80,220,.3);border-radius:6px;color:var(--text);padding:7px 10px;font-family:var(--mono);font-size:11px;outline:none;cursor:pointer}
+.pnl-cat-select:focus{border-color:rgba(140,80,220,.7)}
+.pnl-cat-select option{background:#0D1B38;color:var(--text)}
+.chip.pnl{background:rgba(80,40,120,.25);color:#C4A0FF;border:1px solid rgba(140,80,220,.3)}
 
 /* ── MONTH GRID (per-person contract) ── */
 .month-grid-wrap{margin-top:14px;padding-top:14px;border-top:1px solid var(--blue-bd)}
@@ -341,7 +487,7 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
 </svg>
     </div>
     <div class="doc-info">
-      <div class="doc-title">Modelo Financeiro — Plano Emergencial</div>
+      <div class="doc-title">Modelo Financeiro — <span id="headerVersion"></span></div>
       <div class="doc-sub" id="docDate"></div>
     </div>
   </div>
@@ -350,6 +496,8 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('model',this)">📊 &nbsp;Modelo Financeiro</button>
   <button class="tab-btn" onclick="switchTab('config',this)">⚙️ &nbsp;Configurações</button>
+  <button class="tab-btn" onclick="switchTab('resultados',this)">🎯 &nbsp;Resultados</button>
+  <button class="tab-btn" onclick="switchTab('bva',this)">📈 &nbsp;Budget vs Actual</button>
   <button class="tab-btn" onclick="switchTab('analysis',this)">🔍 &nbsp;Análise Estratégica</button>
 </div>
 
@@ -362,20 +510,30 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
       <button class="tg-btn sc-meta" onclick="setScenario('m',this)">2 · Meta</button>
       <button class="tg-btn sc-pot" onclick="setScenario('p',this)">3 · Potencial</button>
     </div>
+    <div class="ctrl-sep"></div>
+    <span class="ctrl-label">Período</span>
+    <div class="yr-filter">
+      <button class="yr-btn active" id="yr-btn-1" onclick="setYear(1)">Ano 1</button>
+      <button class="yr-btn" id="yr-btn-2" onclick="setYear(2)">Ano 2</button>
+      <button class="yr-btn" id="yr-btn-3" onclick="setYear(3)">Ano 3</button>
+    </div>
     <div class="info-pill" id="scenPill">Receita nos Meses 2–3</div>
   </div>
-  <div class="tbl-outer">
-    <table class="model">
-      <thead><tr class="th-hdr">
-        <th style="text-align:left">Item</th><th>Ded.</th>
-        <th style="color:var(--text3)">M0<small style="display:block;font-size:8px;opacity:.7">Pré</small></th>
-        <th>M1</th><th>M2</th><th>M3</th><th>M4</th><th>M5</th><th>M6</th><th>M7</th><th>M8</th>
-        <th style="border-left:1px solid var(--blue-bd)">Total</th>
-      </tr></thead>
+  <div class="tbl-nav">
+    <span class="tbl-nav-info" id="tblNavInfo"></span>
+    <div class="tbl-scroll-btns">
+      <button class="tbl-scroll-btn" onclick="scrollTable(-200)" title="Scroll esquerda">◀</button>
+      <button class="tbl-scroll-btn" onclick="scrollTable(200)" title="Scroll direita">▶</button>
+      <button class="tbl-scroll-btn" onclick="scrollTableEnd()" title="Ir ao final" style="font-size:10px;letter-spacing:.5px;padding:4px 12px">Total →</button>
+    </div>
+  </div>
+  <div class="tbl-outer" id="tblOuter">
+    <table class="model" id="modelTable">
+      <thead id="tableHead"></thead>
       <tbody id="tableBody"></tbody>
     </table>
   </div>
-  <div class="model-note">Todos os valores em BRL (R$) · Itens <span style="color:var(--green);font-size:10px">▸ hora</span> têm custo variável por mês conforme horas configuradas</div>
+  <div class="model-note">Todos os valores em BRL (R$) · <span id="modelYearNote" style="color:var(--blue-lt)"></span></div>
   <div class="sum-strip" id="sumStrip"></div>
 </div>
 
@@ -400,21 +558,21 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
 
       <div class="sc-tons-title">
         <span class="chip" style="background:rgba(16,90,166,.3);color:var(--blue-lt)">CENÁRIO 1 — CONSERVADOR</span>
-        <span style="color:var(--text3);font-size:10px">Toneladas por mês (M1–M8)</span>
+        <span style="color:var(--text3);font-size:10px">Toneladas por mês (M1–M36)</span>
       </div>
-      <div class="sc-tons-grid" id="tons-c"></div>
+      <div id="tons-c-wrap"></div>
 
       <div class="sc-tons-title">
         <span class="chip" style="background:rgba(143,168,50,.2);color:var(--green)">CENÁRIO 2 — META</span>
-        <span style="color:var(--text3);font-size:10px">Toneladas por mês (M1–M8)</span>
+        <span style="color:var(--text3);font-size:10px">Toneladas por mês (M1–M36)</span>
       </div>
-      <div class="sc-tons-grid" id="tons-m"></div>
+      <div id="tons-m-wrap"></div>
 
       <div class="sc-tons-title">
         <span class="chip" style="background:rgba(185,213,67,.18);color:var(--green)">CENÁRIO 3 — POTENCIAL &gt; META</span>
-        <span style="color:var(--text3);font-size:10px">Toneladas por mês (M1–M8)</span>
+        <span style="color:var(--text3);font-size:10px">Toneladas por mês (M1–M36)</span>
       </div>
-      <div class="sc-tons-grid" id="tons-p"></div>
+      <div id="tons-p-wrap"></div>
     </div>
   </div>
 
@@ -433,12 +591,24 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
           <input type="number" id="rc-feeT" value="1.0" step="0.05" min="0" max="10" onchange="updateRevCalc()"></div>
         <div class="cfg-field"><label>Split Contango (%)</label>
           <input type="number" id="rc-feeC" value="0.5" step="0.05" min="0" max="10" onchange="updateRevCalc()"></div>
+        <div class="cfg-field"><label>Impostos s/ Receita (%)<span style="display:block;font-size:9px;color:var(--text3);margin-top:1px;font-family:var(--body);letter-spacing:0;text-transform:none">PIS+COFINS+ISS combinados</span></label>
+          <input type="number" id="rc-tax" value="6.5" step="0.1" min="0" max="30" onchange="updateRevCalc()"></div>
       </div>
       <div class="dr-result" id="revCalcResult"></div>
     </div>
   </div>
 
   <div class="divider"></div>
+
+  <!-- FILTRO DE ANO para grids de contrato -->
+  <div class="cfg-yr-bar">
+    <span class="cfg-yr-lbl">Período do contrato:</span>
+    <div class="yr-filter">
+      <button class="yr-btn active" id="cfg-yr-btn-1" onclick="setCfgYear(1)">Ano 1 (M0–M12)</button>
+      <button class="yr-btn" id="cfg-yr-btn-2" onclick="setCfgYear(2)">Ano 2 (M13–M24)</button>
+      <button class="yr-btn" id="cfg-yr-btn-3" onclick="setCfgYear(3)">Ano 3 (M25–M36)</button>
+    </div>
+  </div>
 
   <!-- EQUIPE -->
   <div class="cfg-section">
@@ -467,6 +637,87 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
     <button class="btn-save" onclick="saveHTML()">💾 &nbsp;Salvar HTML com meus dados</button>
     <span class="save-note">Gera um novo arquivo .html com todos os seus valores gravados — abra-o no lugar deste.</span>
   </div>
+</div>
+
+<!-- TAB: RESULTADOS (configurador de valores realizados) -->
+<div class="tab-panel" id="tab-resultados">
+  <div class="controls">
+    <span class="ctrl-label">Cenário base</span>
+    <div class="tg">
+      <button class="tg-btn sc-cons active" id="res-sc-c" onclick="setResScenario('c',this)">1 · Conservador</button>
+      <button class="tg-btn sc-meta" id="res-sc-m" onclick="setResScenario('m',this)">2 · Meta</button>
+      <button class="tg-btn sc-pot" id="res-sc-p" onclick="setResScenario('p',this)">3 · Potencial</button>
+    </div>
+    <div class="ctrl-sep"></div>
+    <span class="ctrl-label">Período</span>
+    <div class="yr-filter">
+      <button class="yr-btn active" id="res-yr-1" onclick="setResYear(1)">Ano 1</button>
+      <button class="yr-btn" id="res-yr-2" onclick="setResYear(2)">Ano 2</button>
+      <button class="yr-btn" id="res-yr-3" onclick="setResYear(3)">Ano 3</button>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <button class="bulk-btn" style="padding:5px 14px" onclick="clearResYear()">Clear Year</button>
+      <button class="bulk-btn" style="padding:5px 12px;background:rgba(185,213,67,.15);border-color:rgba(185,213,67,.3);color:var(--green)" onclick="buildBvaTable();switchTabById('bva')">Ver Budget vs Actual →</button>
+    </div>
+  </div>
+  <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:-4px 0 8px;letter-spacing:.5px">
+    Insira os valores <strong style="color:var(--green)">Actual</strong> célula a célula. O Budget (cinza) é exibido acima de cada input como referência. Dados salvos automaticamente ao digitar.
+  </div>
+  <div class="tbl-nav">
+    <span class="tbl-nav-info" id="resNavInfo"></span>
+    <div class="tbl-scroll-btns">
+      <button class="tbl-scroll-btn" onclick="scrollRes(-200)">◀</button>
+      <button class="tbl-scroll-btn" onclick="scrollRes(200)">▶</button>
+      <button class="tbl-scroll-btn" onclick="scrollResEnd()" style="font-size:10px;padding:4px 12px">Total →</button>
+    </div>
+  </div>
+  <div class="tbl-outer" id="resOuter">
+    <table class="model res-table" id="resTable">
+      <thead id="resHead"></thead>
+      <tbody id="resBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB: BUDGET VS ACTUAL (view pura) -->
+<div class="tab-panel" id="tab-bva">
+  <div class="controls">
+    <span class="ctrl-label">Cenário</span>
+    <div class="tg">
+      <button class="tg-btn sc-cons active" id="bva-sc-c" onclick="setBvaScenario('c',this)">1 · Conservador</button>
+      <button class="tg-btn sc-meta" id="bva-sc-m" onclick="setBvaScenario('m',this)">2 · Meta</button>
+      <button class="tg-btn sc-pot" id="bva-sc-p" onclick="setBvaScenario('p',this)">3 · Potencial</button>
+    </div>
+    <div class="ctrl-sep"></div>
+    <span class="ctrl-label">Período</span>
+    <div class="yr-filter">
+      <button class="yr-btn active" id="bva-yr-1" onclick="setBvaYear(1)">Ano 1</button>
+      <button class="yr-btn" id="bva-yr-2" onclick="setBvaYear(2)">Ano 2</button>
+      <button class="yr-btn" id="bva-yr-3" onclick="setBvaYear(3)">Ano 3</button>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <button class="bulk-btn" style="padding:5px 12px" onclick="switchTabById('resultados')">✏️ Editar Resultados</button>
+      <button class="bulk-btn" style="padding:5px 12px;background:rgba(185,213,67,.15);border-color:rgba(185,213,67,.3);color:var(--green)" onclick="exportBvaCsv()">↓ Export CSV</button>
+    </div>
+  </div>
+  <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:-4px 0 8px;letter-spacing:.5px">
+    <span style="color:#90b8f8">■</span> Budget = Projeção do modelo &nbsp;·&nbsp; <span style="color:var(--green)">■</span> Actual = Valores inseridos em Resultados &nbsp;·&nbsp; <span style="color:#C4A0FF">■</span> Δ = Variação (Actual − Budget)
+  </div>
+  <div class="tbl-nav">
+    <span class="tbl-nav-info" id="bvaNavInfo"></span>
+    <div class="tbl-scroll-btns">
+      <button class="tbl-scroll-btn" onclick="scrollBva(-200)">◀</button>
+      <button class="tbl-scroll-btn" onclick="scrollBva(200)">▶</button>
+      <button class="tbl-scroll-btn" onclick="scrollBvaEnd()" style="font-size:10px;padding:4px 12px">Total →</button>
+    </div>
+  </div>
+  <div class="tbl-outer" id="bvaOuter">
+    <table class="bva-tbl" id="bvaTable">
+      <thead id="bvaHead"></thead>
+      <tbody id="bvaBody"></tbody>
+    </table>
+  </div>
+  <div class="bva-kpi-strip" id="bvaKpis"></div>
 </div>
 
 <!-- TAB: ANÁLISE ESTRATÉGICA -->
@@ -832,6 +1083,7 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
   <div class="footer-gradient"></div>
   <div class="footer-inner">
     <div class="footer-l">Documento estratégico interno — Contango &nbsp;|&nbsp; Confidencial &nbsp;|&nbsp; contangotoken.com</div>
+    <span class="version-badge" id="footerVersion"></span>
     <img class="footer-logo"
       src="https://drive.google.com/uc?export=view&id=1LRf7XIGkVaFobcmo3YLQmR2ZuuiveNYl"
       alt="Contango"
@@ -851,9 +1103,20 @@ tr.dre-pct td{background:rgba(80,40,120,.1)!important;font-family:var(--mono);fo
 ═══════════════════════════════════════════════════════════════════ */
 
 let UID = 500;
+let viewYear = 1;  // filtro da tabela: 1=Ano1 2=Ano2 3=Ano3
+let cfgYear  = 1;  // filtro do configurador
+const APP_VERSION = 'v3.4 · build 2026-03-26 18:52 BRT';
+
+function getVisibleMonths(y){
+  y=y||viewYear;
+  if(y===1) return Array.from({length:13},(_,i)=>i);    // M0-M12
+  if(y===2) return Array.from({length:12},(_,i)=>i+13); // M13-M24
+  return          Array.from({length:12},(_,i)=>i+25);  // M25-M36
+}
+function yearLabel(y){ return y===1?'Ano 1 (M0–M12)':y===2?'Ano 2 (M13–M24)':'Ano 3 (M25–M36)'; }
 
 /* ── REVENUE ── */
-let RC = { soy:400, fx:5.30, feeT:1.0, feeC:0.5 };
+let RC = { soy:400, fx:5.30, feeT:1.0, feeC:0.5, taxRate:0.065 };
 function perTonBRL(){ return RC.soy * RC.fx * RC.feeC / 100; }
 
 /* ── DERATE ── */
@@ -861,9 +1124,9 @@ let DR = { total:500000, pct:5 };
 
 /* ── SCENARIOS ── */
 let SCEN = {
-  c:{ label:'Conservador',     pill:'Receita inicia no Mês 6',              tons:[0,0,0,0,0,5000,8000,10000] },
-  m:{ label:'Meta',            pill:'Receita inicia no Mês 3 — próximo do break-even', tons:[0,0,3000,8000,15000,22000,25000,24000] },
-  p:{ label:'Potencial > Meta',pill:'Receita inicia no Mês 3 — superação expressiva',  tons:[0,0,5000,12000,22000,38000,60000,80000] },
+  c:{ label:'Conservador',     pill:'Receita inicia no Mês 6',              tons:[0,0,0,0,0,5000,8000,10000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] },
+  m:{ label:'Meta',            pill:'Receita inicia no Mês 3 — próximo do break-even', tons:[0,0,3000,8000,15000,22000,25000,24000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] },
+  p:{ label:'Potencial > Meta',pill:'Receita inicia no Mês 3 — superação expressiva',  tons:[0,0,5000,12000,22000,38000,60000,80000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] },
 };
 let scenario = 'c';
 
@@ -894,113 +1157,432 @@ let DATA = {
   pessoas: [
     {
       id:'igor', name:'Igor', note:'Founder / CEO & Produto', active:true,
+      pnlCategory:'sga_ga',
       hourlyRate:0, monthlyFull:30000, monthlyPart:15000, partHoursIncluded:80,
       months: mkMonths([
         {mode:'none'},
         {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},
-        {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},
+        {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
     {
       id:'vini', name:'Vinicius', note:'Co-founder / CTO', active:true,
+      pnlCategory:'cogs_tech',
       hourlyRate:0, monthlyFull:30000, monthlyPart:15000, partHoursIncluded:80,
       months: mkMonths([
         {mode:'none'},
         {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},
-        {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},
+        {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
     {
       id:'david', name:'David', note:'Operações', active:true,
+      pnlCategory:'cogs_cs',
       hourlyRate:80, monthlyFull:10000, monthlyPart:6000, partHoursIncluded:80,
       months: mkMonths([
         {mode:'none'},{mode:'none'},
         {mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},
-        {mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},
+        {mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
     {
       id:'designer', name:'Designer', note:'UI/UX & Marca', active:true,
+      pnlCategory:'sga_mktg',
       hourlyRate:0, monthlyFull:6000, monthlyPart:3500, partHoursIncluded:80,
       months: mkMonths([
         {mode:'none'},
         {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},
-        {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},
+        {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
     {
       id:'william', name:'William', note:'Engenharia — hora → full', active:false,
+      pnlCategory:'cogs_tech',
       hourlyRate:150, monthlyFull:10000, monthlyPart:6000, partHoursIncluded:80,
       months: mkMonths([
         {mode:'none'},
         {mode:'hourly',hours:80},{mode:'hourly',hours:80},{mode:'hourly',hours:80},{mode:'hourly',hours:80},
-        {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},
+        {mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},{mode:'fulltime'},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
     {
       id:'pedro', name:'Pedro', note:'Produto — hora → part', active:false,
+      pnlCategory:'cogs_tech',
       hourlyRate:120, monthlyFull:8000, monthlyPart:5000, partHoursIncluded:80,
       months: mkMonths([
         {mode:'none'},
         {mode:'hourly',hours:60},{mode:'hourly',hours:60},{mode:'hourly',hours:60},{mode:'hourly',hours:60},
-        {mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},
+        {mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
     {
       id:'mateus', name:'Mateus', note:'Comercial — hora → part', active:false,
+      pnlCategory:'sga_sales',
       hourlyRate:100, monthlyFull:8000, monthlyPart:5000, partHoursIncluded:80,
       months: mkMonths([
         {mode:'none'},
         {mode:'hourly',hours:60},{mode:'hourly',hours:60},{mode:'hourly',hours:60},{mode:'hourly',hours:60},
-        {mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},
+        {mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},{mode:'parttime',extraHours:0},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
     {
       id:'patricia', name:'Patrícia', note:'Jurídico — retainer + hora variável', active:false,
+      pnlCategory:'sga_ga',
       hourlyRate:250, monthlyFull:0, monthlyPart:5000, partHoursIncluded:0,
       months: mkMonths([
         {mode:'none'},
         {mode:'parttime',extraHours:10},{mode:'parttime',extraHours:10},{mode:'parttime',extraHours:20},{mode:'parttime',extraHours:20},
-        {mode:'parttime',extraHours:15},{mode:'parttime',extraHours:15},{mode:'parttime',extraHours:10},{mode:'parttime',extraHours:10},
+        {mode:'parttime',extraHours:15},{mode:'parttime',extraHours:15},{mode:'parttime',extraHours:10},{mode:'parttime',extraHours:10},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
   ],
   recorrentes: [
     {
       id:'contab', name:'Contabilidade', note:'Ativação com receita', active:true,
+      pnlCategory:'sga_ga',
       hourlyRate:0, monthlyFixed:2000,
       months: mkMonths([
         {mode:'none'},
         {mode:'fixed'},{mode:'fixed'},{mode:'fixed'},{mode:'fixed'},
-        {mode:'fixed'},{mode:'fixed'},{mode:'fixed'},{mode:'fixed'},
+        {mode:'fixed'},{mode:'fixed'},{mode:'fixed'},{mode:'fixed'},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
     {
       id:'wiltonm', name:'Wilton — Infra', note:'DevOps — retainer + hora variável', active:false,
+      pnlCategory:'cogs_tech',
       hourlyRate:150, monthlyFixed:3000,
       months: mkMonths([
         {mode:'none'},
         {mode:'hybrid',hours:10},{mode:'hybrid',hours:10},{mode:'hybrid',hours:10},{mode:'hybrid',hours:10},
-        {mode:'hybrid',hours:10},{mode:'hybrid',hours:10},{mode:'hybrid',hours:10},{mode:'hybrid',hours:10},
+        {mode:'hybrid',hours:10},{mode:'hybrid',hours:10},{mode:'hybrid',hours:10},{mode:'hybrid',hours:10},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
     {
       id:'tools', name:'Ferramentas', note:'Gmail, AWS, GitHub, IAs…', active:true,
+      pnlCategory:'cogs_tech',
       hourlyRate:0, monthlyFixed:5000,
       months: mkMonths([
         {mode:'none'},
         {mode:'fixed'},{mode:'fixed'},{mode:'fixed'},{mode:'fixed'},
-        {mode:'fixed'},{mode:'fixed'},{mode:'fixed'},{mode:'fixed'},
+        {mode:'fixed'},{mode:'fixed'},{mode:'fixed'},{mode:'fixed'},,
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'},
+        {'mode':'none'}
       ])
     },
   ],
   oneshots: [
-    {id:'wsetup', name:'Wilton — Setup Infra', note:'Configuração inicial',   brl:25000, month:1, installments:1, active:true  },
-    {id:'abertu', name:'Abertura SA',           note:'Constituição jurídica',  brl: 5000, month:0, installments:1, active:true  },
-    {id:'equip',  name:'Equipamentos',          note:'Hardware e periféricos', brl:10000, month:0, installments:1, active:true  },
-    {id:'marcas', name:'Marcas e Patentes',     note:'Registro de IP',         brl: 5000, month:0, installments:1, active:true  },
-    {id:'evguen', name:'Acerto Evguen',         note:'One-shot',               brl: 3700, month:1, installments:1, active:true  },
-    {id:'namba',  name:'Acerto Namba',          note:'Registro de marca',      brl: 5000, month:1, installments:1, active:false },
+    {id:'wsetup', name:'Wilton — Setup Infra', note:'Configuração inicial',   pnlCategory:'cogs_tech', brl:25000, month:1, installments:1, active:true  },
+    {id:'abertu', name:'Abertura SA',           note:'Constituição jurídica',  pnlCategory:'sga_ga',    brl: 5000, month:0, installments:1, active:true  },
+    {id:'equip',  name:'Equipamentos',          note:'Hardware e periféricos', pnlCategory:'sga_ga',    brl:10000, month:0, installments:1, active:true  },
+    {id:'marcas', name:'Marcas e Patentes',     note:'Registro de IP',         pnlCategory:'sga_ga',    brl: 5000, month:0, installments:1, active:true  },
+    {id:'evguen', name:'Acerto Evguen',         note:'One-shot',               pnlCategory:'sga_ga',    brl: 3700, month:1, installments:1, active:true  },
+    {id:'namba',  name:'Acerto Namba',          note:'Registro de marca',      pnlCategory:'sga_ga',    brl: 5000, month:1, installments:1, active:false },
   ],
 };
 
@@ -1024,19 +1606,19 @@ function recurrentMonthCost(item, mi){
 }
 
 function personVals(item){
-  return Array.from({length:9}, (_,i) => personMonthCost(item,i));
+  return Array.from({length:37}, (_,i) => personMonthCost(item,i));
 }
 
 function recurrentVals(item){
-  return Array.from({length:9}, (_,i) => recurrentMonthCost(item,i));
+  return Array.from({length:37}, (_,i) => recurrentMonthCost(item,i));
 }
 
 function oneshotVals(item){
-  const v=Array(9).fill(0);
-  const n=Math.max(1,Math.min(8,item.installments||1));
+  const v=Array(37).fill(0);
+  const n=Math.max(1,Math.min(36,item.installments||1));
   const each=Math.round((item.brl||0)/n);
-  const st=Math.max(0,Math.min(8,item.month||0));
-  for(let i=0;i<n;i++){const idx=st+i;if(idx<=8)v[idx]+=each;}
+  const st=Math.max(0,Math.min(36,item.month||0));
+  for(let i=0;i<n;i++){const idx=st+i;if(idx<=36)v[idx]+=each;}
   return v;
 }
 
@@ -1051,35 +1633,51 @@ function fmtK(v){ return v?'R$ '+Math.round(v).toLocaleString('pt-BR'):'-'; }
 
 /* ── TABLE BADGE summary label ── */
 function personModeSummary(item){
-  const modes = item.months.slice(1).map(m=>m.mode).filter(m=>m&&m!=='none');
-  const unique = [...new Set(modes)];
-  if(unique.length===0) return '—';
-  const map = {fulltime:'Full',parttime:'Part',hourly:'Hora'};
+  const miStart=cfgYear===1?0:(cfgYear-1)*12+1;
+  const miEnd  =cfgYear===1?12:cfgYear*12;
+  const modes=item.months.slice(miStart,miEnd+1).map(m=>m&&m.mode).filter(m=>m&&m!=='none');
+  const unique=[...new Set(modes)];
+  if(unique.length===0){ return item.months.some(m=>m&&m.mode&&m.mode!=='none')?'(outros)':'—'; }
+  const map={fulltime:'Full',parttime:'Part',hourly:'Hora'};
   return unique.map(m=>map[m]||m).join('/');
 }
 
 function recurrentModeSummary(item){
-  const modes = item.months.slice(1).map(m=>m.mode).filter(m=>m&&m!=='none');
-  const unique = [...new Set(modes)];
-  if(unique.length===0) return '—';
-  const map = {fixed:'Fixo',hourly:'Hora',hybrid:'Fix+H'};
+  const miStart=cfgYear===1?0:(cfgYear-1)*12+1;
+  const miEnd  =cfgYear===1?12:cfgYear*12;
+  const modes=item.months.slice(miStart,miEnd+1).map(m=>m&&m.mode).filter(m=>m&&m!=='none');
+  const unique=[...new Set(modes)];
+  if(unique.length===0){ return item.months.some(m=>m&&m.mode&&m.mode!=='none')?'(outros)':'—'; }
+  const map={fixed:'Fixo',hourly:'Hora',hybrid:'Fix+H'};
   return unique.map(m=>map[m]||m).join('/');
 }
 
 /* ════════════════════════════════════════════
-   BUILD TABLE
+   BUILD TABLE — 37 meses com filtro por viewYear
 ════════════════════════════════════════════ */
 function buildTable(){
-  const tbody=document.getElementById('tableBody');
-  tbody.innerHTML='';
+  const _tbody=document.getElementById('tableBody');
+  const _thead=document.getElementById('tableHead');
+  _tbody.innerHTML='';
   const sc=SCEN[scenario];
   const pt=perTonBRL();
+  const VM=getVisibleMonths();
+  const NM=VM.length;
+
+  // Thead dinâmico
+  if(_thead){
+    _thead.innerHTML='<tr class="th-hdr"><th style="text-align:left">Item</th><th>Ded.</th>'
+      +VM.map(mi=>mi===0?'<th style="color:var(--text3)">M0<small style="display:block;font-size:8px;opacity:.7">Pré</small></th>':`<th>M${mi}</th>`).join('')
+      +`<th style="border-left:1px solid var(--blue-bd)">${yearLabel(viewYear)} — Total</th></tr>`;
+  }
+  const noteEl=document.getElementById('modelYearNote');
+  if(noteEl) noteEl.textContent=`${yearLabel(viewYear)} · Totais acumulados de 36 meses nos cards abaixo`;
 
   const ap=DATA.pessoas.filter(x=>x.active);
   const ar=DATA.recorrentes.filter(x=>x.active);
   const ao=DATA.oneshots.filter(x=>x.active);
 
-  const P=Array(9).fill(0),R=Array(9).fill(0),O=Array(9).fill(0);
+  const P=Array(37).fill(0),R=Array(37).fill(0),O=Array(37).fill(0);
 
   function row(cells,cls=''){
     const tr=document.createElement('tr');
@@ -1090,111 +1688,191 @@ function buildTable(){
       if(i===0||i===1)td.style.background='var(--surface)';
       tr.appendChild(td);
     });
-    tbody.appendChild(tr);
+    _tbody.appendChild(tr);
   }
 
   function dataRow(label,note,ded,isVar,vals){
-    const tot=vals.reduce((a,b)=>a+b,0);
+    const periodTot=VM.reduce((a,mi)=>a+(vals[mi]||0),0);
     const badge=isVar?' <span class="hr-badge">≈</span>':'';
     return [
       {h:label+badge+(note?`<span class="item-note">${note}</span>`:'')},
       {h:ded||''},
-      ...vals.map(v=>({h:v?R$(v):'<span class="dash">—</span>'})),
-      {h:tot?R$(tot):'<span class="dash">—</span>'},
+      ...VM.map(mi=>({h:vals[mi]?R$(vals[mi]):'<span class="dash">—</span>'})),
+      {h:periodTot?R$(periodTot):'<span class="dash">—</span>'},
     ];
   }
 
-  const B11=Array(11).fill('');
+  const BFILL=Array(NM+2).fill('');
 
   /* PESSOAS */
-  row([{h:'<span class="si">▸</span>PESSOAS — Equipe'},...B11],'sec-hdr');
+  row([{h:'<span class="si">▸</span>PESSOAS — Equipe'},...BFILL],'sec-hdr');
   ap.forEach(item=>{
     const vals=personVals(item); vals.forEach((v,i)=>P[i]+=v);
     const isVar=item.months.some(m=>m&&(m.mode==='hourly'||m.mode==='parttime'));
     row(dataRow(item.name,item.note,personModeSummary(item),isVar,vals));
   });
-  row([{h:'Subtotal Pessoas'},'',...P.map(v=>({h:v?R$(v):'<span class="dash">—</span>'})),{h:R$(P.reduce((a,b)=>a+b,0))}],'subtotal');
+  row([{h:'Subtotal Pessoas'},'',...VM.map(mi=>({h:P[mi]?R$(P[mi]):'<span class="dash">—</span>'})),{h:R$(VM.reduce((a,mi)=>a+P[mi],0))}],'subtotal');
 
   /* RECORRENTES */
-  row([{h:'<span class="si">▸</span>TECNOLOGIA & INFRAESTRUTURA'},...B11],'sec-hdr');
+  row([{h:'<span class="si">▸</span>TECNOLOGIA & INFRAESTRUTURA'},...BFILL],'sec-hdr');
   ar.forEach(item=>{
     const vals=recurrentVals(item); vals.forEach((v,i)=>R[i]+=v);
     const isVar=item.months.some(m=>m&&(m.mode==='hourly'||m.mode==='hybrid'));
     row(dataRow(item.name,item.note,recurrentModeSummary(item),isVar,vals));
   });
-  row([{h:'Subtotal Recorrentes'},'',...R.map(v=>({h:v?R$(v):'<span class="dash">—</span>'})),{h:R$(R.reduce((a,b)=>a+b,0))}],'subtotal');
+  row([{h:'Subtotal Recorrentes'},'',...VM.map(mi=>({h:R[mi]?R$(R[mi]):'<span class="dash">—</span>'})),{h:R$(VM.reduce((a,mi)=>a+R[mi],0))}],'subtotal');
 
   /* ONE-SHOTS */
-  row([{h:'<span class="si">▸</span>DESPESAS ONE-SHOT'},...B11],'sec-hdr');
+  row([{h:'<span class="si">▸</span>DESPESAS ONE-SHOT'},...BFILL],'sec-hdr');
   ao.forEach(item=>{
     const vals=oneshotVals(item); vals.forEach((v,i)=>O[i]+=v);
     const badge=item.installments>1?` <span class="inst-badge">${item.installments}x</span>`:'';
     row(dataRow(item.name+badge,item.note,'1×',false,vals));
   });
-  row([{h:'Subtotal One-Shot'},'',...O.map(v=>({h:v?R$(v):'<span class="dash">—</span>'})),{h:R$(O.reduce((a,b)=>a+b,0))}],'subtotal');
+  row([{h:'Subtotal One-Shot'},'',...VM.map(mi=>({h:O[mi]?R$(O[mi]):'<span class="dash">—</span>'})),{h:R$(VM.reduce((a,mi)=>a+O[mi],0))}],'subtotal');
 
   /* TOTAL */
-  const TOT=Array(9).fill(0).map((_,i)=>P[i]+R[i]+O[i]);
-  const totalGeral=TOT.reduce((a,b)=>a+b,0);
-  window._burnTotal = totalGeral;
-  row([{h:'TOTAL DESEMBOLSO (BRL)'},'',...TOT.map(v=>({h:v?R$(v):'<span class="dash">—</span>'})),{h:`<strong>${R$(totalGeral)}</strong>`}],'total-row');
+  const TOT=Array(37).fill(0).map((_,i)=>P[i]+R[i]+O[i]);
+  const totalGeral36=TOT.reduce((a,b)=>a+b,0);
+  window._burnTotal=totalGeral36;
+  const periodTotal=VM.reduce((a,mi)=>a+TOT[mi],0);
+  row([{h:'TOTAL DESEMBOLSO (BRL)'},'',...VM.map(mi=>({h:TOT[mi]?R$(TOT[mi]):'<span class="dash">—</span>'})),{h:`<strong>${R$(periodTotal)}</strong>`}],'total-row');
 
   let acBurn=0;
   const BURN_ACUM=TOT.map(v=>{acBurn+=v;return acBurn;});
-  row([{h:'Desembolso Acumulado'},'',...BURN_ACUM.map(v=>({h:`<span style="color:var(--blue-lt)">${R$(v)}</span>`})),{h:`<span style="color:var(--blue-lt)">${R$(acBurn)}</span>`}],'acum-row');
+  const lastVM=VM[VM.length-1];
+  row([{h:`Desembolso Acumulado (até M${lastVM})`},'',...VM.map(mi=>({h:`<span style="color:var(--blue-lt)">${R$(BURN_ACUM[mi])}</span>`})),{h:`<span style="color:var(--blue-lt)">${R$(BURN_ACUM[lastVM])}</span>`}],'acum-row');
 
   /* RECEITA */
   const tons=sc.tons;
-  const REV_M=tons.map(t=>Math.round(t*pt));
-  row([{h:`<span class="si">▸</span>RECEITA — ${sc.label.toUpperCase()} · R$ ${pt.toLocaleString('pt-BR',{minimumFractionDigits:2})}/ton`},...B11],'rev-hdr');
-  row([{h:'Toneladas Tokenizadas'},{h:'ton'},{h:'<span class="dash">—</span>'},...tons.map(t=>({h:fmtTons(t)})),{h:fmtTons(tons.reduce((a,b)=>a+b,0))}]);
-  row([{h:'Receita Mensal (BRL)'},{h:'R$'},{h:'<span class="dash">—</span>'},...REV_M.map(r=>({h:r?`<span class="c-pos">${R$(r)}</span>`:'<span class="dash">—</span>'})),{h:`<span class="c-pos">${R$(REV_M.reduce((a,b)=>a+b,0))}</span>`}]);
-
+  const REV_M=[0,...tons.map(t=>Math.round(t*pt))]; // [0]=M0 [1]=M1 ... [36]=M36
   let acRev=0;
-  const RACUM=[0,...REV_M.map(r=>{acRev+=r;return acRev;})];
-  row([{h:'Receita Acumulada (BRL)'},{h:'R$'},{h:'<span class="dash">—</span>'},...RACUM.slice(1).map(r=>({h:r?`<span class="c-pos">${R$(r)}</span>`:'<span class="dash">—</span>'})),{h:`<span class="c-pos">${R$(acRev)}</span>`}],'rev-sub');
+  const RACUM=REV_M.map(r=>{acRev+=r;return acRev;});
+
+  row([{h:`<span class="si">▸</span>RECEITA — ${sc.label.toUpperCase()} · R$ ${pt.toLocaleString('pt-BR',{minimumFractionDigits:2})}/ton`},...BFILL],'rev-hdr');
+
+  const tRow=[{h:'Toneladas Tokenizadas'},{h:'ton'}];
+  VM.forEach(mi=>tRow.push({h:mi===0?'<span class="dash">—</span>':tons[mi-1]?fmtTons(tons[mi-1]):'<span class="dash">—</span>'}));
+  tRow.push({h:fmtTons(VM.filter(m=>m>0).reduce((a,mi)=>a+(tons[mi-1]||0),0))});
+  row(tRow);
+
+  const revRow=[{h:'Receita Mensal (BRL)'},{h:'R$'}];
+  VM.forEach(mi=>revRow.push({h:REV_M[mi]?`<span class="c-pos">${R$(REV_M[mi])}</span>`:'<span class="dash">—</span>'}));
+  revRow.push({h:`<span class="c-pos">${R$(VM.reduce((a,mi)=>a+(REV_M[mi]||0),0))}</span>`});
+  row(revRow);
+
+  const racumRow=[{h:'Receita Acumulada (BRL)'},{h:'R$'}];
+  VM.forEach(mi=>racumRow.push({h:RACUM[mi]?`<span class="c-pos">${R$(RACUM[mi])}</span>`:'<span class="dash">—</span>'}));
+  racumRow.push({h:`<span class="c-pos">${R$(RACUM[lastVM])}</span>`});
+  row(racumRow,'rev-sub');
 
   /* RESULTADO */
-  row([{h:'<span class="si">▸</span>RESULTADO CONSOLIDADO'},...B11],'res-hdr');
+  row([{h:'<span class="si">▸</span>RESULTADO CONSOLIDADO'},...BFILL],'res-hdr');
   const RES=RACUM.map((r,i)=>r-BURN_ACUM[i]);
-  row([{h:'Resultado Acumulado (BRL)'},{h:'R$'},...RES.map(v=>({h:`<span class="${v>=0?'c-pos':'c-neg'}">${v<0?'−':''}${R$(Math.abs(v))}</span>`})),{h:`<span class="${RES[8]>=0?'c-pos':'c-neg'}">${RES[8]<0?'−':''}${R$(Math.abs(RES[8]))}</span>`}],'res-total');
+  const resRow=[{h:'Resultado Acumulado (BRL)'},{h:'R$'}];
+  VM.forEach(mi=>resRow.push({h:`<span class="${RES[mi]>=0?'c-pos':'c-neg'}">${RES[mi]<0?'−':''}${R$(Math.abs(RES[mi]))}</span>`}));
+  resRow.push({h:`<span class="${RES[lastVM]>=0?'c-pos':'c-neg'}">${RES[lastVM]<0?'−':''}${R$(Math.abs(RES[lastVM]))}</span>`});
+  row(resRow,'res-total');
 
-  /* DRE — Margem Bruta */
-  row([{h:'<span class="si">▸</span>DRE — DEMONSTRATIVO DE RESULTADO'},...B11],'dre-hdr');
-  // Receita Bruta mensal (M0=0 fictício, M1..M8)
-  const RECV_M=[0,...REV_M]; // índice 0=M0, 1=M1..8=M8
-  const COST_M=[0,...TOT];
-  const MB_VAL=Array(9).fill(0).map((_,i)=>RECV_M[i]-COST_M[i]); // margem bruta mensal (pode ser negativa)
-  const MB_PCT=MB_VAL.map((mb,i)=>{
-    if(!RECV_M[i]) return null; // sem receita → N/A
-    return Math.round(mb/RECV_M[i]*100);
+  /* DRE — P&L COMPLETO */
+  const pnl=calcularPnLContango(DATA,RC,SCEN,scenario);
+  row([{h:'<span class="si">▸</span>DRE — DEMONSTRATIVO DE RESULTADO'},...BFILL],'dre-hdr');
+
+  const Rpnl=v=>{if(!v)return'<span class="dash">—</span>';const a=R$(Math.abs(v)).replace(/<[^>]*>/g,'');return v<0?`<span class="c-neg">− ${a}</span>`:`<span class="c-pos">${a}</span>`;};
+  const Rpct=p=>{if(p===null||p===undefined)return'<span class="dash">—</span>';return`<span class="${p>=0?'c-pos':'c-neg'}">${p<0?'−':''}${Math.abs(p)}%</span>`;};
+  const sumP=key=>VM.reduce((a,mi)=>a+(pnl[mi]&&pnl[mi][key]||0),0);
+
+  function dreRow(label,ded,key,cls){
+    const cells=[{h:label},{h:ded||'R$'}];
+    VM.forEach(mi=>cells.push({h:Rpnl(pnl[mi]&&pnl[mi][key])}));
+    cells.push({h:Rpnl(sumP(key))});
+    row(cells,cls||'');
+  }
+  function drePctRow(label,numKey,cls){
+    const cells=[{h:label},{h:'%'}];
+    VM.forEach(mi=>cells.push({h:Rpct(pnl[mi]&&pnl[mi][numKey])}));
+    const totLiq=sumP('recLiq'),totVal=sumP(numKey.replace('Pct','').replace('mbPct','lucroBruto').replace('ebitdaPct','ebitda').replace('netPct','lucroLiq'));
+    cells.push({h:Rpct(totLiq?Math.round(totVal/totLiq*100):null)});
+    row(cells,cls||'dre-margin');
+  }
+
+  const rbRow=[{h:'Receita Bruta'},{h:'R$'}];
+  VM.forEach(mi=>rbRow.push({h:pnl[mi]?.recBruta?`<span class="c-pos">${R$(pnl[mi].recBruta).replace(/<[^>]*>/g,'')}</span>`:'<span class="dash">—</span>'}));
+  rbRow.push({h:sumP('recBruta')?`<span class="c-pos">${R$(sumP('recBruta')).replace(/<[^>]*>/g,'')}</span>`:'<span class="dash">—</span>'});
+  row(rbRow);
+  dreRow('(-) Impostos e Deduções','%','impostos','dre-tax');
+  dreRow('(=) Receita Líquida','R$','recLiq','dre-netliq');
+
+  row([{h:'<span class="si">▸</span>(-) COGS'},...BFILL],'dre-section');
+  if(sumP('cogsTech'))  dreRow('Tecnologia','R$','cogsTech','dre-sub');
+  if(sumP('cogsCS'))    dreRow('Customer Success','R$','cogsCS','dre-sub');
+  if(sumP('cogsOps'))   dreRow('Operação','R$','cogsOps','dre-sub');
+  dreRow('Total COGS','R$','cogs','dre-total');
+  dreRow('(=) Lucro Bruto','R$','lucroBruto','dre-gp');
+  drePctRow('% Margem Bruta','mbPct');
+
+  row([{h:'<span class="si">▸</span>(-) SG&A'},...BFILL],'dre-section');
+  if(sumP('sgaVendas')) dreRow('Vendas','R$','sgaVendas','dre-sub');
+  if(sumP('sgaMktg'))   dreRow('Marketing','R$','sgaMktg','dre-sub');
+  if(sumP('sgaGA'))     dreRow('G&A','R$','sgaGA','dre-sub');
+  dreRow('Total SG&A','R$','sga','dre-total');
+  dreRow('(=) EBITDA','R$','ebitda','dre-ebitda');
+  drePctRow('% Margem EBITDA','ebitdaPct');
+  dreRow('(=) Lucro Líquido','R$','lucroLiq','dre-net');
+  drePctRow('% Margem Líquida','netPct');
+
+  buildSummary(RACUM[36],BURN_ACUM[36],RES[36],tons.reduce((a,b)=>a+b,0),sc.label,totalGeral36);
+  // update nav info
+  const navEl=document.getElementById('tblNavInfo');
+  if(navEl)navEl.textContent=`${yearLabel(viewYear)} · ${SCEN[scenario].label} · ← scroll →`;
+}
+
+/* ════════════════════════════════════════════
+   P&L ENGINE — calcularPnLContango (37 meses)
+════════════════════════════════════════════ */
+function calcularPnLContango(DATA, RC, SCEN, scenarioKey){
+  const sc=SCEN[scenarioKey];
+  const pt=RC.soy*RC.fx*RC.feeC/100;
+  const tax=RC.taxRate||0.065;
+  const ap=DATA.pessoas.filter(x=>x.active);
+  const ar=DATA.recorrentes.filter(x=>x.active);
+  const ao=DATA.oneshots.filter(x=>x.active);
+
+  return Array.from({length:37}, (_,mi)=>{
+    const tons    =mi===0?0:(sc.tons[mi-1]||0);
+    const recBruta=Math.round(tons*pt);
+    const impostos=recBruta>0?-Math.round(recBruta*tax):0;
+    const recLiq  =recBruta+impostos;
+
+    let cogsTech=0,cogsCS=0,cogsOps=0,sgaVendas=0,sgaMktg=0,sgaGA=0;
+    const _a=(cost,cat)=>{switch(cat||'sga_ga'){case 'cogs_tech':cogsTech+=cost;break;case 'cogs_cs':cogsCS+=cost;break;case 'cogs_ops':cogsOps+=cost;break;case 'sga_sales':sgaVendas+=cost;break;case 'sga_mktg':sgaMktg+=cost;break;default:sgaGA+=cost;}};
+
+    ap.forEach(item=>_a(personMonthCost(item,mi),item.pnlCategory));
+    ar.forEach(item=>_a(recurrentMonthCost(item,mi),item.pnlCategory));
+    ao.forEach(item=>_a(oneshotVals(item)[mi]||0,item.pnlCategory));
+
+    const cogs=-(cogsTech+cogsCS+cogsOps);
+    const lucroBruto=recLiq+cogs;
+    const sga=-(sgaVendas+sgaMktg+sgaGA);
+    const ebitda=lucroBruto+sga;
+    const lucroLiq=ebitda;
+    const pct=v=>recLiq?Math.round(v/recLiq*100):null;
+
+    return {recBruta,impostos,recLiq,cogsTech,cogsCS,cogsOps,cogs,
+            lucroBruto,mbPct:pct(lucroBruto),
+            sgaVendas,sgaMktg,sgaGA,sga,
+            ebitda,ebitdaPct:pct(ebitda),
+            lucroLiq,netPct:pct(lucroLiq)};
   });
-  // receita bruta row
-  row([{h:'Receita Bruta Mensal'},{h:'R$'},{h:'<span class="dash">—</span>'},...REV_M.map(r=>({h:r?`<span class="c-pos">${R$(r)}</span>`:'<span class="dash">—</span>'})),{h:`<span class="c-pos">${R$(REV_M.reduce((a,b)=>a+b,0))}</span>`}]);
-  // custos totais mensal row
-  row([{h:'Custos Totais Mensais'},{h:'R$'},{h:'<span class="dash">—</span>'},...TOT.map(v=>({h:v?`<span class="c-neg">− ${R$(v).replace('R$ ','')}</span>`:'<span class="dash">—</span>'})),{h:`<span class="c-neg">− ${R$(totalGeral).replace('R$ ','')}</span>`}]);
-  // margem bruta valor row
-  const MB_TOT=REV_M.reduce((a,b)=>a+b,0)-totalGeral;
-  row([{h:'Margem Bruta'},{h:'R$'},...MB_VAL.map(v=>({h:`<span class="${v>=0?'c-pos':'c-neg'}">${v<0?'−':''}${R$(Math.abs(v))}</span>`})),{h:`<span class="${MB_TOT>=0?'c-pos':'c-neg'}">${MB_TOT<0?'−':''}${R$(Math.abs(MB_TOT))}</span>`}],'dre-mb');
-  // margem bruta % row
-  const pctCell=p=>{
-    if(p===null) return {h:'<span class="dash">—</span>'};
-    const cls=p>=0?'c-pos':'c-neg';
-    return {h:`<span class="${cls}">${p<0?'−':''}${Math.abs(p)}%</span>`};
-  };
-  const mbPctTotal=REV_M.reduce((a,b)=>a+b,0)>0?Math.round(MB_TOT/REV_M.reduce((a,b)=>a+b,0)*100):null;
-  row([{h:'Margem Bruta %'},{h:'%'},...MB_PCT.map(pctCell),pctCell(mbPctTotal)],'dre-pct');
-
-  buildSummary(acRev,acBurn,RES[8],tons.reduce((a,b)=>a+b,0),sc.label,totalGeral);
 }
 
 function buildSummary(totRev,totBurn,net,totTons,scLabel,totalCost){
   const captBRL=Math.round(150000*RC.fx);
   document.getElementById('sumStrip').innerHTML=[
-    {l:'Captação Alvo',       v:R$(captBRL).replace(/<[^>]*>/g,''),  n:`Equiv. US$ 150k @ R$ ${RC.fx}`, cls:'',                                vc:'b'},
-    {l:'Custo Total',          v:R$(totalCost).replace(/<[^>]*>/g,''), n:'8 meses de operação',           cls:totalCost>captBRL?'l-card':'',      vc:totalCost>captBRL?'l':''},
-    {l:`Receita — ${scLabel}`, v:R$(totRev).replace(/<[^>]*>/g,''),   n:`${totTons.toLocaleString('pt-BR')} toneladas`, cls:'g-card',            vc:'g'},
-    {l:'Resultado Final',      v:(net<0?'−':'')+R$(Math.abs(net)).replace(/<[^>]*>/g,''), n:net>=0?'Caixa positivo ao final':'Necessita aporte', cls:net>=0?'g-card':'l-card', vc:net>=0?'g':'l'},
+    {l:'Captação Alvo',       v:R$(captBRL).replace(/<[^>]*>/g,''),  n:`Equiv. US$ 150k @ R$ ${RC.fx}`, cls:'', vc:'b'},
+    {l:'Custo Total 36m',     v:R$(totalCost).replace(/<[^>]*>/g,''),n:'36 meses de operação', cls:totalCost>captBRL?'l-card':'', vc:totalCost>captBRL?'l':''},
+    {l:`Receita — ${scLabel}`,v:R$(totRev).replace(/<[^>]*>/g,''),   n:`${totTons.toLocaleString('pt-BR')} ton · 36 meses`, cls:'g-card', vc:'g'},
+    {l:'Resultado 36m',       v:(net<0?'−':'')+R$(Math.abs(net)).replace(/<[^>]*>/g,''), n:net>=0?'Caixa positivo ao final':'Necessita aporte', cls:net>=0?'g-card':'l-card', vc:net>=0?'g':'l'},
   ].map(c=>`<div class="sum-card ${c.cls}"><div class="sum-label">${c.l}</div><div class="sum-val ${c.vc}">${c.v}</div><div class="sum-note">${c.n}</div></div>`).join('');
 }
 
@@ -1232,32 +1910,81 @@ function updateDerate(){
 /* Rev Calc */
 function renderRevCalc(){ updateRevCalc(); }
 function updateRevCalc(){
-  RC.soy  = parseFloat(document.getElementById('rc-soy')?.value)  ||400;
-  RC.fx   = parseFloat(document.getElementById('rc-fx')?.value)   ||5.30;
-  RC.feeT = parseFloat(document.getElementById('rc-feeT')?.value) ||1.0;
-  RC.feeC = parseFloat(document.getElementById('rc-feeC')?.value) ||0.5;
+  RC.soy     = parseFloat(document.getElementById('rc-soy')?.value)  ||400;
+  RC.fx      = parseFloat(document.getElementById('rc-fx')?.value)   ||5.30;
+  RC.feeT    = parseFloat(document.getElementById('rc-feeT')?.value) ||1.0;
+  RC.feeC    = parseFloat(document.getElementById('rc-feeC')?.value) ||0.5;
+  RC.taxRate = (parseFloat(document.getElementById('rc-tax')?.value) ||6.5) / 100;
   const pt=perTonBRL();
+  const ptLiq=pt*(1-RC.taxRate);
   const el=document.getElementById('revCalcResult');
   if(el) el.innerHTML=`
     <div class="dr-item"><div class="dr-lbl">Soja em BRL/ton</div><div class="dr-val white">R$ ${Math.round(RC.soy*RC.fx).toLocaleString('pt-BR')}</div></div>
     <div class="dr-item"><div class="dr-lbl">Fee Contango</div><div class="dr-val blue">${RC.feeC.toLocaleString('pt-BR',{minimumFractionDigits:2})}%</div></div>
-    <div class="dr-item"><div class="dr-lbl">Receita / Tonelada</div><div class="dr-val">R$ ${pt.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>
-    <div class="dr-item"><div class="dr-lbl">5.000 ton (exemplo)</div><div class="dr-val">${fmtK(Math.round(5000*pt))}</div></div>`;
+    <div class="dr-item"><div class="dr-lbl">Receita Bruta / ton</div><div class="dr-val">R$ ${pt.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>
+    <div class="dr-item"><div class="dr-lbl">Receita Líquida / ton</div><div class="dr-val">R$ ${ptLiq.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>`;
   markDirty();
 }
 
-/* Tons grids */
+/* Tons grids — 36 meses com tabs por ano + bulk fill de valor */
 function buildTonsInputs(){
   ['c','m','p'].forEach(k=>{
-    const el=document.getElementById('tons-'+k);
-    if(!el)return;
-    el.innerHTML='';
-    SCEN[k].tons.forEach((val,i)=>{
-      const col=document.createElement('div'); col.className='tc';
-      col.innerHTML=`<label>M${i+1}</label><input type="number" value="${val}" min="0" step="500" onchange="SCEN['${k}'].tons[${i}]=+this.value;markDirty()">`;
-      el.appendChild(col);
-    });
+    const wrap=document.getElementById('tons-'+k+'-wrap');
+    if(!wrap)return;
+    const tabs=[1,2,3].map(y=>`<button class="yr-btn${y===cfgYear?' active':''}" style="padding:4px 12px;font-size:9px" onclick="setCfgYear(${y})">${yearLabel(y)}</button>`).join('');
+    const startM=(cfgYear-1)*12+1;
+    const endM  =cfgYear*12;
+    let cols='';
+    for(let m=startM;m<=endM;m++){
+      const i=m-1;
+      const val=SCEN[k].tons[i]||0;
+      cols+=`<div class="tc"><label>M${m}</label><input type="number" value="${val}" min="0" step="500" onchange="SCEN['${k}'].tons[${i}]=+this.value;markDirty()"><div class="sub" style="font-size:8px;color:var(--text3);text-align:center">${val?Math.round(val/1000)+'k':''}</div></div>`;
+    }
+    // Bulk fill bar
+    const bulkId='tons-bulk-'+k;
+    const bulk=`<div class="bulk-bar" style="margin-bottom:8px">
+      <span class="bulk-lbl">Fill:</span>
+      <input class="bulk-from-inp" id="${bulkId}-val" type="number" placeholder="valor" min="0" step="500">
+      <select class="bulk-from-sel" id="${bulkId}-mode">
+        <option value="all">Todos os meses</option>
+        <option value="from">A partir de M</option>
+      </select>
+      <input class="bulk-from-inp" id="${bulkId}-from" type="number" placeholder="Mês" min="${startM}" max="${endM}" value="${startM}" style="width:52px">
+      <button class="bulk-btn" onclick="bulkTons('${k}',${startM},${endM},'${bulkId}')">Aplicar</button>
+      <div class="bulk-sep"></div>
+      <label class="bulk-btn" style="cursor:pointer" title="Importar CSV (M,tons por linha)">
+        📂 CSV <input type="file" accept=".csv,.txt" style="display:none" onchange="importTonsCsv('${k}',this)">
+      </label>
+    </div>`;
+    wrap.innerHTML=`<div style="display:flex;gap:4px;margin-bottom:8px">${tabs}</div>${bulk}<div class="sc-tons-grid" id="tons-${k}">${cols}</div>`;
   });
+}
+
+function bulkTons(k,startM,endM,bulkId){
+  const val=parseFloat(document.getElementById(bulkId+'-val').value)||0;
+  const mode=document.getElementById(bulkId+'-mode').value;
+  const fromM=parseInt(document.getElementById(bulkId+'-from').value)||startM;
+  const start=mode==='from'?Math.max(fromM-1,0):startM-1; // 0-based index
+  for(let i=start;i<endM;i++) SCEN[k].tons[i]=val;
+  buildTonsInputs(); markDirty();
+}
+
+function importTonsCsv(k,input){
+  const file=input.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const lines=e.target.result.trim().split(/\r?\n/);
+    lines.forEach(line=>{
+      const parts=line.split(/[,;\t]/);
+      if(parts.length<2)return;
+      const m=parseInt(parts[0].trim().replace(/[^0-9]/g,''));
+      const v=parseFloat(parts[1].trim().replace(/[^0-9.]/g,''));
+      if(m>=1&&m<=36&&!isNaN(v)) SCEN[k].tons[m-1]=v;
+    });
+    buildTonsInputs(); markDirty();
+  };
+  reader.readAsText(file);
+  input.value='';
 }
 
 /* ════════════════════════════════════════════
@@ -1281,6 +2008,10 @@ function makeCard(type,item){
 }
 
 function buildChips(type,item){
+  const PNL_LABELS={
+    'cogs_tech':'COGS Tec','cogs_cs':'COGS CS','cogs_ops':'COGS Op',
+    'sga_sales':'SG&A Vendas','sga_mktg':'SG&A Mktg','sga_ga':'SG&A G&A'
+  };
   const chips=[];
   if(type==='oneshots'){
     chips.push({t:`R$ ${(item.brl||0).toLocaleString('pt-BR')}`,c:'chip'});
@@ -1295,6 +2026,7 @@ function buildChips(type,item){
     if(item.hourlyRate)   chips.push({t:`R$ ${item.hourlyRate}/h`,c:'chip hr'});
     chips.push({t:recurrentModeSummary(item),c:'chip'});
   }
+  if(item.pnlCategory) chips.push({t:PNL_LABELS[item.pnlCategory]||item.pnlCategory,c:'chip pnl'});
   return chips.map(c=>`<span class="${c.c}">${c.t}</span>`).join('');
 }
 
@@ -1305,8 +2037,27 @@ function makeBody(type,item){
 }
 
 /* PESSOA BODY */
+function _pnlCatSelect(type, id, current){
+  const opts=[
+    {v:'cogs_tech', l:'COGS — Tecnologia'},
+    {v:'cogs_cs',   l:'COGS — Customer Success'},
+    {v:'cogs_ops',  l:'COGS — Operação'},
+    {v:'sga_sales', l:'SG&A — Vendas'},
+    {v:'sga_mktg',  l:'SG&A — Marketing'},
+    {v:'sga_ga',    l:'SG&A — G&A'},
+  ].map(o=>`<option value="${o.v}" ${(current||'sga_ga')===o.v?'selected':''}>${o.l}</option>`).join('');
+  return `<div class="pnl-cat-wrap">
+    <span class="pnl-cat-lbl">Classificação DRE (P&L)</span>
+    <select class="pnl-cat-select" onchange="updF('${type}','${id}','pnlCategory',this.value);buildChips_refresh('${id}')">${opts}</select>
+  </div>`;
+}
+
 function makePessoaBody(item){
   const id=item.id;
+  const miStart=cfgYear===1?0:(cfgYear-1)*12+1;
+  const miEnd  =cfgYear===1?12:cfgYear*12;
+  const modeOpts=[{v:'none',l:'—'},{v:'hourly',l:'Hora'},{v:'parttime',l:'Part'},{v:'fulltime',l:'Full'}];
+
   let h=`<div class="base-rates">
     <div class="cfg-field"><label>Nome</label>
       <input type="text" value="${item.name}" onchange="updF('pessoas','${id}','name',this.value)"></div>
@@ -1317,45 +2068,43 @@ function makePessoaBody(item){
     <div class="cfg-field"><label>Salário Part-time (R$/mês)</label>
       <input type="number" value="${item.monthlyPart||0}" step="500" min="0" onchange="updF('pessoas','${id}','monthlyPart',+this.value)"></div>
     <div class="cfg-field"><label>Horas incluídas no Part</label>
-      <input type="number" value="${item.partHoursIncluded||0}" step="5" min="0" title="Horas mensais incluídas no contrato part-time. Horas além disso = extra." onchange="updF('pessoas','${id}','partHoursIncluded',+this.value)"></div>
+      <input type="number" value="${item.partHoursIncluded||0}" step="5" min="0" onchange="updF('pessoas','${id}','partHoursIncluded',+this.value)"></div>
     <div class="cfg-field"><label>Taxa por hora extra (R$/h)</label>
       <input type="number" value="${item.hourlyRate||0}" step="10" min="0" onchange="updF('pessoas','${id}','hourlyRate',+this.value)"></div>
-  </div>`;
+  </div>
+  ${_pnlCatSelect('pessoas',id,item.pnlCategory)}`;
 
   h+=`<div class="month-grid-wrap">
-    <span class="month-grid-lbl">Contrato por Mês — M0 a M8</span>
+    <span class="month-grid-lbl">${yearLabel(cfgYear)}</span>
+    <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap">
+      ${[1,2,3].map(y=>`<button class="yr-btn${y===cfgYear?' active':''}" style="padding:3px 10px;font-size:9px" onclick="setCfgYear(${y})">${yearLabel(y)}</button>`).join('')}
+    </div>
+    <div class="bulk-bar">
+      <span class="bulk-lbl">Modo:</span>
+      <select class="bulk-from-sel" id="bk-p-mode-${id}">
+        ${modeOpts.filter(o=>o.v!=='none').map(o=>`<option value="${o.v}">${o.l}</option>`).join('')}
+      </select>
+      <input class="bulk-from-inp" id="bk-p-hrs-${id}" type="number" placeholder="hrs" min="0" step="5" title="Horas (para modo Hora ou extra Part)">
+      <div class="bulk-sep"></div>
+      <button class="bulk-btn" onclick="bulkPessoa('${id}','all',${miStart},${miEnd})">Todos os meses</button>
+      <span class="bulk-from-lbl">a partir de M</span>
+      <input class="bulk-from-inp" id="bk-p-from-${id}" type="number" value="${miStart}" min="${miStart}" max="${miEnd}" style="width:44px">
+      <button class="bulk-btn" onclick="bulkPessoa('${id}','from',${miStart},${miEnd})">Aplicar →</button>
+    </div>
     <div class="month-grid" id="mgrid-${id}">`;
 
-  const modeOpts=[
-    {v:'none',  l:'—'},
-    {v:'hourly',l:'Hora'},
-    {v:'parttime',l:'Part'},
-    {v:'fulltime',l:'Full'},
-  ];
-
-  item.months.forEach((m,mi)=>{
+  for(let mi=miStart;mi<=miEnd;mi++){
+    const m=item.months[mi]||{mode:'none',hours:0,extraHours:0};
     const cost=personMonthCost(item,mi);
     const modeClass=`mode-${m.mode==='none'?'none':m.mode==='fulltime'?'full':m.mode==='parttime'?'part':'hour'}`;
     const opts=modeOpts.map(o=>`<option value="${o.v}" ${m.mode===o.v?'selected':''}>${o.l}</option>`).join('');
-
-    h+=`<div class="mg-col" id="mc-${id}-${mi}">
-      <div class="mg-hdr">M${mi}</div>
+    h+=`<div class="mg-col" id="mc-${id}-${mi}"><div class="mg-hdr">M${mi}</div>
       <select class="mg-mode ${modeClass}" onchange="updMonth('pessoas','${id}',${mi},'mode',this.value)">${opts}</select>`;
-
-    if(m.mode==='hourly'){
-      h+=`<div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="${m.hours||0}" min="0" step="5" onchange="updMonth('pessoas','${id}',${mi},'hours',+this.value)">`;
-    } else if(m.mode==='parttime' && item.hourlyRate>0){
-      h+=`<div class="mg-inp-lbl">+hrs extra</div>
-          <input class="mg-inp" type="number" value="${m.extraHours||0}" min="0" step="1" title="Horas extras além do contrato part-time" onchange="updMonth('pessoas','${id}',${mi},'extraHours',+this.value)">`;
-    } else {
-      h+=`<div style="height:30px"></div>`;
-    }
-
-    h+=`<div class="mg-cost ${cost?'has-val':''}" id="mc-cost-${id}-${mi}">${cost?'R$ '+cost.toLocaleString('pt-BR'):''}</div>
-    </div>`;
-  });
-
+    if(m.mode==='hourly') h+=`<div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="${m.hours||0}" min="0" step="5" onchange="updMonth('pessoas','${id}',${mi},'hours',+this.value)">`;
+    else if(m.mode==='parttime'&&item.hourlyRate>0) h+=`<div class="mg-inp-lbl">+hrs extra</div><input class="mg-inp" type="number" value="${m.extraHours||0}" min="0" step="1" onchange="updMonth('pessoas','${id}',${mi},'extraHours',+this.value)">`;
+    else h+=`<div style="height:30px"></div>`;
+    h+=`<div class="mg-cost ${cost?'has-val':''}">${cost?'R$ '+cost.toLocaleString('pt-BR'):''}</div></div>`;
+  }
   h+=`</div></div>`;
   return h;
 }
@@ -1363,6 +2112,10 @@ function makePessoaBody(item){
 /* RECORRENTE BODY */
 function makeRecorrenteBody(item){
   const id=item.id;
+  const miStart=cfgYear===1?0:(cfgYear-1)*12+1;
+  const miEnd  =cfgYear===1?12:cfgYear*12;
+  const modeOpts=[{v:'none',l:'—'},{v:'hourly',l:'Hora'},{v:'fixed',l:'Fixo'},{v:'hybrid',l:'Fix+H'}];
+
   let h=`<div class="base-rates">
     <div class="cfg-field"><label>Nome</label>
       <input type="text" value="${item.name}" onchange="updF('recorrentes','${id}','name',this.value)"></div>
@@ -1372,39 +2125,39 @@ function makeRecorrenteBody(item){
       <input type="number" value="${item.monthlyFixed||0}" step="500" min="0" onchange="updF('recorrentes','${id}','monthlyFixed',+this.value)"></div>
     <div class="cfg-field"><label>Taxa por hora (R$/h)</label>
       <input type="number" value="${item.hourlyRate||0}" step="10" min="0" onchange="updF('recorrentes','${id}','hourlyRate',+this.value)"></div>
-  </div>`;
+  </div>
+  ${_pnlCatSelect('recorrentes',id,item.pnlCategory)}`;
 
   h+=`<div class="month-grid-wrap">
-    <span class="month-grid-lbl">Modo por Mês — M0 a M8</span>
+    <span class="month-grid-lbl">${yearLabel(cfgYear)}</span>
+    <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap">
+      ${[1,2,3].map(y=>`<button class="yr-btn${y===cfgYear?' active':''}" style="padding:3px 10px;font-size:9px" onclick="setCfgYear(${y})">${yearLabel(y)}</button>`).join('')}
+    </div>
+    <div class="bulk-bar">
+      <span class="bulk-lbl">Modo:</span>
+      <select class="bulk-from-sel" id="bk-r-mode-${id}">
+        ${modeOpts.filter(o=>o.v!=='none').map(o=>`<option value="${o.v}">${o.l}</option>`).join('')}
+      </select>
+      <input class="bulk-from-inp" id="bk-r-hrs-${id}" type="number" placeholder="hrs" min="0" step="5" title="Horas (para modo Hora ou Fix+H)">
+      <div class="bulk-sep"></div>
+      <button class="bulk-btn" onclick="bulkRecorrente('${id}','all',${miStart},${miEnd})">Todos os meses</button>
+      <span class="bulk-from-lbl">a partir de M</span>
+      <input class="bulk-from-inp" id="bk-r-from-${id}" type="number" value="${miStart}" min="${miStart}" max="${miEnd}" style="width:44px">
+      <button class="bulk-btn" onclick="bulkRecorrente('${id}','from',${miStart},${miEnd})">Aplicar →</button>
+    </div>
     <div class="month-grid" id="mgrid-${id}">`;
 
-  const modeOpts=[
-    {v:'none',  l:'—'},
-    {v:'hourly',l:'Hora'},
-    {v:'fixed', l:'Fixo'},
-    {v:'hybrid',l:'Fix+H'},
-  ];
-
-  item.months.forEach((m,mi)=>{
+  for(let mi=miStart;mi<=miEnd;mi++){
+    const m=item.months[mi]||{mode:'none',hours:0};
     const cost=recurrentMonthCost(item,mi);
     const modeClass=`mode-${m.mode==='none'?'none':m.mode==='hybrid'?'fixhybrid':m.mode==='hourly'?'hour':'none'}`;
     const opts=modeOpts.map(o=>`<option value="${o.v}" ${m.mode===o.v?'selected':''}>${o.l}</option>`).join('');
-
-    h+=`<div class="mg-col" id="mc-${id}-${mi}">
-      <div class="mg-hdr">M${mi}</div>
+    h+=`<div class="mg-col" id="mc-${id}-${mi}"><div class="mg-hdr">M${mi}</div>
       <select class="mg-mode ${modeClass}" onchange="updMonth('recorrentes','${id}',${mi},'mode',this.value)">${opts}</select>`;
-
-    if(m.mode==='hourly'||m.mode==='hybrid'){
-      h+=`<div class="mg-inp-lbl">horas</div>
-          <input class="mg-inp" type="number" value="${m.hours||0}" min="0" step="5" onchange="updMonth('recorrentes','${id}',${mi},'hours',+this.value)">`;
-    } else {
-      h+=`<div style="height:30px"></div>`;
-    }
-
-    h+=`<div class="mg-cost ${cost?'has-val':''}" id="mc-cost-${id}-${mi}">${cost?'R$ '+cost.toLocaleString('pt-BR'):''}</div>
-    </div>`;
-  });
-
+    if(m.mode==='hourly'||m.mode==='hybrid') h+=`<div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="${m.hours||0}" min="0" step="5" onchange="updMonth('recorrentes','${id}',${mi},'hours',+this.value)">`;
+    else h+=`<div style="height:30px"></div>`;
+    h+=`<div class="mg-cost ${cost?'has-val':''}">${cost?'R$ '+cost.toLocaleString('pt-BR'):''}</div></div>`;
+  }
   h+=`</div></div>`;
   return h;
 }
@@ -1412,8 +2165,8 @@ function makeRecorrenteBody(item){
 /* ONESHOT BODY */
 function makeOneshotBody(item){
   const id=item.id;
-  const moOpts=Array.from({length:9},(_,i)=>`<option value="${i}" ${item.month===i?'selected':''}>M${i}${i===0?' (Pré)':''}</option>`).join('');
-  const instOpts=[1,2,3,4,5,6].map(n=>`<option value="${n}" ${item.installments===n?'selected':''}>${n===1?'À vista':`${n}x parcelas`}</option>`).join('');
+  const moOpts=Array.from({length:37},(_,i)=>`<option value="${i}" ${item.month===i?'selected':''}>M${i}${i===0?' (Pré)':''}</option>`).join('');
+  const instOpts=[1,2,3,4,6,12,24,36].map(n=>`<option value="${n}" ${item.installments===n?'selected':''}>${n===1?'À vista':`${n}x parcelas`}</option>`).join('');
   return `<div class="cfg-fields">
     <div class="cfg-field"><label>Nome</label>
       <input type="text" value="${item.name}" onchange="updF('oneshots','${id}','name',this.value)"></div>
@@ -1430,12 +2183,35 @@ function makeOneshotBody(item){
       <select onchange="updF('oneshots','${id}','installments',+this.value)">${instOpts}</select></div>
     <div class="cfg-field"><label>Parcela/mês (R$)</label>
       <input type="text" readonly value="R$ ${Math.round((item.brl||0)/(item.installments||1)).toLocaleString('pt-BR')}"></div>
-  </div></div>`;
+  </div></div>
+  ${_pnlCatSelect('oneshots',id,item.pnlCategory)}`;
 }
 
 /* ── CONFIG ACTIONS ── */
 function toggleCard(id){ const c=document.getElementById('cc-'+id); if(c)c.classList.toggle('open'); }
 function toggleActive(type,id,val){ const i=DATA[type].find(x=>x.id===id); if(i){i.active=val;markDirty();} }
+
+function buildChips_refresh(id){
+  const ch=document.getElementById('chips-'+id);
+  if(!ch) return;
+  for(const t of ['pessoas','recorrentes','oneshots']){
+    const item=DATA[t].find(x=>x.id===id);
+    if(item){ ch.innerHTML=buildChips(t,item); return; }
+  }
+}
+
+/* Bulk-fill helper: aplica um modo a todos os meses de um intervalo */
+function bulkMode(type,id,from,to,mode){
+  const item=DATA[type].find(x=>x.id===id); if(!item)return;
+  for(let mi=from;mi<=to;mi++){
+    while(item.months.length<=mi) item.months.push({mode:'none',hours:0,extraHours:0});
+    item.months[mi].mode=mode;
+  }
+  rerenderBody(type,id);
+  const ch=document.getElementById('chips-'+id);
+  if(ch)ch.innerHTML=buildChips(type,item);
+  markDirty();
+}
 
 function updF(type,id,field,val){
   const item=DATA[type].find(x=>x.id===id); if(!item)return;
@@ -1444,20 +2220,16 @@ function updF(type,id,field,val){
   if(nm)nm.textContent=item.name;
   const ch=document.getElementById('chips-'+id);
   if(ch)ch.innerHTML=buildChips(type,item);
-  // Re-render body only for fields that affect month cost display
-  if(['monthlyFull','monthlyPart','monthlyFixed','hourlyRate','partHoursIncluded'].includes(field)){
-    rerenderBody(type,id);
-  }
+  if(['monthlyFull','monthlyPart','monthlyFixed','hourlyRate','partHoursIncluded'].includes(field)) rerenderBody(type,id);
   if(field==='brl'||field==='installments') rerenderBody(type,id);
   markDirty();
 }
 
 function updMonth(type,id,mi,field,val){
   const item=DATA[type].find(x=>x.id===id); if(!item)return;
+  while(item.months.length<=mi) item.months.push({mode:'none',hours:0,extraHours:0});
   if(!item.months[mi]) item.months[mi]={mode:'none',hours:0,extraHours:0};
   item.months[mi][field]=field==='mode'?val:+val;
-
-  // Re-render only this month column for efficiency
   const colEl=document.getElementById(`mc-${id}-${mi}`);
   if(colEl){
     const frag=document.createElement('div');
@@ -1466,47 +2238,32 @@ function updMonth(type,id,mi,field,val){
     newCol.id=`mc-${id}-${mi}`;
     colEl.replaceWith(newCol);
   }
-
   const ch=document.getElementById('chips-'+id);
   if(ch)ch.innerHTML=buildChips(type,item);
   markDirty();
 }
 
 function buildMonthCol(type,item,mi){
-  const m=item.months[mi];
+  while(item.months.length<=mi) item.months.push({mode:'none',hours:0,extraHours:0});
+  const m=item.months[mi]||{mode:'none',hours:0,extraHours:0};
   const cost=type==='pessoas'?personMonthCost(item,mi):recurrentMonthCost(item,mi);
   const isPessoa=type==='pessoas';
-
   let modeClass,opts;
   if(isPessoa){
     modeClass=`mode-${m.mode==='none'?'none':m.mode==='fulltime'?'full':m.mode==='parttime'?'part':'hour'}`;
-    opts=[{v:'none',l:'—'},{v:'hourly',l:'Hora'},{v:'parttime',l:'Part'},{v:'fulltime',l:'Full'}]
-      .map(o=>`<option value="${o.v}" ${m.mode===o.v?'selected':''}>${o.l}</option>`).join('');
+    opts=[{v:'none',l:'—'},{v:'hourly',l:'Hora'},{v:'parttime',l:'Part'},{v:'fulltime',l:'Full'}].map(o=>`<option value="${o.v}" ${m.mode===o.v?'selected':''}>${o.l}</option>`).join('');
   } else {
     modeClass=`mode-${m.mode==='none'?'none':m.mode==='hybrid'?'fixhybrid':m.mode==='hourly'?'hour':'none'}`;
-    opts=[{v:'none',l:'—'},{v:'hourly',l:'Hora'},{v:'fixed',l:'Fixo'},{v:'hybrid',l:'Fix+H'}]
-      .map(o=>`<option value="${o.v}" ${m.mode===o.v?'selected':''}>${o.l}</option>`).join('');
+    opts=[{v:'none',l:'—'},{v:'hourly',l:'Hora'},{v:'fixed',l:'Fixo'},{v:'hybrid',l:'Fix+H'}].map(o=>`<option value="${o.v}" ${m.mode===o.v?'selected':''}>${o.l}</option>`).join('');
   }
-
   let inputHtml='<div style="height:30px"></div>';
   if(isPessoa){
-    if(m.mode==='hourly'){
-      inputHtml=`<div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="${m.hours||0}" min="0" step="5" onchange="updMonth('${type}','${item.id}',${mi},'hours',+this.value)">`;
-    } else if(m.mode==='parttime' && (item.hourlyRate||0)>0){
-      inputHtml=`<div class="mg-inp-lbl">+hrs extra</div><input class="mg-inp" type="number" value="${m.extraHours||0}" min="0" step="1" title="Horas extras além do contrato" onchange="updMonth('${type}','${item.id}',${mi},'extraHours',+this.value)">`;
-    }
+    if(m.mode==='hourly') inputHtml=`<div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="${m.hours||0}" min="0" step="5" onchange="updMonth('${type}','${item.id}',${mi},'hours',+this.value)">`;
+    else if(m.mode==='parttime'&&(item.hourlyRate||0)>0) inputHtml=`<div class="mg-inp-lbl">+hrs extra</div><input class="mg-inp" type="number" value="${m.extraHours||0}" min="0" step="1" onchange="updMonth('${type}','${item.id}',${mi},'extraHours',+this.value)">`;
   } else {
-    if(m.mode==='hourly'||m.mode==='hybrid'){
-      inputHtml=`<div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="${m.hours||0}" min="0" step="5" onchange="updMonth('${type}','${item.id}',${mi},'hours',+this.value)">`;
-    }
+    if(m.mode==='hourly'||m.mode==='hybrid') inputHtml=`<div class="mg-inp-lbl">horas</div><input class="mg-inp" type="number" value="${m.hours||0}" min="0" step="5" onchange="updMonth('${type}','${item.id}',${mi},'hours',+this.value)">`;
   }
-
-  return `<div class="mg-col">
-    <div class="mg-hdr">M${mi}</div>
-    <select class="mg-mode ${modeClass}" onchange="updMonth('${type}','${item.id}',${mi},'mode',this.value)">${opts}</select>
-    ${inputHtml}
-    <div class="mg-cost ${cost?'has-val':''}">${cost?'R$ '+cost.toLocaleString('pt-BR'):''}</div>
-  </div>`;
+  return `<div class="mg-col"><div class="mg-hdr">M${mi}</div><select class="mg-mode ${modeClass}" onchange="updMonth('${type}','${item.id}',${mi},'mode',this.value)">${opts}</select>${inputHtml}<div class="mg-cost ${cost?'has-val':''}">${cost?'R$ '+cost.toLocaleString('pt-BR'):''}</div></div>`;
 }
 
 function rerenderBody(type,id){
@@ -1524,13 +2281,13 @@ function deleteItem(type,id){
 
 function addItem(type){
   const id='i'+(++UID);
-  const blankMonths=mkMonths(Array(9).fill({mode:'none'}));
+  const blankMonths=mkMonths(Array(37).fill({mode:'none'}));
   if(type==='pessoas'){
-    DATA.pessoas.push({id,name:'Novo Membro',note:'',active:true,hourlyRate:100,monthlyFull:8000,monthlyPart:5000,partHoursIncluded:80,months:blankMonths});
+    DATA.pessoas.push({id,name:'Novo Membro',note:'',active:true,pnlCategory:'sga_ga',hourlyRate:100,monthlyFull:8000,monthlyPart:5000,partHoursIncluded:80,months:blankMonths});
   } else if(type==='recorrentes'){
-    DATA.recorrentes.push({id,name:'Nova Despesa',note:'',active:true,hourlyRate:0,monthlyFixed:2000,months:blankMonths});
+    DATA.recorrentes.push({id,name:'Nova Despesa',note:'',active:true,pnlCategory:'sga_ga',hourlyRate:0,monthlyFixed:2000,months:blankMonths});
   } else {
-    DATA.oneshots.push({id,name:'Nova One-Shot',note:'',brl:5000,month:1,installments:1,active:true});
+    DATA.oneshots.push({id,name:'Nova One-Shot',note:'',brl:5000,month:1,installments:1,active:true,pnlCategory:'sga_ga'});
   }
   const cont=document.getElementById('cfg-'+type);
   const card=makeCard(type,DATA[type].find(x=>x.id===id));
@@ -1543,9 +2300,13 @@ function addItem(type){
 let dirty=false;
 function markDirty(){dirty=true;document.getElementById('applyBar').style.display='flex';}
 function applyChanges(){
+  // sync tons do ano visível no config
   ['c','m','p'].forEach(k=>{
-    const inputs=document.querySelectorAll(`#tons-${k} input`);
-    if(inputs.length)SCEN[k].tons=Array.from(inputs).map(i=>+i.value||0);
+    const grid=document.getElementById('tons-'+k);
+    if(!grid)return;
+    const inputs=grid.querySelectorAll('input');
+    const startI=(cfgYear-1)*12;
+    inputs.forEach((inp,i)=>{ if(startI+i<36)SCEN[k].tons[startI+i]=+inp.value||0; });
   });
   updateRevCalc(); updateDerate();
   dirty=false;
@@ -1569,12 +2330,426 @@ function setScenario(key,btn){
   buildTable();
 }
 
+function setYear(y){
+  viewYear=y;
+  [1,2,3].forEach(n=>{
+    const b=document.getElementById('yr-btn-'+n);
+    if(b)b.classList.toggle('active',n===y);
+  });
+  buildTable();
+}
+
+function setCfgYear(y){
+  cfgYear=y;
+  buildTonsInputs();
+  ['pessoas','recorrentes'].forEach(type=>{
+    DATA[type].forEach(item=>{
+      const card=document.getElementById('cc-'+item.id);
+      if(card&&card.classList.contains('open')){
+        const body=document.getElementById('ccb-'+item.id);
+        if(body)body.innerHTML=makeBody(type,item);
+      }
+    });
+  });
+  [1,2,3].forEach(n=>{
+    const b=document.getElementById('cfg-yr-btn-'+n);
+    if(b)b.classList.toggle('active',n===y);
+  });
+}
+
+/* ── SCROLL TABLE ── */
+function scrollTable(dx){ const el=document.getElementById('tblOuter'); if(el)el.scrollLeft+=dx; }
+function scrollTableEnd(){ const el=document.getElementById('tblOuter'); if(el)el.scrollLeft=el.scrollWidth; }
+function scrollBva(dx){ const el=document.getElementById('bvaOuter'); if(el)el.scrollLeft+=dx; }
+function scrollBvaEnd(){ const el=document.getElementById('bvaOuter'); if(el)el.scrollLeft=el.scrollWidth; }
+
+/* ── BULK FILL PESSOAS (modo + horas) ── */
+function bulkPessoa(id,dir,miStart,miEnd){
+  const item=DATA.pessoas.find(x=>x.id===id); if(!item)return;
+  const mode=document.getElementById('bk-p-mode-'+id)?.value||'fulltime';
+  const hrs=parseFloat(document.getElementById('bk-p-hrs-'+id)?.value)||0;
+  const fromM=parseInt(document.getElementById('bk-p-from-'+id)?.value)||miStart;
+  const start=dir==='from'?fromM:miStart;
+  for(let mi=start;mi<=miEnd;mi++){
+    while(item.months.length<=mi) item.months.push({mode:'none',hours:0,extraHours:0});
+    item.months[mi].mode=mode;
+    if(mode==='hourly') item.months[mi].hours=hrs;
+    else if(mode==='parttime') item.months[mi].extraHours=hrs;
+  }
+  rerenderBody('pessoas',id);
+  const ch=document.getElementById('chips-'+id);
+  if(ch)ch.innerHTML=buildChips('pessoas',item);
+  markDirty();
+}
+
+/* ── BULK FILL RECORRENTES ── */
+function bulkRecorrente(id,dir,miStart,miEnd){
+  const item=DATA.recorrentes.find(x=>x.id===id); if(!item)return;
+  const mode=document.getElementById('bk-r-mode-'+id)?.value||'fixed';
+  const hrs=parseFloat(document.getElementById('bk-r-hrs-'+id)?.value)||0;
+  const fromM=parseInt(document.getElementById('bk-r-from-'+id)?.value)||miStart;
+  const start=dir==='from'?fromM:miStart;
+  for(let mi=start;mi<=miEnd;mi++){
+    while(item.months.length<=mi) item.months.push({mode:'none',hours:0,extraHours:0});
+    item.months[mi].mode=mode;
+    if(mode==='hourly'||mode==='hybrid') item.months[mi].hours=hrs;
+  }
+  rerenderBody('recorrentes',id);
+  const ch=document.getElementById('chips-'+id);
+  if(ch)ch.innerHTML=buildChips('recorrentes',item);
+  markDirty();
+}
+
+/* ════════════════════════════════════════════
+   RESULTADOS + BUDGET VS ACTUAL
+   Schema: BVA_DATA[sc][itemKey][mi] = actualValue
+   itemKey = item.id para despesas, "_rev" para receita
+════════════════════════════════════════════ */
+let BVA_DATA = {};
+let bvaScenario = 'c';
+let bvaYear = 1;
+let resScenario = 'c';
+let resYear = 1;
+
+function getBvaItem(sc,itemKey,mi){
+  return (BVA_DATA[sc]&&BVA_DATA[sc][itemKey]&&BVA_DATA[sc][itemKey][mi]!==undefined&&BVA_DATA[sc][itemKey][mi]!==null)
+    ? BVA_DATA[sc][itemKey][mi] : null;
+}
+function setBvaItem(sc,itemKey,mi,val){
+  if(!BVA_DATA[sc]) BVA_DATA[sc]={};
+  if(!BVA_DATA[sc][itemKey]) BVA_DATA[sc][itemKey]={};
+  BVA_DATA[sc][itemKey][mi]=(val===''||val===null||isNaN(+val))?null:+val;
+}
+// Legacy compat for old schema getBva(sc,mi,key)
+function getBva(sc,mi,key){
+  if(key==='rev') return getBvaItem(sc,'_rev',mi);
+  if(key==='burn'){
+    // sum all non-rev items
+    if(!BVA_DATA[sc])return null;
+    let sum=0,has=false;
+    Object.keys(BVA_DATA[sc]).forEach(k=>{
+      if(k==='_rev')return;
+      const v=getBvaItem(sc,k,mi);
+      if(v!==null){sum+=v;has=true;}
+    });
+    return has?sum:null;
+  }
+  return null;
+}
+
+function setResScenario(key,btn){
+  resScenario=key;
+  document.querySelectorAll('[id^="res-sc-"]').forEach(b=>{
+    const k=b.id.replace('res-sc-','');
+    b.className=`tg-btn ${k==='c'?'sc-cons':k==='m'?'sc-meta':'sc-pot'}`+(k===key?' active':'');
+  });
+  buildResTable();
+}
+function setResYear(y){
+  resYear=y;
+  [1,2,3].forEach(n=>{ const b=document.getElementById('res-yr-'+n); if(b)b.classList.toggle('active',n===y); });
+  buildResTable();
+}
+function clearResYear(){
+  if(!confirm('Limpar todos os valores realizados do '+yearLabel(resYear)+'?'))return;
+  if(!BVA_DATA[resScenario])return;
+  const VM=getVisibleMonths(resYear);
+  Object.keys(BVA_DATA[resScenario]).forEach(k=>{
+    VM.forEach(mi=>{ if(BVA_DATA[resScenario][k])delete BVA_DATA[resScenario][k][mi]; });
+  });
+  buildResTable();
+}
+function switchTabById(id){
+  const btn=document.querySelector('.tab-btn[onclick*="\''+id+'\'"]}');
+  if(!btn){ document.querySelectorAll('.tab-btn').forEach(b=>{ if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"))switchTab(id,b); }); }
+  else switchTab(id,btn);
+}
+function scrollRes(dx){ const el=document.getElementById('resOuter'); if(el)el.scrollLeft+=dx; }
+function scrollResEnd(){ const el=document.getElementById('resOuter'); if(el)el.scrollLeft=el.scrollWidth; }
+
+/* ── RESULTADOS: tabela completa com Actual inputs ── */
+function buildResTable(){
+  const _thead=document.getElementById('resHead');
+  const _tbody=document.getElementById('resBody');
+  if(!_thead||!_tbody)return;
+  _tbody.innerHTML='';
+  const sc=resScenario;
+  const VM=getVisibleMonths(resYear);
+  // TODOS os itens — sem filtro .active
+  const ap=DATA.pessoas;
+  const ar=DATA.recorrentes;
+  const ao=DATA.oneshots;
+
+  _thead.innerHTML='<tr class="th-hdr"><th style="text-align:left;min-width:200px">Item</th>'
+    +VM.map(mi=>mi===0?'<th style="color:var(--text3)">M0<small style="display:block;font-size:8px;opacity:.7">Pré</small></th>':`<th>M${mi}</th>`).join('')
+    +'<th style="border-left:1px solid var(--blue-bd)">'+yearLabel(resYear)+' — Total</th></tr>';
+
+  const nav=document.getElementById('resNavInfo');
+  if(nav)nav.textContent=`${yearLabel(resYear)} · Cenário ${SCEN[sc].label} · Budget cinza · Actual verde (editável)`;
+
+  const fmtB=v=>v?`<span style="font-size:8.5px;color:var(--text3);display:block;text-align:right;margin-bottom:1px">${R$(v).replace(/<[^>]*>/g,'')}</span>`:'';
+  function actCell(itemKey,mi,bVal){
+    const a=getBvaItem(sc,itemKey,mi);
+    const hasVal=a!==null;
+    return `<td class="res-cell">${fmtB(bVal)}<input class="res-cell-input${hasVal?' has-val':''}" type="number" min="0" step="100" placeholder="—" value="${hasVal?a:''}" onchange="setBvaItem('${sc}','${itemKey}',${mi},this.value);this.classList.toggle('has-val',this.value!=='')"></td>`;
+  }
+  function periodActual(itemKey){
+    let s=0,has=false;
+    VM.forEach(mi=>{const v=getBvaItem(sc,itemKey,mi);if(v!==null){s+=v;has=true;}});
+    return has?`<span class="c-pos">${R$(s).replace(/<[^>]*>/g,'')}</span>`:'<span class="dash">—</span>';
+  }
+  function row(item,costFn,isInactive){
+    const tr=document.createElement('tr');
+    if(isInactive) tr.style.opacity='0.5';
+    const bPeriod=VM.reduce((a,mi)=>a+(costFn(mi)||0),0);
+    let html=`<td style="text-align:left">${item.name}${item.note?`<span class="item-note">${item.note}</span>`:''}</td>`;
+    VM.forEach(mi=>html+=actCell(item.id,mi,costFn(mi)||0));
+    html+=`<td style="border-left:1px solid var(--blue-bd);vertical-align:top">${fmtB(bPeriod)}${periodActual(item.id)}</td>`;
+    tr.innerHTML=html; _tbody.appendChild(tr);
+  }
+  function secHdr(label){
+    const tr=document.createElement('tr'); tr.className='sec-hdr';
+    tr.innerHTML=`<td colspan="${VM.length+2}"><span class="si">▸</span>${label}</td>`;
+    _tbody.appendChild(tr);
+  }
+  function subtotalRow(label,items,costFn){
+    // TODOS os itens, sem filtro active
+    const bT={};VM.forEach(mi=>bT[mi]=items.reduce((a,item)=>a+costFn(item,mi),0));
+    const bP=VM.reduce((a,mi)=>a+(bT[mi]||0),0);
+    const tr=document.createElement('tr'); tr.className='subtotal';
+    let html=`<td style="text-align:left;font-weight:600">${label}</td>`;
+    VM.forEach(mi=>{
+      let aSum=0,has=false;
+      items.forEach(item=>{const v=getBvaItem(sc,item.id,mi);if(v!==null){aSum+=v;has=true;}});
+      html+=`<td style="vertical-align:top">${fmtB(bT[mi]||0)}${has?'<span class="c-pos">'+R$(aSum).replace(/<[^>]*>/g,'')+'</span>':'<span class="dash">—</span>'}</td>`;
+    });
+    let aTotP=0,hasTotP=false;
+    items.forEach(item=>VM.forEach(mi=>{const v=getBvaItem(sc,item.id,mi);if(v!==null){aTotP+=v;hasTotP=true;}}));
+    html+=`<td style="border-left:1px solid var(--blue-bd);vertical-align:top">${fmtB(bP)}${hasTotP?'<span class="c-pos">'+R$(aTotP).replace(/<[^>]*>/g,'')+'</span>':'<span class="dash">—</span>'}</td>`;
+    tr.innerHTML=html; _tbody.appendChild(tr);
+  }
+
+  secHdr('PESSOAS — Equipe');
+  ap.forEach(item=>{
+    const inativo=!item.active;
+    row(item,mi=>personMonthCost(item,mi),inativo);
+  });
+  subtotalRow('Subtotal Pessoas',ap,(item,mi)=>personMonthCost(item,mi));
+
+  secHdr('TECNOLOGIA & INFRAESTRUTURA');
+  ar.forEach(item=>{
+    const inativo=!item.active;
+    row(item,mi=>recurrentMonthCost(item,mi),inativo);
+  });
+  subtotalRow('Subtotal Recorrentes',ar,(item,mi)=>recurrentMonthCost(item,mi));
+
+  secHdr('DESPESAS ONE-SHOT');
+  ao.forEach(item=>{const ov=oneshotVals(item);const inativo=!item.active;row(item,mi=>ov[mi]||0,inativo);});
+  subtotalRow('Subtotal One-Shot',ao,(item,mi)=>oneshotVals(item)[mi]||0);
+
+  // Receita
+  secHdr('RECEITA');
+  {
+    const bVals={};VM.forEach(mi=>bVals[mi]=pnl[mi]?.recBruta||0);
+    const tr=document.createElement('tr'); tr.className='rev-sub';
+    const bP=VM.reduce((a,mi)=>a+(bVals[mi]||0),0);
+    let html='<td style="text-align:left">Receita Bruta (Tokenização)</td>';
+    VM.forEach(mi=>html+=actCell('_rev',mi,bVals[mi]||0));
+    html+=`<td style="border-left:1px solid var(--blue-bd);vertical-align:top">${fmtB(bP)}${periodActual('_rev')}</td>`;
+    tr.innerHTML=html; _tbody.appendChild(tr);
+  }
+}
+
+/* ════════════════════════════════════════════
+   BUDGET VS ACTUAL — DRE por categorias P&L
+   Estrutura: linhas = categorias DRE
+              colunas = meses (Budget | Actual lado a lado)
+   SEM sub-colunas por mês (evita overlap)
+   Cada linha tem: Budget M1...M12 | Actual M1...M12 | Δ Total
+════════════════════════════════════════════ */
+function setBvaScenario(key,btn){
+  bvaScenario=key;
+  document.querySelectorAll('[id^="bva-sc-"]').forEach(b=>{
+    const k=b.id.replace('bva-sc-','');
+    b.className='tg-btn '+(k==='c'?'sc-cons':k==='m'?'sc-meta':'sc-pot')+(k===key?' active':'');
+  });
+  buildBvaTable();
+}
+function setBvaYear(y){
+  bvaYear=y;
+  [1,2,3].forEach(n=>{ const b=document.getElementById('bva-yr-'+n); if(b)b.classList.toggle('active',n===y); });
+  buildBvaTable();
+}
+
+function exportBvaCsv(){
+  const pnl=calcularPnLContango(DATA,RC,SCEN,bvaScenario);
+  const ap=DATA.pessoas.filter(x=>x.active),ar=DATA.recorrentes.filter(x=>x.active),ao=DATA.oneshots.filter(x=>x.active);
+  const TOT=Array(37).fill(0).map((_,i)=>ap.reduce((a,p)=>a+personMonthCost(p,i),0)+ar.reduce((a,r)=>a+recurrentMonthCost(r,i),0)+ao.reduce((a,o)=>a+(oneshotVals(o)[i]||0),0));
+  const allKeys=[...ap,...ar,...ao].map(x=>x.id);
+  const rows=[['Month','Budget Revenue','Actual Revenue','Δ Revenue','Budget COGS','Actual COGS','Δ COGS','Budget SGA','Actual SGA','Δ SGA','Budget EBITDA','Actual EBITDA','Δ EBITDA']];
+  for(let mi=1;mi<=36;mi++){
+    const p=pnl[mi];
+    const aRev=getBvaItem(bvaScenario,'_rev',mi);
+    let aCogs=0,hasCogs=false,aSga=0,hasSga=false;
+    [...ap,...ar,...ao].forEach(item=>{
+      const v=getBvaItem(bvaScenario,item.id,mi);
+      if(v===null)return;
+      const cat=item.pnlCategory||'sga_ga';
+      if(cat.startsWith('cogs')){aCogs+=v;hasCogs=true;}
+      else{aSga+=v;hasSga=true;}
+    });
+    const bEb=p?.ebitda||0;
+    const aEb=(aRev!==null&&(hasCogs||hasSga))?aRev-(aCogs+aSga):null;
+    rows.push(['M'+mi,p?.recBruta||0,aRev??'',aRev!=null?(aRev-(p?.recBruta||0)):'',Math.abs(p?.cogs||0),hasCogs?aCogs:'',hasCogs?(aCogs-Math.abs(p?.cogs||0)):'',Math.abs(p?.sga||0),hasSga?aSga:'',hasSga?(aSga-Math.abs(p?.sga||0)):'',bEb,aEb??'',aEb!=null?(aEb-bEb):'']);
+  }
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='contango-dre-bva-'+bvaScenario+'-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function buildBvaTable(){
+  const _thead=document.getElementById('bvaHead');
+  const _tbody=document.getElementById('bvaBody');
+  if(!_thead||!_tbody)return;
+  _tbody.innerHTML='';
+  const sc=bvaScenario;
+  const VM=getVisibleMonths(bvaYear).filter(mi=>mi>0);
+  const pnl=calcularPnLContango(DATA,RC,SCEN,sc);
+  const allItems=[...DATA.pessoas,...DATA.recorrentes,...DATA.oneshots];
+
+  function aRevMi(mi){ return getBvaItem(sc,'_rev',mi); }
+  function aBurnMi(mi){
+    let s=0,has=false;
+    allItems.forEach(item=>{const v=getBvaItem(sc,item.id,mi);if(v!==null){s+=v;has=true;}});
+    return has?s:null;
+  }
+  function aCatMi(mi,prefix){
+    let s=0,has=false;
+    allItems.forEach(item=>{
+      if(!(item.pnlCategory||'sga_ga').startsWith(prefix))return;
+      const v=getBvaItem(sc,item.id,mi);if(v!==null){s+=v;has=true;}
+    });
+    return has?s:null;
+  }
+
+  // Thead: Item + [M: B | A] per month + Total(B|A|Δ)
+  _thead.innerHTML='<tr class="th-hdr">'
+    +'<th style="text-align:left;min-width:190px;width:190px">DRE — '+yearLabel(bvaYear)+'</th>'
+    +VM.map(mi=>'<th colspan="2" style="text-align:center;border-left:1px solid var(--blue-bd);font-size:9px;padding:6px 4px">M'+mi+'</th>').join('')
+    +'<th colspan="3" style="text-align:center;border-left:2px solid var(--blue-bd);font-size:9px">Total '+yearLabel(bvaYear)+'</th>'
+    +'</tr>'
+    +'<tr class="th-hdr" style="font-size:8px"><th></th>'
+    +VM.map(()=>'<th style="border-left:1px solid var(--blue-bd);min-width:90px;color:#90b8f8;padding:4px 8px">Budget</th><th style="min-width:90px;color:var(--green);padding:4px 8px">Actual</th>').join('')
+    +'<th style="border-left:2px solid var(--blue-bd);min-width:100px;color:#90b8f8;padding:4px 8px">Budget</th>'
+    +'<th style="min-width:100px;color:var(--green);padding:4px 8px">Actual</th>'
+    +'<th style="min-width:80px;color:#C4A0FF;padding:4px 8px">Δ</th></tr>';
+
+  const Rb=v=>v?R$(v).replace(/<[^>]*>/g,''):'<span class="dash">—</span>';
+  const Ra=v=>v!==null?'<span class="c-pos">'+R$(v).replace(/<[^>]*>/g,'')+'</span>'
+    :'<span class="dash">—</span>';
+  const Rd=v=>{
+    if(v===null)return'<span class="dash">—</span>';
+    const cls=v>0?'delta-pos':v<0?'delta-neg':'delta-zero';
+    return'<span class="'+cls+'">'+( v>0?'+':v<0?'−':'')+R$(Math.abs(v)).replace(/<[^>]*>/g,'')+'</span>';
+  };
+
+  function addRow(label,bFn,aFn,cls,indent){
+    const tr=document.createElement('tr');
+    if(cls)tr.className=cls;
+    let bTot=0,aTot=0,hasA=false;
+    let html='<td style="text-align:left'+(indent?';padding-left:20px':'')+'">'+label+'</td>';
+    VM.forEach(mi=>{
+      const b=bFn(mi)||0; bTot+=b;
+      const a=aFn(mi); if(a!==null){aTot+=a;hasA=true;}
+      html+='<td style="border-left:1px solid var(--blue-bd);text-align:right;padding:5px 8px">'+Rb(b)+'</td>';
+      html+='<td style="text-align:right;padding:5px 8px">'+Ra(a)+'</td>';
+    });
+    html+='<td style="border-left:2px solid var(--blue-bd);text-align:right;font-weight:600">'+Rb(bTot)+'</td>';
+    html+='<td style="text-align:right;font-weight:600">'+( hasA?Ra(aTot):'<span class="dash">—</span>')+'</td>';
+    html+='<td style="text-align:right">'+( hasA?Rd(aTot-bTot):'<span class="dash">—</span>')+'</td>';
+    tr.innerHTML=html; _tbody.appendChild(tr);
+  }
+  function secHdr(label,cls){
+    const tr=document.createElement('tr'); tr.className=cls||'dre-hdr';
+    tr.innerHTML='<td colspan="'+( VM.length*2+4)+'">'+label+'</td>';
+    _tbody.appendChild(tr);
+  }
+
+  secHdr('▸ RECEITA');
+  addRow('Receita Bruta',
+    mi=>pnl[mi]?.recBruta||0, mi=>aRevMi(mi), 'bva-b-row bold');
+  addRow('(-) Impostos ('+Math.round((RC.taxRate||0.065)*100)+'%)',
+    mi=>Math.abs(pnl[mi]?.impostos||0),
+    mi=>{const r=aRevMi(mi);return r!==null?Math.round(r*(RC.taxRate||0.065)):null;},
+    'bva-b-row dre-tax',true);
+  addRow('(=) Receita Líquida',
+    mi=>pnl[mi]?.recLiq||0,
+    mi=>{const r=aRevMi(mi);return r!==null?Math.round(r*(1-(RC.taxRate||0.065))):null;},
+    'bva-b-row dre-netliq bold');
+
+  secHdr('▸ (-) COGS','dre-section');
+  [['Tecnologia','cogs_tech','cogsTech'],['Customer Success','cogs_cs','cogsCS'],['Operação','cogs_ops','cogsOps']].forEach(([lbl,cat,key])=>{
+    if(VM.some(mi=>pnl[mi]?.[key]||aCatMi(mi,cat)!==null))
+      addRow(lbl,mi=>Math.abs(pnl[mi]?.[key]||0),mi=>aCatMi(mi,cat),'bva-b-row dre-sub',true);
+  });
+  addRow('(=) Lucro Bruto',mi=>pnl[mi]?.lucroBruto||0,
+    mi=>{const r=aRevMi(mi),c=aCatMi(mi,'cogs');
+      return(r!==null||c!==null)?Math.round((r!==null?r:pnl[mi]?.recBruta||0)*(1-(RC.taxRate||0.065)))-(c!==null?c:Math.abs(pnl[mi]?.cogs||0)):null;},
+    'bva-b-row dre-gp bold');
+
+  secHdr('▸ (-) SG&A','dre-section');
+  [['Vendas','sga_sales','sgaVendas'],['Marketing','sga_mktg','sgaMktg'],['G&A','sga_ga','sgaGA']].forEach(([lbl,cat,key])=>{
+    if(VM.some(mi=>pnl[mi]?.[key]||aCatMi(mi,cat)!==null))
+      addRow(lbl,mi=>Math.abs(pnl[mi]?.[key]||0),mi=>aCatMi(mi,cat),'bva-b-row dre-sub',true);
+  });
+
+  secHdr('▸ RESULTADO FINAL','dre-hdr');
+  addRow('(=) EBITDA',mi=>pnl[mi]?.ebitda||0,
+    mi=>{const r=aRevMi(mi),burn=aBurnMi(mi);
+      if(r===null&&burn===null)return null;
+      return Math.round((r!==null?r:pnl[mi]?.recBruta||0)*(1-(RC.taxRate||0.065)))-(burn!==null?burn:Math.abs((pnl[mi]?.cogs||0)+(pnl[mi]?.sga||0)));},
+    'bva-b-row dre-ebitda bold');
+
+  updateBvaKpis();
+  const nav=document.getElementById('bvaNavInfo');
+  if(nav)nav.textContent='DRE mensal · '+yearLabel(bvaYear)+' · '+SCEN[sc].label+' · Budget | Actual por mês · dados via aba Resultados';
+}
+
+function updateBvaKpis(){
+  const strip=document.getElementById('bvaKpis'); if(!strip)return;
+  const sc=bvaScenario;
+  const pnl=calcularPnLContango(DATA,RC,SCEN,sc);
+  const ap=DATA.pessoas.filter(x=>x.active),ar=DATA.recorrentes.filter(x=>x.active),ao=DATA.oneshots.filter(x=>x.active);
+  const allKeys=[...ap,...ar,...ao].map(x=>x.id);
+  const TOT=Array(37).fill(0).map((_,i)=>ap.reduce((a,p)=>a+personMonthCost(p,i),0)+ar.reduce((a,r)=>a+recurrentMonthCost(r,i),0)+ao.reduce((a,o)=>a+(oneshotVals(o)[i]||0),0));
+  let bBurn=0,aBurn=0,hasABurn=false,bRev=0,aRev=0,hasARev=false,bEb=0;
+  for(let mi=1;mi<=36;mi++){
+    bBurn+=TOT[mi]||0; bRev+=(pnl[mi]?.recBruta||0); bEb+=(pnl[mi]?.ebitda||0);
+    let ab=0,hab=false;
+    allKeys.forEach(k=>{const v=getBvaItem(sc,k,mi);if(v!==null){ab+=v;hab=true;}});
+    if(hab){aBurn+=ab;hasABurn=true;}
+    const ar2=getBvaItem(sc,'_rev',mi); if(ar2!==null){aRev+=ar2;hasARev=true;}
+  }
+  const aEb=hasARev&&hasABurn?Math.round(aRev*(1-(RC.taxRate||0.065)))-aBurn:null;
+  const fmt=v=>{const abs=Math.abs(Math.round(v)).toLocaleString('pt-BR');return v<0?'− R$ '+abs:'R$ '+abs;};
+  const kpi=(label,bVal,aVal,hasA,positiveIsGood)=>{
+    const dVal=hasA?aVal-bVal:null;
+    const cls=dVal!==null?(positiveIsGood?(dVal>0?' g':dVal<0?' r':''):(dVal<0?' g':dVal>0?' r':'')):'';
+    return `<div class="bva-kpi${cls}"><div class="lbl">${label}</div><div class="val">${fmt(bVal)}</div><div class="sub">Budget · Actual: ${hasA?fmt(aVal):'sem dados'} · Δ: ${dVal!==null?fmt(dVal):'—'}</div></div>`;
+  };
+  strip.innerHTML=kpi('Total Burn',bBurn,aBurn,hasABurn,false)+kpi('Gross Revenue',bRev,aRev,hasARev,true)+kpi('EBITDA',bEb,aEb!==null?aEb:0,aEb!==null,true)+kpi('Rev − Burn',bRev-bBurn,hasARev&&hasABurn?aRev-aBurn:null,hasARev&&hasABurn,true);
+}
+
 function switchTab(id,btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
   if(id==='config')renderConfig();
+  if(id==='resultados')buildResTable();
+  if(id==='bva')buildBvaTable();
 }
 
 function switchSSA(key,btn){
@@ -1593,8 +2768,8 @@ function saveHTML(){
 
   var SS='/* __SNAPSHOT'+'_START__ */';
   var SE='/* __SNAPSHOT'+'_END__ */';
-  var snap=JSON.stringify({DATA:DATA,RC:RC,DR:DR,SCEN:SCEN});
-  var block=SS+'\n(function(){var s='+snap+';DATA=s.DATA;RC=s.RC;DR=s.DR;SCEN=s.SCEN;buildTable();buildTable();})();\n'+SE;
+  var snap=JSON.stringify({DATA:DATA,RC:RC,DR:DR,SCEN:SCEN,BVA:BVA_DATA});
+  var block=SS+'\n(function(){var s='+snap+';var ms=migrateData({DATA:s.DATA,RC:s.RC,DR:s.DR,SCEN:s.SCEN});DATA=ms.DATA;RC=ms.RC;DR=ms.DR;SCEN=ms.SCEN;buildTable();})();\n'+SE;
 
   var src=document.documentElement.outerHTML;
 
@@ -1628,9 +2803,36 @@ function saveHTML(){
   btn.style.color='var(--blue-dark)';
   setTimeout(function(){btn.innerHTML=orig;btn.style.background='';btn.style.color='';},2500);
 }
+/* ── MIGRATE — retrocompat snapshots legados (8→37 meses) ── */
+function migrateData(s){
+  if(!s||!s.DATA) return s;
+  const blank={mode:'none',hours:0,extraHours:0};
+  ['pessoas','recorrentes'].forEach(type=>{
+    (s.DATA[type]||[]).forEach(item=>{
+      if(!item.months) item.months=[];
+      while(item.months.length<37) item.months.push(Object.assign({},blank));
+      if(!item.pnlCategory) item.pnlCategory='sga_ga';
+    });
+  });
+  (s.DATA.oneshots||[]).forEach(item=>{ if(!item.pnlCategory) item.pnlCategory='sga_ga'; });
+  ['c','m','p'].forEach(k=>{
+    if(s.SCEN&&s.SCEN[k]&&s.SCEN[k].tons){
+      while(s.SCEN[k].tons.length<36) s.SCEN[k].tons.push(0);
+    }
+  });
+  if(s.RC&&!s.RC.taxRate) s.RC.taxRate=0.065;
+  return s;
+}
+
 /* ── INIT ── */
+(function(){
+  const v=APP_VERSION;
+  const hv=document.getElementById('headerVersion');
+  const fv=document.getElementById('footerVersion');
+  if(hv)hv.textContent=v;
+  if(fv)fv.textContent=v;
+})();
 document.getElementById('docDate').textContent=
-  'Plano Emergencial 8 Meses · '+
   new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
 buildTable();
 
@@ -1639,7 +2841,7 @@ buildTable();
 /* __SNAPSHOT_START__ */
 (function(){
 var s={"DATA": {"pessoas": [{"id": "igor", "name": "Igor", "note": "Founder / CEO & Produto", "active": true, "hourlyRate": 0, "monthlyFull": 30000, "monthlyPart": 15000, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}]}, {"id": "vini", "name": "Vinicius", "note": "Co-founder / CTO", "active": true, "hourlyRate": 0, "monthlyFull": 30000, "monthlyPart": 15000, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}]}, {"id": "david", "name": "David", "note": "Opera\u00e7\u00f5es", "active": true, "hourlyRate": 160, "monthlyFull": 25000, "monthlyPart": 12500, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 40, "extraHours": 40, "mode": "parttime"}, {"hours": 40, "extraHours": 40, "mode": "parttime"}, {"hours": 40, "extraHours": 40, "mode": "parttime"}, {"hours": 60, "extraHours": 60, "mode": "parttime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}]}, {"id": "designer", "name": "Designer", "note": "UI/UX & Marca", "active": true, "hourlyRate": 60, "monthlyFull": 6000, "monthlyPart": 3500, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 60, "extraHours": 60, "mode": "hourly"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 0, "extraHours": 0, "mode": "parttime"}]}, {"id": "william", "name": "William", "note": "Engenharia \u2014 hora \u2192 full", "active": true, "hourlyRate": 120, "monthlyFull": 9000, "monthlyPart": 4500, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 80, "extraHours": 0, "mode": "fulltime"}, {"hours": 80, "extraHours": 0, "mode": "fulltime"}, {"hours": 80, "extraHours": 0, "mode": "fulltime"}, {"hours": 80, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}]}, {"id": "pedro", "name": "Pedro", "note": "Produto \u2014 hora \u2192 part", "active": true, "hourlyRate": 140, "monthlyFull": 8000, "monthlyPart": 5000, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 60, "extraHours": 0, "mode": "hourly"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}, {"hours": 0, "extraHours": 0, "mode": "fulltime"}]}, {"id": "mateus", "name": "Mateus", "note": "Comercial \u2014 hora \u2192 part", "active": true, "hourlyRate": 140, "monthlyFull": 18000, "monthlyPart": 9000, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 40, "extraHours": 0, "mode": "hourly"}, {"hours": 0, "extraHours": 0, "mode": "parttime"}, {"hours": 0, "extraHours": 0, "mode": "parttime"}, {"hours": 0, "extraHours": 0, "mode": "parttime"}, {"hours": 0, "extraHours": 0, "mode": "parttime"}]}, {"id": "patricia", "name": "Patr\u00edcia", "note": "Jur\u00eddico \u2014 retainer + hora vari\u00e1vel", "active": true, "hourlyRate": 200, "monthlyFull": 15000, "monthlyPart": 5000, "partHoursIncluded": 80, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}, {"hours": 0, "extraHours": 20, "mode": "parttime"}]}], "recorrentes": [{"id": "contab", "name": "Contabilidade", "note": "Ativa\u00e7\u00e3o com receita", "active": true, "hourlyRate": 200, "monthlyFixed": 1700, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 15, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}]}, {"id": "wiltonm", "name": "Wilton \u2014 Infra", "note": "DevOps \u2014 retainer + hora vari\u00e1vel", "active": true, "hourlyRate": 150, "monthlyFixed": 1400, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}, {"hours": 10, "extraHours": 0, "mode": "fixed"}]}, {"id": "tools", "name": "Ferramentas", "note": "Gmail, AWS, GitHub, IAs\u2026", "active": true, "hourlyRate": 0, "monthlyFixed": 5000, "months": [{"hours": 0, "extraHours": 0, "mode": "none"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}, {"hours": 0, "extraHours": 0, "mode": "fixed"}]}], "oneshots": [{"id": "wsetup", "name": "Wilton \u2014 Setup Infra", "note": "Configura\u00e7\u00e3o inicial", "brl": 20000, "month": 1, "installments": 4, "active": true}, {"id": "abertu", "name": "Abertura SA", "note": "Constitui\u00e7\u00e3o jur\u00eddica", "brl": 5000, "month": 0, "installments": 1, "active": true}, {"id": "equip", "name": "Equipamentos", "note": "Hardware e perif\u00e9ricos", "brl": 10000, "month": 0, "installments": 1, "active": true}, {"id": "marcas", "name": "Marcas e Patentes", "note": "Registro de IP", "brl": 5000, "month": 0, "installments": 1, "active": true}, {"id": "evguen", "name": "Acerto Evguen", "note": "One-shot", "brl": 3700, "month": 1, "installments": 1, "active": true}, {"id": "namba", "name": "Acerto Namba", "note": "Registro de marca", "brl": 5000, "month": 1, "installments": 1, "active": false}]}, "RC": {"soy": 400, "fx": 5.3, "feeT": 1, "feeC": 0.5}, "DR": {"total": 500000, "pct": 5}, "SCEN": {"c": {"label": "Conservador", "pill": "Receita inicia no M\u00eas 6", "tons": [0, 0, 0, 0, 0, 5000, 8000, 10000]}, "m": {"label": "Meta", "pill": "Receita inicia no M\u00eas 3 \u2014 pr\u00f3ximo do break-even", "tons": [0, 0, 3000, 8000, 15000, 22000, 25000, 24000]}, "p": {"label": "Potencial > Meta", "pill": "Receita inicia no M\u00eas 3 \u2014 supera\u00e7\u00e3o expressiva", "tons": [0, 0, 5000, 12000, 22000, 38000, 60000, 80000]}}};
-DATA=s.DATA;RC=s.RC;DR=s.DR;SCEN=s.SCEN;buildTable();
+var ms=migrateData({DATA:s.DATA,RC:s.RC,DR:s.DR,SCEN:s.SCEN});DATA=ms.DATA;RC=ms.RC;DR=ms.DR;SCEN=ms.SCEN;buildTable();
 })();
 /* __SNAPSHOT_END__ */
 
@@ -1705,22 +2907,30 @@ function logoutUser(){
 async function saveCloud(){
   if(!_sb||!_userEmail)return;
 
+  // sync tons de todos os anos antes de salvar
+  var savedCfgYear=cfgYear;
+  [1,2,3].forEach(function(yr){
+    cfgYear=yr; buildTonsInputs();
+    ['c','m','p'].forEach(function(k){
+      var grid=document.getElementById('tons-'+k);
+      if(!grid)return;
+      var inputs=grid.querySelectorAll('input');
+      var startI=(yr-1)*12;
+      inputs.forEach(function(inp,i){ if(startI+i<36)SCEN[k].tons[startI+i]=+inp.value||0; });
+    });
+  });
+  cfgYear=savedCfgYear; buildTonsInputs();
+
   // Se há uma simulação ativa, perguntar se quer sobrescrever ou criar nova
   if(_currentSimId){
     var opcao = confirm('Deseja ATUALIZAR a simulação atual?\n\nOK = Atualizar a simulação atual\nCancelar = Criar uma nova simulação');
-    if(!opcao) _currentSimId = null; // força criação de nova
+    if(!opcao) _currentSimId = null;
   }
 
   var btn=document.getElementById('btnSaveCloud');
   btn.innerHTML='☁️ Salvando...'; btn.disabled=true;
 
-  // sync tons inputs first
-  ['c','m','p'].forEach(function(k){
-    var inp=document.querySelectorAll('#tons-'+k+' input');
-    if(inp.length) SCEN[k].tons=Array.from(inp).map(function(el){return +el.value||0;});
-  });
-
-  var dados = JSON.stringify({DATA:DATA,RC:RC,DR:DR,SCEN:SCEN});
+  var dados = JSON.stringify({DATA:DATA,RC:RC,DR:DR,SCEN:SCEN,BVA:BVA_DATA});
   var agora = new Date().toISOString();
 
   var res;
@@ -1737,7 +2947,12 @@ async function saveCloud(){
 
   if(res.error){
     btn.innerHTML='☁️ Salvar na Nuvem'; btn.disabled=false;
-    alert('Erro ao salvar: '+res.error.message);
+    const msg=res.error.message||String(res.error);
+    if(msg.includes('fetch')||msg.includes('network')||msg.includes('Failed')){
+      alert('Erro de conexão com o servidor de nuvem.\n\nIsso geralmente ocorre quando o projeto Supabase está pausado (plano free pausa após 1 semana sem acesso).\n\nSolução: acesse app.supabase.com, reactive o projeto, e tente novamente.\n\nSeus dados estão seguros — use "💾 Salvar HTML" como backup local.');
+    } else {
+      alert('Erro ao salvar: '+msg);
+    }
     return;
   }
   btn.innerHTML='✓ Salvo!'; btn.style.background='var(--green)'; btn.style.color='var(--blue-dark)';
@@ -1757,8 +2972,9 @@ async function loadLastSim(){
     var sim = res.data[0];
     _currentSimId = sim.id;
     try{
-      var s = JSON.parse(sim.dados);
+      var s = migrateData(JSON.parse(sim.dados));
       DATA=s.DATA; RC=s.RC; DR=s.DR; SCEN=s.SCEN;
+      if(s.BVA) BVA_DATA=s.BVA;
       buildTable(); renderConfig();
     }catch(e){}
   }
@@ -1770,8 +2986,9 @@ async function loadSim(id){
   if(res.data){
     _currentSimId = res.data.id;
     try{
-      var s = JSON.parse(res.data.dados);
+      var s = migrateData(JSON.parse(res.data.dados));
       DATA=s.DATA; RC=s.RC; DR=s.DR; SCEN=s.SCEN;
+      if(s.BVA) BVA_DATA=s.BVA;
       buildTable(); renderConfig();
     }catch(e){}
     hideSimPanel();
