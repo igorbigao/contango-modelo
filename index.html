@@ -65,44 +65,58 @@ body::before{content:'';position:fixed;inset:0;
 /* TABLE */
 .tbl-outer{overflow-x:auto;border:1px solid var(--blue-bd);border-radius:12px;box-shadow:0 8px 48px rgba(0,0,0,.4);background:var(--surface);scrollbar-width:thin;scrollbar-color:var(--blue-bd) transparent}
 .tbl-outer::-webkit-scrollbar{height:7px}.tbl-outer::-webkit-scrollbar-track{background:rgba(26,58,106,.2);border-radius:4px}.tbl-outer::-webkit-scrollbar-thumb{background:var(--blue-bd);border-radius:4px}
-.tbl-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.tbl-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;position:sticky;top:48px;z-index:10;background:rgba(10,20,44,.95);backdrop-filter:blur(6px);border-radius:8px;padding:4px 8px;border:1px solid rgba(26,58,106,.4)}
 .tbl-nav-info{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.5px}
 .tbl-scroll-btns{display:flex;gap:4px}
 .tbl-scroll-btn{padding:4px 10px;background:rgba(16,90,166,.12);border:1px solid var(--blue-bd);border-radius:5px;color:var(--text3);cursor:pointer;font-size:12px;transition:all .15s}
 .tbl-scroll-btn:hover{background:rgba(16,90,166,.3);color:var(--white)}
 table.model{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;min-width:980px}
-table.model td:first-child,table.model th:first-child{position:sticky;left:0;z-index:3;background:#0e1e3a;min-width:200px;max-width:230px;box-shadow:3px 0 10px rgba(0,0,0,.5)}
-table.model td:nth-child(2),table.model th:nth-child(2){position:sticky;left:200px;z-index:2;background:#0e1e3a;box-shadow:2px 0 6px rgba(0,0,0,.3)}
-/* Override background para linhas coloridas — sticky cells precisam herdar a cor da linha */
-tr.sec-hdr td:first-child{background:rgba(16,90,166,.22)!important}
-tr.subtotal td:first-child,tr.subtotal td:nth-child(2){background:rgba(16,90,166,.18)!important}
-tr.total-row td:first-child,tr.total-row td:nth-child(2){background:rgba(16,90,166,.3)!important}
-tr.rev-hdr td:first-child{background:rgba(143,168,50,.22)!important}
-tr.rev-sub td:first-child{background:rgba(143,168,50,.1)!important}
-tr.res-hdr td:first-child{background:rgba(9,22,40,.95)!important}
-tr.res-total td:first-child{background:rgba(9,22,40,.8)!important}
-tr.dre-hdr td:first-child{background:rgba(80,40,120,.35)!important}
-tr.dre-section td:first-child{background:rgba(16,50,100,.25)!important}
-tr.dre-sub td:first-child{background:rgba(13,27,56,.55)!important}
-tr.dre-tax td:first-child{background:rgba(155,58,74,.1)!important}
-tr.dre-netliq td:first-child{background:rgba(26,58,106,.28)!important}
-tr.dre-total td:first-child{background:rgba(26,58,106,.25)!important}
-tr.dre-gp td:first-child{background:rgba(26,80,40,.25)!important}
-tr.dre-ebitda td:first-child{background:rgba(185,213,67,.16)!important}
-tr.dre-net td:first-child{background:rgba(16,90,166,.35)!important}
-tr.dre-margin td:first-child{background:rgba(13,27,56,.65)!important}
-tr.acum-row td:first-child{background:rgba(10,90,166,.2)!important}
+/* ── STICKY CELLS: backgrounds 100% opacos ────────────────────────────── */
+/* table.model — coluna 1 e 2 sticky */
+table.model td:first-child,table.model th:first-child{position:sticky;left:0;z-index:3;background:#0e1e3a;min-width:200px;max-width:230px;box-shadow:3px 0 12px rgba(0,0,0,.7)}
+/* tbody normal rows */
+table.model tbody tr:hover td:first-child{background:#112240}
+/* Row type overrides — opaque per row color */
+tr.th-hdr td:first-child{background:#0a2050!important}
+tr.sec-hdr td:first-child{background:#0e2848!important}
+tr.subtotal td:first-child{background:#0d2040!important}
+tr.total-row td:first-child{background:#0e2a52!important}
+tr.acum-row td:first-child{background:#0e2248!important}
+tr.rev-hdr td:first-child{background:#162c18!important}
+tr.rev-sub td:first-child{background:#111e16!important}
+tr.res-hdr td:first-child{background:#09141f!important}
+tr.res-total td:first-child{background:#09141f!important}
+tr.dre-hdr td:first-child{background:#1a0a30!important}
+tr.dre-section td:first-child{background:#0e2234!important}
+tr.dre-sub td:first-child{background:#0a1830!important}
+tr.dre-tax td:first-child{background:#2a0e14!important}
+tr.dre-netliq td:first-child{background:#0e2244!important}
+tr.dre-total td:first-child{background:#0e2244!important}
+tr.dre-gp td:first-child{background:#0e2018!important}
+tr.dre-ebitda td:first-child{background:#1a2208!important}
+tr.dre-net td:first-child{background:#0e2848!important}
+tr.dre-margin td:first-child{background:#0a1830!important}
+/* table.bva-tbl — coluna 1 sticky */
+table.bva-tbl td:first-child,table.bva-tbl th:first-child{position:sticky;left:0;z-index:3;background:#0e1e3a;min-width:200px;max-width:220px;text-align:left;box-shadow:3px 0 12px rgba(0,0,0,.7)}
+table.bva-tbl tbody tr:hover td:first-child{background:#112240}
+tr.bva-b-row td:first-child{background:#0e1e3a!important}
+tr.bva-b-row.bold td:first-child{background:#0e1e3a!important}
+tr.bva-b-row.dre-tax td:first-child{background:#2a0e14!important}
+tr.bva-b-row.dre-netliq td:first-child{background:#0e2244!important}
+tr.bva-b-row.dre-gp td:first-child{background:#0e2018!important}
+tr.bva-b-row.dre-ebitda td:first-child{background:#1a2208!important}
+tr.bva-b-row.dre-sub td:first-child{background:#0a1830!important}
+/* table.res-table — coluna 1 sticky */
+table.res-table td:first-child,table.res-table th:first-child{position:sticky;left:0;z-index:3;background:#0e1e3a;min-width:200px;max-width:230px;box-shadow:3px 0 12px rgba(0,0,0,.7)}
 .th-hdr{background:rgba(16,90,166,.35)!important}
 table.model th{padding:9px 11px;text-align:right;font-size:9.5px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);border-bottom:1px solid var(--blue-bd);white-space:nowrap}
 table.model th:first-child{text-align:left}
-table.model th:nth-child(2){text-align:center}
 tr.sec-hdr td{background:rgba(16,90,166,.22)!important;padding:6px 11px;font-family:var(--body);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--white);border-top:1px solid var(--blue-bd);border-bottom:1px solid rgba(26,58,106,.4)}
 tr.sec-hdr .si{color:var(--green);margin-right:7px}
 table.model tbody tr{border-bottom:1px solid rgba(26,58,106,.2);transition:background .15s;height:34px}
 table.model tbody tr:hover{background:rgba(16,90,166,.07)}
 table.model td{padding:6px 11px;vertical-align:middle;text-align:right;color:var(--text2);white-space:nowrap}
 table.model td:first-child{text-align:left;color:var(--text);font-size:12px}
-table.model td:nth-child(2){text-align:center;font-size:10px;color:var(--text3)}
 .item-note{font-size:10px;color:var(--text3);display:block;font-style:italic;margin-top:1px;font-family:var(--body)}
 .inst-badge{font-size:8.5px;padding:1px 5px;border-radius:3px;background:rgba(16,90,166,.25);color:var(--blue-lt);border:1px solid rgba(16,90,166,.3);margin-left:4px;letter-spacing:.5px;vertical-align:middle}
 .hr-badge{font-size:8.5px;padding:1px 5px;border-radius:3px;background:rgba(185,213,67,.15);color:var(--green);border:1px solid rgba(185,213,67,.25);margin-left:4px;letter-spacing:.5px;vertical-align:middle}
@@ -197,15 +211,6 @@ table.bva-tbl td{padding:5px 10px;vertical-align:middle;text-align:right;color:v
 table.bva-tbl td:first-child{color:var(--text);font-size:12px}
 table.bva-tbl tbody tr{border-bottom:1px solid rgba(26,58,106,.2);transition:background .15s}
 table.bva-tbl tbody tr:hover{background:rgba(16,90,166,.06)}
-/* Sticky background per row type */
-tr.dre-hdr td:first-child{background:rgba(30,10,60,.95)!important}
-tr.dre-section td:first-child{background:rgba(16,40,90,.95)!important}
-tr.dre-sub td:first-child{background:rgba(10,22,50,.95)!important}
-tr.bva-b-row td:first-child{background:#0e1e3a!important}
-tr.bva-b-row.dre-tax td:first-child{background:rgba(50,15,20,.95)!important}
-tr.bva-b-row.dre-netliq td:first-child{background:rgba(20,40,80,.95)!important}
-tr.bva-b-row.dre-gp td:first-child{background:rgba(15,40,20,.95)!important}
-tr.bva-b-row.dre-ebitda td:first-child{background:rgba(30,40,10,.95)!important}
 .bva-th-budget{color:#90b8f8!important}.bva-th-actual{color:var(--green)!important}.bva-th-delta{color:#C4A0FF!important}
 .bva-inp{width:80px;background:rgba(185,213,67,.07);border:1px solid rgba(185,213,67,.18);border-radius:3px;color:var(--green);padding:2px 4px;font-family:var(--mono);font-size:10.5px;text-align:right;outline:none}
 .bva-inp:focus{border-color:rgba(185,213,67,.5);background:rgba(185,213,67,.12)}
@@ -1105,7 +1110,7 @@ tr.dre-margin td{background:rgba(13,27,56,.6)!important;color:var(--text3)!impor
 let UID = 500;
 let viewYear = 1;  // filtro da tabela: 1=Ano1 2=Ano2 3=Ano3
 let cfgYear  = 1;  // filtro do configurador
-const APP_VERSION = 'v3.4 · build 2026-03-26 18:52 BRT';
+const APP_VERSION = 'v3.6 · build 2026-03-27 11:12 BRT';
 
 function getVisibleMonths(y){
   y=y||viewYear;
@@ -1666,7 +1671,7 @@ function buildTable(){
 
   // Thead dinâmico
   if(_thead){
-    _thead.innerHTML='<tr class="th-hdr"><th style="text-align:left">Item</th><th>Ded.</th>'
+    _thead.innerHTML='<tr class="th-hdr"><th style="text-align:left;min-width:220px">Item</th>'
       +VM.map(mi=>mi===0?'<th style="color:var(--text3)">M0<small style="display:block;font-size:8px;opacity:.7">Pré</small></th>':`<th>M${mi}</th>`).join('')
       +`<th style="border-left:1px solid var(--blue-bd)">${yearLabel(viewYear)} — Total</th></tr>`;
   }
@@ -1685,24 +1690,23 @@ function buildTable(){
     cells.forEach((c,i)=>{
       const td=document.createElement('td');
       td.innerHTML=typeof c==='object'?c.h:c;
-      if(i===0||i===1)td.style.background='var(--surface)';
+      if(i===0)td.style.background='var(--surface)';
       tr.appendChild(td);
     });
     _tbody.appendChild(tr);
   }
 
-  function dataRow(label,note,ded,isVar,vals){
+  function dataRow(label,note,_ded,isVar,vals){
     const periodTot=VM.reduce((a,mi)=>a+(vals[mi]||0),0);
     const badge=isVar?' <span class="hr-badge">≈</span>':'';
     return [
       {h:label+badge+(note?`<span class="item-note">${note}</span>`:'')},
-      {h:ded||''},
       ...VM.map(mi=>({h:vals[mi]?R$(vals[mi]):'<span class="dash">—</span>'})),
       {h:periodTot?R$(periodTot):'<span class="dash">—</span>'},
     ];
   }
 
-  const BFILL=Array(NM+2).fill('');
+  const BFILL=Array(NM+1).fill('');
 
   /* PESSOAS */
   row([{h:'<span class="si">▸</span>PESSOAS — Equipe'},...BFILL],'sec-hdr');
@@ -1711,7 +1715,7 @@ function buildTable(){
     const isVar=item.months.some(m=>m&&(m.mode==='hourly'||m.mode==='parttime'));
     row(dataRow(item.name,item.note,personModeSummary(item),isVar,vals));
   });
-  row([{h:'Subtotal Pessoas'},'',...VM.map(mi=>({h:P[mi]?R$(P[mi]):'<span class="dash">—</span>'})),{h:R$(VM.reduce((a,mi)=>a+P[mi],0))}],'subtotal');
+  row([{h:'Subtotal Pessoas'},...VM.map(mi=>({h:P[mi]?R$(P[mi]):'<span class="dash">—</span>'})),{h:R$(VM.reduce((a,mi)=>a+P[mi],0))}],'subtotal');
 
   /* RECORRENTES */
   row([{h:'<span class="si">▸</span>TECNOLOGIA & INFRAESTRUTURA'},...BFILL],'sec-hdr');
@@ -1720,7 +1724,7 @@ function buildTable(){
     const isVar=item.months.some(m=>m&&(m.mode==='hourly'||m.mode==='hybrid'));
     row(dataRow(item.name,item.note,recurrentModeSummary(item),isVar,vals));
   });
-  row([{h:'Subtotal Recorrentes'},'',...VM.map(mi=>({h:R[mi]?R$(R[mi]):'<span class="dash">—</span>'})),{h:R$(VM.reduce((a,mi)=>a+R[mi],0))}],'subtotal');
+  row([{h:'Subtotal Recorrentes'},...VM.map(mi=>({h:R[mi]?R$(R[mi]):'<span class="dash">—</span>'})),{h:R$(VM.reduce((a,mi)=>a+R[mi],0))}],'subtotal');
 
   /* ONE-SHOTS */
   row([{h:'<span class="si">▸</span>DESPESAS ONE-SHOT'},...BFILL],'sec-hdr');
@@ -1729,19 +1733,19 @@ function buildTable(){
     const badge=item.installments>1?` <span class="inst-badge">${item.installments}x</span>`:'';
     row(dataRow(item.name+badge,item.note,'1×',false,vals));
   });
-  row([{h:'Subtotal One-Shot'},'',...VM.map(mi=>({h:O[mi]?R$(O[mi]):'<span class="dash">—</span>'})),{h:R$(VM.reduce((a,mi)=>a+O[mi],0))}],'subtotal');
+  row([{h:'Subtotal One-Shot'},...VM.map(mi=>({h:O[mi]?R$(O[mi]):'<span class="dash">—</span>'})),{h:R$(VM.reduce((a,mi)=>a+O[mi],0))}],'subtotal');
 
   /* TOTAL */
   const TOT=Array(37).fill(0).map((_,i)=>P[i]+R[i]+O[i]);
   const totalGeral36=TOT.reduce((a,b)=>a+b,0);
   window._burnTotal=totalGeral36;
   const periodTotal=VM.reduce((a,mi)=>a+TOT[mi],0);
-  row([{h:'TOTAL DESEMBOLSO (BRL)'},'',...VM.map(mi=>({h:TOT[mi]?R$(TOT[mi]):'<span class="dash">—</span>'})),{h:`<strong>${R$(periodTotal)}</strong>`}],'total-row');
+  row([{h:'TOTAL DESEMBOLSO (BRL)'},...VM.map(mi=>({h:TOT[mi]?R$(TOT[mi]):'<span class="dash">—</span>'})),{h:`<strong>${R$(periodTotal)}</strong>`}],'total-row');
 
   let acBurn=0;
   const BURN_ACUM=TOT.map(v=>{acBurn+=v;return acBurn;});
   const lastVM=VM[VM.length-1];
-  row([{h:`Desembolso Acumulado (até M${lastVM})`},'',...VM.map(mi=>({h:`<span style="color:var(--blue-lt)">${R$(BURN_ACUM[mi])}</span>`})),{h:`<span style="color:var(--blue-lt)">${R$(BURN_ACUM[lastVM])}</span>`}],'acum-row');
+  row([{h:`Desembolso Acumulado (até M${lastVM})`},...VM.map(mi=>({h:`<span style="color:var(--blue-lt)">${R$(BURN_ACUM[mi])}</span>`})),{h:`<span style="color:var(--blue-lt)">${R$(BURN_ACUM[lastVM])}</span>`}],'acum-row');
 
   /* RECEITA */
   const tons=sc.tons;
@@ -1751,17 +1755,17 @@ function buildTable(){
 
   row([{h:`<span class="si">▸</span>RECEITA — ${sc.label.toUpperCase()} · R$ ${pt.toLocaleString('pt-BR',{minimumFractionDigits:2})}/ton`},...BFILL],'rev-hdr');
 
-  const tRow=[{h:'Toneladas Tokenizadas'},{h:'ton'}];
+  const tRow=[{h:'Toneladas Tokenizadas'}];
   VM.forEach(mi=>tRow.push({h:mi===0?'<span class="dash">—</span>':tons[mi-1]?fmtTons(tons[mi-1]):'<span class="dash">—</span>'}));
   tRow.push({h:fmtTons(VM.filter(m=>m>0).reduce((a,mi)=>a+(tons[mi-1]||0),0))});
   row(tRow);
 
-  const revRow=[{h:'Receita Mensal (BRL)'},{h:'R$'}];
+  const revRow=[{h:'Receita Mensal (BRL)'}];
   VM.forEach(mi=>revRow.push({h:REV_M[mi]?`<span class="c-pos">${R$(REV_M[mi])}</span>`:'<span class="dash">—</span>'}));
   revRow.push({h:`<span class="c-pos">${R$(VM.reduce((a,mi)=>a+(REV_M[mi]||0),0))}</span>`});
   row(revRow);
 
-  const racumRow=[{h:'Receita Acumulada (BRL)'},{h:'R$'}];
+  const racumRow=[{h:'Receita Acumulada (BRL)'}];
   VM.forEach(mi=>racumRow.push({h:RACUM[mi]?`<span class="c-pos">${R$(RACUM[mi])}</span>`:'<span class="dash">—</span>'}));
   racumRow.push({h:`<span class="c-pos">${R$(RACUM[lastVM])}</span>`});
   row(racumRow,'rev-sub');
@@ -1769,7 +1773,7 @@ function buildTable(){
   /* RESULTADO */
   row([{h:'<span class="si">▸</span>RESULTADO CONSOLIDADO'},...BFILL],'res-hdr');
   const RES=RACUM.map((r,i)=>r-BURN_ACUM[i]);
-  const resRow=[{h:'Resultado Acumulado (BRL)'},{h:'R$'}];
+  const resRow=[{h:'Resultado Acumulado (BRL)'}];
   VM.forEach(mi=>resRow.push({h:`<span class="${RES[mi]>=0?'c-pos':'c-neg'}">${RES[mi]<0?'−':''}${R$(Math.abs(RES[mi]))}</span>`}));
   resRow.push({h:`<span class="${RES[lastVM]>=0?'c-pos':'c-neg'}">${RES[lastVM]<0?'−':''}${R$(Math.abs(RES[lastVM]))}</span>`});
   row(resRow,'res-total');
@@ -1783,13 +1787,13 @@ function buildTable(){
   const sumP=key=>VM.reduce((a,mi)=>a+(pnl[mi]&&pnl[mi][key]||0),0);
 
   function dreRow(label,ded,key,cls){
-    const cells=[{h:label},{h:ded||'R$'}];
+    const cells=[{h:label}];
     VM.forEach(mi=>cells.push({h:Rpnl(pnl[mi]&&pnl[mi][key])}));
     cells.push({h:Rpnl(sumP(key))});
     row(cells,cls||'');
   }
   function drePctRow(label,numKey,cls){
-    const cells=[{h:label},{h:'%'}];
+    const cells=[{h:label}];
     VM.forEach(mi=>cells.push({h:Rpct(pnl[mi]&&pnl[mi][numKey])}));
     const totLiq=sumP('recLiq'),totVal=sumP(numKey.replace('Pct','').replace('mbPct','lucroBruto').replace('ebitdaPct','ebitda').replace('netPct','lucroLiq'));
     cells.push({h:Rpct(totLiq?Math.round(totVal/totLiq*100):null)});
@@ -2673,7 +2677,11 @@ function buildBvaTable(){
   }
   function secHdr(label,cls){
     const tr=document.createElement('tr'); tr.className=cls||'dre-hdr';
-    tr.innerHTML='<td colspan="'+( VM.length*2+4)+'">'+label+'</td>';
+    // Sem colspan — primeira célula sticky, restantes vazias (scroll horizontal funciona)
+    const totalCols=VM.length*2+3; // meses*2 + (budget total + actual total + delta)
+    let html=`<td style="position:sticky;left:0;z-index:3;text-align:left">${label}</td>`;
+    for(let i=0;i<totalCols;i++) html+='<td></td>';
+    tr.innerHTML=html;
     _tbody.appendChild(tr);
   }
 
