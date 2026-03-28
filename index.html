@@ -501,8 +501,9 @@ tr.dre-margin td{background:rgba(13,27,56,.6)!important;color:var(--text3)!impor
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('model',this)">📊 &nbsp;Modelo Financeiro</button>
   <button class="tab-btn" onclick="switchTab('config',this)">⚙️ &nbsp;Configurações</button>
+  <button class="tab-btn" onclick="switchTab('dre',this)">📋 &nbsp;DRE</button>
   <button class="tab-btn" onclick="switchTab('resultados',this)">🎯 &nbsp;Resultados</button>
-  <button class="tab-btn" onclick="switchTab('bva',this)">📈 &nbsp;Budget vs Actual</button>
+  <button class="tab-btn" onclick="switchTab('bva',this)">📈 &nbsp;Previsto x Realizado</button>
   <button class="tab-btn" onclick="switchTab('analysis',this)">🔍 &nbsp;Análise Estratégica</button>
 </div>
 
@@ -596,8 +597,11 @@ tr.dre-margin td{background:rgba(13,27,56,.6)!important;color:var(--text3)!impor
           <input type="number" id="rc-feeT" value="1.0" step="0.05" min="0" max="10" onchange="updateRevCalc()"></div>
         <div class="cfg-field"><label>Split Contango (%)</label>
           <input type="number" id="rc-feeC" value="0.5" step="0.05" min="0" max="10" onchange="updateRevCalc()"></div>
-        <div class="cfg-field"><label>Impostos s/ Receita (%)<span style="display:block;font-size:9px;color:var(--text3);margin-top:1px;font-family:var(--body);letter-spacing:0;text-transform:none">PIS+COFINS+ISS combinados</span></label>
-          <input type="number" id="rc-tax" value="6.5" step="0.1" min="0" max="30" onchange="updateRevCalc()"></div>
+        <div class="cfg-field" style="min-width:200px"><label>Regime Tributário<span style="display:block;font-size:9px;color:var(--text3);margin-top:1px;font-family:var(--body);letter-spacing:0;text-transform:none">Define a tabela de alíquotas do Simples Nacional</span></label>
+          <select id="rc-anexo" onchange="updateRevCalc()" style="width:100%;background:rgba(16,90,166,.1);border:1px solid var(--blue-bd);border-radius:5px;color:var(--text);padding:7px 10px;font-family:var(--mono);font-size:11px;outline:none">
+            <option value="V">Anexo V — Fator R &lt; 28% (15,5% → 30,5%)</option>
+            <option value="III">Anexo III — Fator R ≥ 28% (6% → 33%)</option>
+          </select></div>
       </div>
       <div class="dr-result" id="revCalcResult"></div>
     </div>
@@ -644,7 +648,29 @@ tr.dre-margin td{background:rgba(13,27,56,.6)!important;color:var(--text3)!impor
   </div>
 </div>
 
-<!-- TAB: RESULTADOS (configurador de valores realizados) -->
+<!-- TAB: DRE — Consolidado Anual -->
+<div class="tab-panel" id="tab-dre">
+  <div class="controls">
+    <span class="ctrl-label">Cenário</span>
+    <div class="tg">
+      <button class="tg-btn sc-cons active" id="dre-sc-c" onclick="setDreScenario('c',this)">1 · Conservador</button>
+      <button class="tg-btn sc-meta" id="dre-sc-m" onclick="setDreScenario('m',this)">2 · Meta</button>
+      <button class="tg-btn sc-pot" id="dre-sc-p" onclick="setDreScenario('p',this)">3 · Potencial</button>
+    </div>
+  </div>
+  <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:-4px 0 14px;letter-spacing:.5px">
+    DRE consolidado por ano · mesmas categorias do modelo financeiro · valores em BRL
+  </div>
+  <div style="overflow-x:auto;border:1px solid var(--blue-bd);border-radius:12px;box-shadow:0 8px 48px rgba(0,0,0,.4);background:var(--surface)">
+    <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px" id="dreAnnualTable">
+      <thead id="dreAnnualHead"></thead>
+      <tbody id="dreAnnualBody"></tbody>
+    </table>
+  </div>
+  <div class="sum-strip" id="dreAnnualKpis" style="margin-top:18px"></div>
+</div>
+
+<!-- TAB: RESULTADOS -->
 <div class="tab-panel" id="tab-resultados">
   <div class="controls">
     <span class="ctrl-label">Cenário base</span>
@@ -1110,7 +1136,7 @@ tr.dre-margin td{background:rgba(13,27,56,.6)!important;color:var(--text3)!impor
 let UID = 500;
 let viewYear = 1;  // filtro da tabela: 1=Ano1 2=Ano2 3=Ano3
 let cfgYear  = 1;  // filtro do configurador
-const APP_VERSION = 'v3.6 · build 2026-03-27 11:12 BRT';
+const APP_VERSION = 'v3.8 · build 2026-03-27 23:33 BRT';
 
 function getVisibleMonths(y){
   y=y||viewYear;
@@ -1121,7 +1147,7 @@ function getVisibleMonths(y){
 function yearLabel(y){ return y===1?'Ano 1 (M0–M12)':y===2?'Ano 2 (M13–M24)':'Ano 3 (M25–M36)'; }
 
 /* ── REVENUE ── */
-let RC = { soy:400, fx:5.30, feeT:1.0, feeC:0.5, taxRate:0.065 };
+let RC = { soy:400, fx:5.30, feeT:1.0, feeC:0.5, anexo:'V' };
 function perTonBRL(){ return RC.soy * RC.fx * RC.feeC / 100; }
 
 /* ── DERATE ── */
@@ -1804,7 +1830,7 @@ function buildTable(){
   VM.forEach(mi=>rbRow.push({h:pnl[mi]?.recBruta?`<span class="c-pos">${R$(pnl[mi].recBruta).replace(/<[^>]*>/g,'')}</span>`:'<span class="dash">—</span>'}));
   rbRow.push({h:sumP('recBruta')?`<span class="c-pos">${R$(sumP('recBruta')).replace(/<[^>]*>/g,'')}</span>`:'<span class="dash">—</span>'});
   row(rbRow);
-  dreRow('(-) Impostos e Deduções','%','impostos','dre-tax');
+  dreRow('(-) Impostos e Deduções (Simples)','%','impostos','dre-tax');
   dreRow('(=) Receita Líquida','R$','recLiq','dre-netliq');
 
   row([{h:'<span class="si">▸</span>(-) COGS'},...BFILL],'dre-section');
@@ -1832,12 +1858,86 @@ function buildTable(){
 }
 
 /* ════════════════════════════════════════════
+   SIMPLES NACIONAL — tabelas oficiais 2024
+   Faixas: RBT12 máximo, alíquota nominal, parcela a deduzir
+   Alíquota efetiva = (RBT12 × aliq - parcela) / RBT12
+════════════════════════════════════════════ */
+const SIMPLES_TABELAS = {
+  V: [
+    {max:180000,   aliq:0.155, ded:0},
+    {max:360000,   aliq:0.18,  ded:4500},
+    {max:720000,   aliq:0.195, ded:9900},
+    {max:1800000,  aliq:0.205, ded:17100},
+    {max:3600000,  aliq:0.23,  ded:62100},
+    {max:4800000,  aliq:0.305, ded:540000},
+  ],
+  III: [
+    {max:180000,   aliq:0.06,  ded:0},
+    {max:360000,   aliq:0.112, ded:9360},
+    {max:720000,   aliq:0.135, ded:17640},
+    {max:1800000,  aliq:0.16,  ded:35640},
+    {max:3600000,  aliq:0.21,  ded:125640},
+    {max:4800000,  aliq:0.33,  ded:648000},
+  ]
+};
+
+function calcAliquota(receitaAnual, anexo){
+  // Retorna {rate, faixa, label} para o ano com aquela receita bruta
+  if(!receitaAnual || receitaAnual <= 0) return {rate:0, faixa:0, label:'Sem receita'};
+  const tabela = SIMPLES_TABELAS[anexo||'V'] || SIMPLES_TABELAS.V;
+  let faixa = tabela.length - 1;
+  for(let i=0;i<tabela.length;i++){
+    if(receitaAnual <= tabela[i].max){ faixa=i; break; }
+  }
+  const f = tabela[faixa];
+  // Alíquota efetiva real: (RBT12 × aliqNominal - parcela) / RBT12
+  const rate = Math.max(0, (receitaAnual * f.aliq - f.ded) / receitaAnual);
+  const pct = parseFloat((rate*100).toFixed(2));
+  const maxK = f.max >= 1000000 ? `R$ ${(f.max/1000000).toFixed(1)}M` : `R$ ${(f.max/1000).toFixed(0)}k`;
+  return {rate, faixa:faixa+1, pct, label:`Faixa ${faixa+1} (até ${maxK}) · ${pct}% ef.`};
+}
+
+// Calcula alíquota efetiva por ano para um cenário
+// Retorna array [taxa_m0..m36] — uma taxa por mês conforme o ano
+function calcTaxRatesPorAno(SCEN, scenarioKey, RC){
+  const sc = SCEN[scenarioKey];
+  const pt = RC.soy * RC.fx * RC.feeC / 100;
+  const anexo = RC.anexo || 'V';
+  // Receita bruta por ano
+  const recA1 = Array.from({length:12},(_,i)=>i+1).reduce((a,mi)=>a+Math.round((sc.tons[mi-1]||0)*pt),0);
+  const recA2 = Array.from({length:12},(_,i)=>i+13).reduce((a,mi)=>a+Math.round((sc.tons[mi-1]||0)*pt),0);
+  const recA3 = Array.from({length:12},(_,i)=>i+25).reduce((a,mi)=>a+Math.round((sc.tons[mi-1]||0)*pt),0);
+  const tA1 = calcAliquota(recA1, anexo).rate;
+  const tA2 = calcAliquota(recA2, anexo).rate;
+  const tA3 = calcAliquota(recA3, anexo).rate;
+  // M0 = 0 (pré-operação), M1-12 = tA1, M13-24 = tA2, M25-36 = tA3
+  return Array.from({length:37}, (_,mi)=> mi===0?0 : mi<=12?tA1 : mi<=24?tA2 : tA3);
+}
+
+// Expõe as alíquotas calculadas para o painel de Configurações
+function getTaxInfoCenario(scenKey){
+  const sc = SCEN[scenKey];
+  const pt = RC.soy * RC.fx * RC.feeC / 100;
+  const anexo = RC.anexo || 'V';
+  const anos = [
+    {label:'Ano 1', mis:Array.from({length:12},(_,i)=>i+1)},
+    {label:'Ano 2', mis:Array.from({length:12},(_,i)=>i+13)},
+    {label:'Ano 3', mis:Array.from({length:12},(_,i)=>i+25)},
+  ];
+  return anos.map(a=>{
+    const rec = a.mis.reduce((s,mi)=>s+Math.round((sc.tons[mi-1]||0)*pt),0);
+    const info = calcAliquota(rec, anexo);
+    return {...info, ano:a.label, rec};
+  });
+}
+
+/* ════════════════════════════════════════════
    P&L ENGINE — calcularPnLContango (37 meses)
 ════════════════════════════════════════════ */
 function calcularPnLContango(DATA, RC, SCEN, scenarioKey){
   const sc=SCEN[scenarioKey];
   const pt=RC.soy*RC.fx*RC.feeC/100;
-  const tax=RC.taxRate||0.065;
+  const taxRates=calcTaxRatesPorAno(SCEN, scenarioKey, RC); // array 37 posições
   const ap=DATA.pessoas.filter(x=>x.active);
   const ar=DATA.recorrentes.filter(x=>x.active);
   const ao=DATA.oneshots.filter(x=>x.active);
@@ -1845,6 +1945,7 @@ function calcularPnLContango(DATA, RC, SCEN, scenarioKey){
   return Array.from({length:37}, (_,mi)=>{
     const tons    =mi===0?0:(sc.tons[mi-1]||0);
     const recBruta=Math.round(tons*pt);
+    const tax=taxRates[mi]||0;
     const impostos=recBruta>0?-Math.round(recBruta*tax):0;
     const recLiq  =recBruta+impostos;
 
@@ -1918,15 +2019,34 @@ function updateRevCalc(){
   RC.fx      = parseFloat(document.getElementById('rc-fx')?.value)   ||5.30;
   RC.feeT    = parseFloat(document.getElementById('rc-feeT')?.value) ||1.0;
   RC.feeC    = parseFloat(document.getElementById('rc-feeC')?.value) ||0.5;
-  RC.taxRate = (parseFloat(document.getElementById('rc-tax')?.value) ||6.5) / 100;
+  RC.anexo   = document.getElementById('rc-anexo')?.value || 'V';
   const pt=perTonBRL();
-  const ptLiq=pt*(1-RC.taxRate);
   const el=document.getElementById('revCalcResult');
-  if(el) el.innerHTML=`
-    <div class="dr-item"><div class="dr-lbl">Soja em BRL/ton</div><div class="dr-val white">R$ ${Math.round(RC.soy*RC.fx).toLocaleString('pt-BR')}</div></div>
-    <div class="dr-item"><div class="dr-lbl">Fee Contango</div><div class="dr-val blue">${RC.feeC.toLocaleString('pt-BR',{minimumFractionDigits:2})}%</div></div>
-    <div class="dr-item"><div class="dr-lbl">Receita Bruta / ton</div><div class="dr-val">R$ ${pt.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>
-    <div class="dr-item"><div class="dr-lbl">Receita Líquida / ton</div><div class="dr-val">R$ ${ptLiq.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>`;
+  if(el){
+    // Painel de alíquotas por cenário
+    const scKeys=[['c','Conservador'],['m','Meta'],['p','Potencial']];
+    const fmtR=v=>v>=1000000?`R$ ${(v/1000000).toFixed(1)}M`:`R$ ${(v/1000).toFixed(0)}k`;
+    let html='';
+    scKeys.forEach(([k,lbl])=>{
+      const anos=getTaxInfoCenario(k);
+      html+=`<div style="display:flex;flex-direction:column;gap:4px;padding:10px 14px;background:rgba(16,90,166,.06);border:1px solid var(--blue-bd);border-radius:8px;min-width:200px">`;
+      html+=`<div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">${lbl}</div>`;
+      anos.forEach(a=>{
+        const clr=a.faixa<=2?'var(--green)':a.faixa<=4?'#f0a500':'#e05050';
+        html+=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">`;
+        html+=`<span style="font-family:var(--mono);font-size:9px;color:var(--text3)">${a.ano} · ${fmtR(a.rec)}</span>`;
+        html+=`<span style="font-family:var(--mono);font-size:10px;font-weight:700;color:${clr}">${a.pct||0}%</span>`;
+        html+=`</div>`;
+      });
+      html+=`</div>`;
+    });
+    html=`<div style="display:flex;gap:8px;flex-wrap:wrap;width:100%">`
+      +`<div class="dr-item"><div class="dr-lbl">Receita Bruta/ton</div><div class="dr-val white">R$ ${pt.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>`
+      +`<div class="dr-item"><div class="dr-lbl">Anexo</div><div class="dr-val blue">${RC.anexo}</div></div>`
+      +`</div><div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Alíquota efetiva por cenário (Simples Nacional)</div>`
+      +`<div style="display:flex;gap:8px;flex-wrap:wrap">`+html+`</div>`;
+    el.innerHTML=html;
+  }
   markDirty();
 }
 
@@ -2483,8 +2603,7 @@ function buildResTable(){
   const ap=DATA.pessoas;
   const ar=DATA.recorrentes;
   const ao=DATA.oneshots;
-
-  _thead.innerHTML='<tr class="th-hdr"><th style="text-align:left;min-width:200px">Item</th>'
+  const pnl=calcularPnLContango(DATA,RC,SCEN,sc);'<tr class="th-hdr"><th style="text-align:left;min-width:200px">Item</th>'
     +VM.map(mi=>mi===0?'<th style="color:var(--text3)">M0<small style="display:block;font-size:8px;opacity:.7">Pré</small></th>':`<th>M${mi}</th>`).join('')
     +'<th style="border-left:1px solid var(--blue-bd)">'+yearLabel(resYear)+' — Total</th></tr>';
 
@@ -2533,6 +2652,21 @@ function buildResTable(){
     tr.innerHTML=html; _tbody.appendChild(tr);
   }
 
+  // RECEITA — no topo
+  secHdr('RECEITA');
+  {
+    const bVals={};VM.forEach(mi=>bVals[mi]=pnl[mi]?.recBruta||0);
+    const tr=document.createElement('tr'); tr.className='rev-sub';
+    const bP=VM.reduce((a,mi)=>a+(bVals[mi]||0),0);
+    let html='<td style="text-align:left;font-weight:600">Receita Bruta (Tokenização)</td>';
+    VM.forEach(mi=>html+=actCell('_rev',mi,bVals[mi]||0));
+    html+=`<td style="border-left:1px solid var(--blue-bd);vertical-align:top">${fmtB(bP)}${periodActual('_rev')}</td>`;
+    tr.innerHTML=html; _tbody.appendChild(tr);
+  }
+
+  const divRow=()=>{const tr=document.createElement('tr');tr.innerHTML=`<td colspan="${VM.length+2}" style="padding:0;height:3px;background:rgba(16,90,166,.1)"></td>`;_tbody.appendChild(tr);};
+  divRow();
+
   secHdr('PESSOAS — Equipe');
   ap.forEach(item=>{
     const inativo=!item.active;
@@ -2550,18 +2684,6 @@ function buildResTable(){
   secHdr('DESPESAS ONE-SHOT');
   ao.forEach(item=>{const ov=oneshotVals(item);const inativo=!item.active;row(item,mi=>ov[mi]||0,inativo);});
   subtotalRow('Subtotal One-Shot',ao,(item,mi)=>oneshotVals(item)[mi]||0);
-
-  // Receita
-  secHdr('RECEITA');
-  {
-    const bVals={};VM.forEach(mi=>bVals[mi]=pnl[mi]?.recBruta||0);
-    const tr=document.createElement('tr'); tr.className='rev-sub';
-    const bP=VM.reduce((a,mi)=>a+(bVals[mi]||0),0);
-    let html='<td style="text-align:left">Receita Bruta (Tokenização)</td>';
-    VM.forEach(mi=>html+=actCell('_rev',mi,bVals[mi]||0));
-    html+=`<td style="border-left:1px solid var(--blue-bd);vertical-align:top">${fmtB(bP)}${periodActual('_rev')}</td>`;
-    tr.innerHTML=html; _tbody.appendChild(tr);
-  }
 }
 
 /* ════════════════════════════════════════════
@@ -2688,13 +2810,19 @@ function buildBvaTable(){
   secHdr('▸ RECEITA');
   addRow('Receita Bruta',
     mi=>pnl[mi]?.recBruta||0, mi=>aRevMi(mi), 'bva-b-row bold');
-  addRow('(-) Impostos ('+Math.round((RC.taxRate||0.065)*100)+'%)',
+  addRow('(-) Impostos (Simples)',
     mi=>Math.abs(pnl[mi]?.impostos||0),
-    mi=>{const r=aRevMi(mi);return r!==null?Math.round(r*(RC.taxRate||0.065)):null;},
+    mi=>{const r=aRevMi(mi);
+      if(r===null)return null;
+      const txR=calcTaxRatesPorAno(SCEN,sc,RC);
+      return Math.round(r*(txR[mi]||0));},
     'bva-b-row dre-tax',true);
   addRow('(=) Receita Líquida',
     mi=>pnl[mi]?.recLiq||0,
-    mi=>{const r=aRevMi(mi);return r!==null?Math.round(r*(1-(RC.taxRate||0.065))):null;},
+    mi=>{const r=aRevMi(mi);
+      if(r===null)return null;
+      const txR=calcTaxRatesPorAno(SCEN,sc,RC);
+      return Math.round(r*(1-(txR[mi]||0)));},
     'bva-b-row dre-netliq bold');
 
   secHdr('▸ (-) COGS','dre-section');
@@ -2704,7 +2832,8 @@ function buildBvaTable(){
   });
   addRow('(=) Lucro Bruto',mi=>pnl[mi]?.lucroBruto||0,
     mi=>{const r=aRevMi(mi),c=aCatMi(mi,'cogs');
-      return(r!==null||c!==null)?Math.round((r!==null?r:pnl[mi]?.recBruta||0)*(1-(RC.taxRate||0.065)))-(c!==null?c:Math.abs(pnl[mi]?.cogs||0)):null;},
+      const _txLB=calcTaxRatesPorAno(SCEN,sc,RC)[mi]||0;
+      return(r!==null||c!==null)?Math.round((r!==null?r:pnl[mi]?.recBruta||0)*(1-_txLB))-(c!==null?c:Math.abs(pnl[mi]?.cogs||0)):null;},
     'bva-b-row dre-gp bold');
 
   secHdr('▸ (-) SG&A','dre-section');
@@ -2717,7 +2846,8 @@ function buildBvaTable(){
   addRow('(=) EBITDA',mi=>pnl[mi]?.ebitda||0,
     mi=>{const r=aRevMi(mi),burn=aBurnMi(mi);
       if(r===null&&burn===null)return null;
-      return Math.round((r!==null?r:pnl[mi]?.recBruta||0)*(1-(RC.taxRate||0.065)))-(burn!==null?burn:Math.abs((pnl[mi]?.cogs||0)+(pnl[mi]?.sga||0)));},
+      const _txEB=calcTaxRatesPorAno(SCEN,sc,RC)[mi]||0;
+      return Math.round((r!==null?r:pnl[mi]?.recBruta||0)*(1-_txEB))-(burn!==null?burn:Math.abs((pnl[mi]?.cogs||0)+(pnl[mi]?.sga||0)));},
     'bva-b-row dre-ebitda bold');
 
   updateBvaKpis();
@@ -2740,7 +2870,8 @@ function updateBvaKpis(){
     if(hab){aBurn+=ab;hasABurn=true;}
     const ar2=getBvaItem(sc,'_rev',mi); if(ar2!==null){aRev+=ar2;hasARev=true;}
   }
-  const aEb=hasARev&&hasABurn?Math.round(aRev*(1-(RC.taxRate||0.065)))-aBurn:null;
+  const _avgTax=(()=>{const tr=calcTaxRatesPorAno(SCEN,sc,RC);const r=tr.filter(v=>v>0);return r.length?r.reduce((a,v)=>a+v,0)/r.length:0;})();
+  const aEb=hasARev&&hasABurn?Math.round(aRev*(1-_avgTax))-aBurn:null;
   const fmt=v=>{const abs=Math.abs(Math.round(v)).toLocaleString('pt-BR');return v<0?'− R$ '+abs:'R$ '+abs;};
   const kpi=(label,bVal,aVal,hasA,positiveIsGood)=>{
     const dVal=hasA?aVal-bVal:null;
@@ -2748,6 +2879,130 @@ function updateBvaKpis(){
     return `<div class="bva-kpi${cls}"><div class="lbl">${label}</div><div class="val">${fmt(bVal)}</div><div class="sub">Budget · Actual: ${hasA?fmt(aVal):'sem dados'} · Δ: ${dVal!==null?fmt(dVal):'—'}</div></div>`;
   };
   strip.innerHTML=kpi('Total Burn',bBurn,aBurn,hasABurn,false)+kpi('Gross Revenue',bRev,aRev,hasARev,true)+kpi('EBITDA',bEb,aEb!==null?aEb:0,aEb!==null,true)+kpi('Rev − Burn',bRev-bBurn,hasARev&&hasABurn?aRev-aBurn:null,hasARev&&hasABurn,true);
+}
+
+/* ════════════════════════════════════════════
+   DRE — CONSOLIDADO ANUAL (Ano 1 / Ano 2 / Ano 3)
+════════════════════════════════════════════ */
+let dreAnnualScenario = 'c';
+
+function setDreScenario(key,btn){
+  dreAnnualScenario=key;
+  document.querySelectorAll('[id^="dre-sc-"]').forEach(b=>{
+    const k=b.id.replace('dre-sc-','');
+    b.className='tg-btn '+(k==='c'?'sc-cons':k==='m'?'sc-meta':'sc-pot')+(k===key?' active':'');
+  });
+  buildDreAnnual();
+}
+
+function buildDreAnnual(){
+  const thead=document.getElementById('dreAnnualHead');
+  const tbody=document.getElementById('dreAnnualBody');
+  if(!thead||!tbody)return;
+  tbody.innerHTML='';
+  const sc=dreAnnualScenario;
+  const pnl=calcularPnLContango(DATA,RC,SCEN,sc);
+
+  // Anos: Ano1=M1-M12, Ano2=M13-M24, Ano3=M25-M36
+  const anos=[
+    {label:'Ano 1',mis:Array.from({length:12},(_,i)=>i+1)},
+    {label:'Ano 2',mis:Array.from({length:12},(_,i)=>i+13)},
+    {label:'Ano 3',mis:Array.from({length:12},(_,i)=>i+25)},
+  ];
+  const total={label:'Total 36m',mis:Array.from({length:36},(_,i)=>i+1)};
+  const cols=[...anos,total];
+
+  // Thead
+  thead.innerHTML='<tr class="th-hdr">'
+    +'<th style="text-align:left;min-width:240px">DRE — Consolidado Anual · '+SCEN[sc].label+'</th>'
+    +cols.map(c=>`<th style="min-width:130px;text-align:right">${c.label}</th>`).join('')
+    +'<th style="min-width:80px;text-align:right;color:var(--text3)">Δ A3/A1 %</th>'
+    +'</tr>';
+
+  const Rv=v=>{if(!v&&v!==0)return'<span class="dash">—</span>';const n=R$(Math.abs(v)).replace(/<[^>]*>/g,'');return v<0?`<span class="c-neg">− ${n}</span>`:n;};
+  const sum=(key,mis)=>mis.reduce((a,mi)=>a+(pnl[mi]?.[key]||0),0);
+  const absum=(key,mis)=>mis.reduce((a,mi)=>a+Math.abs(pnl[mi]?.[key]||0),0);
+  const pct=(a1,a3)=>a1?Math.round((a3-a1)/Math.abs(a1)*100):null;
+
+  function addRow(label,fn,cls,indent){
+    const tr=document.createElement('tr'); if(cls)tr.className=cls;
+    const vals=cols.map(c=>fn(c.mis));
+    const d=pct(vals[0],vals[2]);
+    let html=`<td style="text-align:left${indent?';padding-left:22px':''}">${label}</td>`;
+    vals.forEach(v=>html+=`<td style="text-align:right">${Rv(v)}</td>`);
+    html+=`<td style="text-align:right;font-family:var(--mono);font-size:11px">${d!==null?`<span class="${d>=0?'c-pos':'c-neg'}">${d>0?'+':''}${d}%</span>`:'<span class="dash">—</span>'}</td>`;
+    tr.innerHTML=html; tbody.appendChild(tr);
+  }
+  function secHdrD(label,cls){
+    const tr=document.createElement('tr'); tr.className=cls||'dre-hdr';
+    tr.innerHTML=`<td colspan="${cols.length+2}">${label}</td>`;
+    tbody.appendChild(tr);
+  }
+  function divRow(){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td colspan="${cols.length+2}" style="padding:0;height:3px;background:rgba(16,90,166,.1)"></td>`;
+    tbody.appendChild(tr);
+  }
+
+  secHdrD('▸ RECEITA');
+  addRow('Receita Bruta',mis=>sum('recBruta',mis),'bva-b-row bold');
+  addRow('(-) Impostos (Simples)',mis=>sum('impostos',mis),'bva-b-row dre-tax',true);
+  addRow('(=) Receita Líquida',mis=>sum('recLiq',mis),'bva-b-row dre-netliq bold');
+  divRow();
+
+  secHdrD('▸ (-) COGS','dre-section');
+  if(pnl.some(m=>m?.cogsTech)) addRow('Tecnologia',mis=>-absum('cogsTech',mis),'bva-b-row dre-sub',true);
+  if(pnl.some(m=>m?.cogsCS))   addRow('Customer Success',mis=>-absum('cogsCS',mis),'bva-b-row dre-sub',true);
+  if(pnl.some(m=>m?.cogsOps))  addRow('Operação',mis=>-absum('cogsOps',mis),'bva-b-row dre-sub',true);
+  addRow('(=) Lucro Bruto',mis=>sum('lucroBruto',mis),'bva-b-row dre-gp bold');
+  divRow();
+
+  secHdrD('▸ (-) SG&A','dre-section');
+  if(pnl.some(m=>m?.sgaVendas)) addRow('Vendas',mis=>-absum('sgaVendas',mis),'bva-b-row dre-sub',true);
+  if(pnl.some(m=>m?.sgaMktg))   addRow('Marketing',mis=>-absum('sgaMktg',mis),'bva-b-row dre-sub',true);
+  if(pnl.some(m=>m?.sgaGA))     addRow('G&A',mis=>-absum('sgaGA',mis),'bva-b-row dre-sub',true);
+  divRow();
+
+  secHdrD('▸ RESULTADO FINAL','dre-hdr');
+  addRow('(=) EBITDA',mis=>sum('ebitda',mis),'bva-b-row dre-ebitda bold');
+  addRow('(=) Lucro Líquido',mis=>sum('lucroLiq',mis),'bva-b-row dre-net bold');
+
+  // Margem EBITDA %
+  {
+    const tr=document.createElement('tr'); tr.className='dre-margin';
+    let html='<td style="text-align:left;padding-left:22px;font-size:11px">% Margem EBITDA</td>';
+    cols.forEach(c=>{
+      const eb=sum('ebitda',c.mis),rl=sum('recLiq',c.mis);
+      const p=rl?Math.round(eb/rl*100):null;
+      html+=`<td style="text-align:right;font-size:11px">${p!==null?`<span class="${p>=0?'c-pos':'c-neg'}">${p}%</span>`:'<span class="dash">—</span>'}</td>`;
+    });
+    // Δ margem A1→A3
+    const eb1=sum('ebitda',anos[0].mis),rl1=sum('recLiq',anos[0].mis);
+    const eb3=sum('ebitda',anos[2].mis),rl3=sum('recLiq',anos[2].mis);
+    const m1=rl1?Math.round(eb1/rl1*100):null,m3=rl3?Math.round(eb3/rl3*100):null;
+    const dm=m1!==null&&m3!==null?m3-m1:null;
+    html+=`<td style="text-align:right;font-size:11px">${dm!==null?`<span class="${dm>=0?'c-pos':'c-neg'}">${dm>0?'+':''}${dm}pp</span>`:'<span class="dash">—</span>'}</td>`;
+    tr.innerHTML=html; tbody.appendChild(tr);
+  }
+
+  // KPI cards
+  const kpis=document.getElementById('dreAnnualKpis');
+  if(kpis){
+    const fmtK=v=>{const abs=Math.abs(Math.round(v)).toLocaleString('pt-BR');return v<0?`− R$ ${abs}`:`R$ ${abs}`;};
+    kpis.innerHTML=anos.map((a,i)=>{
+      const rev=sum('recBruta',a.mis),eb=sum('ebitda',a.mis),rl=sum('recLiq',a.mis);
+      const mg=rl?Math.round(eb/rl*100):null;
+      return `<div class="sum-card${eb>=0?' g-card':''}">
+        <div class="sum-label">${a.label} — ${SCEN[sc].label}</div>
+        <div class="sum-val ${eb>=0?'g':'l'}" style="font-size:15px">${fmtK(eb)}</div>
+        <div class="sum-note">EBITDA · Rev: ${fmtK(rev)} · Margem: ${mg!==null?mg+'%':'—'}</div>
+      </div>`;
+    }).join('')+`<div class="sum-card">
+      <div class="sum-label">Total 36 meses</div>
+      <div class="sum-val b" style="font-size:15px">${fmtK(sum('recBruta',total.mis))}</div>
+      <div class="sum-note">Receita Bruta · EBITDA: ${fmtK(sum('ebitda',total.mis))}</div>
+    </div>`;
+  }
 }
 
 function switchTab(id,btn){
@@ -2758,6 +3013,7 @@ function switchTab(id,btn){
   if(id==='config')renderConfig();
   if(id==='resultados')buildResTable();
   if(id==='bva')buildBvaTable();
+  if(id==='dre')buildDreAnnual();
 }
 
 function switchSSA(key,btn){
@@ -2828,7 +3084,7 @@ function migrateData(s){
       while(s.SCEN[k].tons.length<36) s.SCEN[k].tons.push(0);
     }
   });
-  if(s.RC&&!s.RC.taxRate) s.RC.taxRate=0.065;
+  if(s.RC&&!s.RC.anexo) s.RC.anexo='V';
   return s;
 }
 
@@ -2982,6 +3238,8 @@ async function loadLastSim(){
     try{
       var s = migrateData(JSON.parse(sim.dados));
       DATA=s.DATA; RC=s.RC; DR=s.DR; SCEN=s.SCEN;
+      if(!RC.anexo) RC.anexo='V';
+      const _an1=document.getElementById('rc-anexo');if(_an1)_an1.value=RC.anexo;
       if(s.BVA) BVA_DATA=s.BVA;
       buildTable(); renderConfig();
     }catch(e){}
@@ -2996,6 +3254,8 @@ async function loadSim(id){
     try{
       var s = migrateData(JSON.parse(res.data.dados));
       DATA=s.DATA; RC=s.RC; DR=s.DR; SCEN=s.SCEN;
+      if(!RC.anexo) RC.anexo='V';
+      const _an2=document.getElementById('rc-anexo');if(_an2)_an2.value=RC.anexo;
       if(s.BVA) BVA_DATA=s.BVA;
       buildTable(); renderConfig();
     }catch(e){}
