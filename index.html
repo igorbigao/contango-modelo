@@ -1136,7 +1136,7 @@ tr.dre-margin td{background:rgba(13,27,56,.6)!important;color:var(--text3)!impor
 let UID = 500;
 let viewYear = 1;  // filtro da tabela: 1=Ano1 2=Ano2 3=Ano3
 let cfgYear  = 1;  // filtro do configurador
-const APP_VERSION = 'v3.9 · build 2026-03-28 10:37 BRT';
+const APP_VERSION = 'v3.9 · build 2026-03-28 10:59 BRT';
 
 function getVisibleMonths(y){
   y=y||viewYear;
@@ -3381,7 +3381,7 @@ function saveHTML(){
 
   var SS='/* __SNAPSHOT'+'_START__ */';
   var SE='/* __SNAPSHOT'+'_END__ */';
-  var snap=JSON.stringify({DATA:DATA,RC:RC,DR:DR,SCEN:SCEN,BVA:BVA_DATA});
+  var snap=JSON.stringify({DATA:DATA,RC:RC,DR:DR,SCEN:SCEN,BVA:BVA_DATA,_schema_version:SCHEMA_VERSION});
   var block=SS+'\n(function(){var s='+snap+';var ms=migrateData({DATA:s.DATA,RC:s.RC,DR:s.DR,SCEN:s.SCEN});DATA=ms.DATA;RC=ms.RC;DR=ms.DR;SCEN=ms.SCEN;buildTable();})();\n'+SE;
 
   var src=document.documentElement.outerHTML;
@@ -3417,23 +3417,113 @@ function saveHTML(){
   setTimeout(function(){btn.innerHTML=orig;btn.style.background='';btn.style.color='';},2500);
 }
 /* ── MIGRATE — retrocompat snapshots legados (8→37 meses) ── */
+/* ════════════════════════════════════════════
+   SCHEMA VERSIONING — migrations
+   Toda mudança estrutural vira uma migration numerada.
+   Saves antigos rodam as migrations que faltam automaticamente.
+   Regras:
+   - Nunca remova uma migration existente
+   - Sempre adicione novas migrations no final
+   - Cada migration recebe o estado anterior e retorna o atualizado
+════════════════════════════════════════════ */
+const SCHEMA_VERSION = 2; // incrementar ao adicionar nova migration
+
+const MIGRATIONS = [
+  // v1 → v2: adicionar itens operacionais e eventos agro
+  // Itens novos: cs_senior, cs_junior, whatsapp_api, ia_tools, crm_tools,
+  //              contabilidade, juridico, coworking, viagens_com,
+  //              agrishow26, agrobsb26 e eventos 2027/2028
+  function migrate_v1_to_v2(s) {
+    const blank = {mode:'none',hours:0,extraHours:0};
+    function mkM(modes) {
+      var r = [];
+      modes.forEach(function(m){ r.push(Object.assign({hours:0,extraHours:0}, typeof m==='string'?{mode:m}:m)); });
+      while(r.length<37) r.push({hours:0,extraHours:0,mode:'none'});
+      return r.slice(0,37);
+    }
+    // Novos itens para cada tipo — só adiciona se não existir
+    var newPessoas = [
+      {id:'cs_senior',name:'CS Sênior',note:'Customer Success + Onboarding (PJ)',active:true,pnlCategory:'cogs_cs',
+       hourlyRate:0,monthlyFull:10000,monthlyPart:5000,partHoursIncluded:80,
+       months:mkM(['none','none','none','none','none','none','none'].concat(Array(30).fill('fulltime')))},
+      {id:'cs_junior',name:'CS Junior',note:'Customer Success (PJ)',active:true,pnlCategory:'cogs_cs',
+       hourlyRate:0,monthlyFull:6000,monthlyPart:3000,partHoursIncluded:80,
+       months:mkM(Array(20).fill('none').concat(Array(17).fill('fulltime')))}
+    ];
+    var newRecs = [
+      {id:'whatsapp_api',name:'WhatsApp API + Automações',note:'Atendimento e onboarding automatizado',active:true,pnlCategory:'cogs_ops',
+       hourlyRate:0,monthlyFixed:2000,months:mkM(Array(3).fill('none').concat(Array(34).fill('fixed')))},
+      {id:'ia_tools',name:'Ferramentas de IA',note:'Atendimento, resumos, triagem',active:true,pnlCategory:'cogs_ops',
+       hourlyRate:0,monthlyFixed:1500,months:mkM(Array(3).fill('none').concat(Array(34).fill('fixed')))},
+      {id:'crm_tools',name:'CRM + Ferramentas Admin',note:'HubSpot, etc',active:true,pnlCategory:'sga_ga',
+       hourlyRate:0,monthlyFixed:1000,months:mkM(Array(3).fill('none').concat(Array(34).fill('fixed')))},
+      {id:'contabilidade',name:'Contabilidade',note:'Simples Nacional',active:true,pnlCategory:'sga_ga',
+       hourlyRate:0,monthlyFixed:1500,months:mkM(['none'].concat(Array(36).fill('fixed')))},
+      {id:'juridico',name:'Assessoria Jurídica',note:'Mensal',active:true,pnlCategory:'sga_ga',
+       hourlyRate:0,monthlyFixed:2500,months:mkM(['none'].concat(Array(36).fill('fixed')))},
+      {id:'coworking',name:'Endereço Fiscal / Coworking',note:'SP, CWB ou GYN',active:true,pnlCategory:'sga_ga',
+       hourlyRate:0,monthlyFixed:600,months:mkM(Array(6).fill('none').concat(Array(31).fill('fixed')))},
+      {id:'viagens_com',name:'Viagens Comerciais',note:'Visitas a produtores e armazenadores',active:true,pnlCategory:'sga_sales',
+       hourlyRate:0,monthlyFixed:4000,months:mkM(['none','none'].concat(Array(35).fill('fixed')))}
+    ];
+    var newOneshots = [
+      {id:'agrishow26',name:'Agrishow 2026',note:'Visitação — 2 sócios',pnlCategory:'sga_mktg',brl:3000,month:2,installments:1,active:true},
+      {id:'agrobsb26',name:'AgroBrasília 2026',note:'Visitação — 2 sócios',pnlCategory:'sga_mktg',brl:3000,month:3,installments:1,active:true},
+      {id:'showrural27',name:'Show Rural Coopavel 27',note:'Presença institucional — Cascavel',pnlCategory:'sga_mktg',brl:15000,month:14,installments:1,active:true},
+      {id:'agrishow27',name:'Agrishow 2027',note:'Presença institucional — Ribeirão',pnlCategory:'sga_mktg',brl:20000,month:16,installments:1,active:true},
+      {id:'agrobsb27',name:'AgroBrasília 2027',note:'Presença institucional — Brasília',pnlCategory:'sga_mktg',brl:15000,month:18,installments:1,active:true},
+      {id:'tecnoshow27',name:'Tecnoshow Comigo 2027',note:'Presença institucional — Rio Verde',pnlCategory:'sga_mktg',brl:15000,month:16,installments:1,active:true},
+      {id:'showrural28',name:'Show Rural Coopavel 28',note:'Presença consolidada',pnlCategory:'sga_mktg',brl:18000,month:26,installments:1,active:true},
+      {id:'agrishow28',name:'Agrishow 2028',note:'Presença consolidada',pnlCategory:'sga_mktg',brl:25000,month:28,installments:1,active:true},
+      {id:'agrobsb28',name:'AgroBrasília 2028',note:'Presença consolidada',pnlCategory:'sga_mktg',brl:18000,month:30,installments:1,active:true}
+    ];
+    // Merge: só adiciona se o id não existir
+    function mergeItems(existing, newItems) {
+      var ids = (existing||[]).map(function(x){return x.id;});
+      newItems.forEach(function(item){
+        if(!ids.includes(item.id)) existing.push(item);
+      });
+    }
+    mergeItems(s.DATA.pessoas, newPessoas);
+    mergeItems(s.DATA.recorrentes, newRecs);
+    mergeItems(s.DATA.oneshots, newOneshots);
+    s._schema_version = 2;
+    return s;
+  }
+  // Adicionar novas migrations aqui no futuro:
+  // function migrate_v2_to_v3(s) { ... }
+];
+
 function migrateData(s){
   if(!s||!s.DATA) return s;
-  const blank={mode:'none',hours:0,extraHours:0};
-  ['pessoas','recorrentes'].forEach(type=>{
-    (s.DATA[type]||[]).forEach(item=>{
+  const blank = {mode:'none',hours:0,extraHours:0};
+
+  // Normalização base (sempre roda)
+  ['pessoas','recorrentes'].forEach(function(type){
+    (s.DATA[type]||[]).forEach(function(item){
       if(!item.months) item.months=[];
       while(item.months.length<37) item.months.push(Object.assign({},blank));
       if(!item.pnlCategory) item.pnlCategory='sga_ga';
     });
   });
-  (s.DATA.oneshots||[]).forEach(item=>{ if(!item.pnlCategory) item.pnlCategory='sga_ga'; });
-  ['c','m','p'].forEach(k=>{
+  (s.DATA.oneshots||[]).forEach(function(item){ if(!item.pnlCategory) item.pnlCategory='sga_ga'; });
+  ['c','m','p'].forEach(function(k){
     if(s.SCEN&&s.SCEN[k]&&s.SCEN[k].tons){
       while(s.SCEN[k].tons.length<36) s.SCEN[k].tons.push(0);
     }
   });
   if(s.RC&&!s.RC.anexo) s.RC.anexo='V';
+
+  // Rodar migrations pendentes em ordem
+  var currentVersion = s._schema_version || 1;
+  for(var v = currentVersion; v < SCHEMA_VERSION; v++){
+    var migration = MIGRATIONS[v-1]; // MIGRATIONS[0] = v1→v2
+    if(migration) {
+      s = migration(s);
+      console.log('[migrateData] Ran migration v'+v+' → v'+(v+1));
+    }
+  }
+
   return s;
 }
 
@@ -3543,7 +3633,7 @@ async function saveCloud(){
   var btn=document.getElementById('btnSaveCloud');
   btn.innerHTML='☁️ Salvando...'; btn.disabled=true;
 
-  var dados = JSON.stringify({DATA:DATA,RC:RC,DR:DR,SCEN:SCEN,BVA:BVA_DATA});
+  var dados = JSON.stringify({DATA:DATA,RC:RC,DR:DR,SCEN:SCEN,BVA:BVA_DATA,_schema_version:SCHEMA_VERSION});
   var agora = new Date().toISOString();
 
   var res;
