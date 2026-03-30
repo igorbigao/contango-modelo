@@ -657,6 +657,9 @@ tr.dre-margin td{background:rgba(13,27,56,.6)!important;color:var(--text3)!impor
       <button class="tg-btn sc-meta" id="dre-sc-m" onclick="setDreScenario('m',this)">2 · Meta</button>
       <button class="tg-btn sc-pot" id="dre-sc-p" onclick="setDreScenario('p',this)">3 · Potencial</button>
     </div>
+    <div style="margin-left:auto">
+      <button class="bulk-btn" style="padding:5px 14px;background:rgba(185,213,67,.12);border-color:rgba(185,213,67,.3);color:var(--green)" onclick="exportDreAnnualCsv()">📥 &nbsp;Export CSV</button>
+    </div>
   </div>
   <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:-4px 0 14px;letter-spacing:.5px">
     DRE consolidado por ano · mesmas categorias do modelo financeiro · valores em BRL
@@ -1136,7 +1139,7 @@ tr.dre-margin td{background:rgba(13,27,56,.6)!important;color:var(--text3)!impor
 let UID = 500;
 let viewYear = 1;  // filtro da tabela: 1=Ano1 2=Ano2 3=Ano3
 let cfgYear  = 1;  // filtro do configurador
-const APP_VERSION = 'v3.9 · build 2026-03-28 10:59 BRT';
+const APP_VERSION = 'v4.1 · build 2026-03-29 23:15 BRT';
 
 function getVisibleMonths(y){
   y=y||viewYear;
@@ -1155,9 +1158,9 @@ let DR = { total:500000, pct:5 };
 
 /* ── SCENARIOS ── */
 let SCEN = {
-  c:{ label:'Conservador',     pill:'Receita inicia no Mês 6',              tons:[0,0,0,0,0,5000,8000,10000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] },
-  m:{ label:'Meta',            pill:'Receita inicia no Mês 3 — próximo do break-even', tons:[0,0,3000,8000,15000,22000,25000,24000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] },
-  p:{ label:'Potencial > Meta',pill:'Receita inicia no Mês 3 — superação expressiva',  tons:[0,0,5000,12000,22000,38000,60000,80000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] },
+  c:{ label:'Conservador',     pill:'Receita inicia no Mês 6',              burnDelay:6, tons:[0,0,0,0,0,5000,8000,10000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] },
+  m:{ label:'Meta',            pill:'Receita inicia no Mês 3 — próximo do break-even', burnDelay:6, tons:[0,0,3000,8000,15000,22000,25000,24000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] },
+  p:{ label:'Potencial > Meta',pill:'Receita inicia no Mês 3 — superação expressiva',  burnDelay:6, tons:[0,0,5000,12000,22000,38000,60000,80000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] },
 };
 let scenario = 'c';
 
@@ -2124,23 +2127,70 @@ function buildTable(){
 
   /* RECEITA */
   const tons=sc.tons;
-  const REV_M=[0,...tons.map(t=>Math.round(t*pt))]; // [0]=M0 [1]=M1 ... [36]=M36
+  const burnDelay=sc.burnDelay||0;
+  // REV_ENTRADA[mi]=fee tokenização | REV_BURN[mi]=fee burn/saque defasado N meses
+  const REV_ENTRADA=Array.from({length:37},function(_,mi){
+    if(mi===0) return 0;
+    return Math.round((tons[mi-1]||0)*pt);
+  });
+  const REV_BURN=Array.from({length:37},function(_,mi){
+    if(mi===0) return 0;
+    var burnMi=mi-burnDelay;
+    return (burnDelay>0&&burnMi>=1&&burnMi<=36)?Math.round((tons[burnMi-1]||0)*pt):0;
+  });
+  const REV_M=REV_ENTRADA.map(function(e,i){return e+(REV_BURN[i]||0);});
   let acRev=0;
   const RACUM=REV_M.map(r=>{acRev+=r;return acRev;});
 
   row([{h:`<span class="si">▸</span>RECEITA — ${sc.label.toUpperCase()} · R$ ${pt.toLocaleString('pt-BR',{minimumFractionDigits:2})}/ton`},...BFILL],'rev-hdr');
 
-  const tRow=[{h:'Toneladas Tokenizadas'}];
+  // A — Toneladas Tokenizadas (entrada)
+  const tRow=[{h:'A — Toneladas Tokenizadas'}];
   VM.forEach(mi=>tRow.push({h:mi===0?'<span class="dash">—</span>':tons[mi-1]?fmtTons(tons[mi-1]):'<span class="dash">—</span>'}));
   tRow.push({h:fmtTons(VM.filter(m=>m>0).reduce((a,mi)=>a+(tons[mi-1]||0),0))});
   row(tRow);
 
-  const revRow=[{h:'Receita Mensal (BRL)'}];
-  VM.forEach(mi=>revRow.push({h:REV_M[mi]?`<span class="c-pos">${R$(REV_M[mi])}</span>`:'<span class="dash">—</span>'}));
-  revRow.push({h:`<span class="c-pos">${R$(VM.reduce((a,mi)=>a+(REV_M[mi]||0),0))}</span>`});
-  row(revRow);
+  // B — Toneladas Burn/Saque (defasado N meses)
+  const tBurnRow=[{h:'B — Toneladas Burn/Saque'}];
+  VM.forEach(mi=>{
+    var bmi=mi-burnDelay;
+    var bt=(burnDelay>0&&bmi>=1&&bmi<=36)?(tons[bmi-1]||0):0;
+    tBurnRow.push({h:(mi===0||!bt)?'<span class="dash">—</span>':fmtTons(bt)});
+  });
+  tBurnRow.push({h:fmtTons(VM.filter(m=>m>0).reduce((a,mi)=>{var bmi=mi-burnDelay;return a+((burnDelay>0&&bmi>=1&&bmi<=36)?(tons[bmi-1]||0):0);},0))});
+  row(tBurnRow);
 
-  const racumRow=[{h:'Receita Acumulada (BRL)'}];
+  // A+B — Toneladas Total
+  const tTotalRow=[{h:'Toneladas Total (A+B)'}];
+  VM.forEach(mi=>{
+    var e=mi===0?0:(tons[mi-1]||0);
+    var bmi=mi-burnDelay;
+    var b=(burnDelay>0&&bmi>=1&&bmi<=36)?(tons[bmi-1]||0):0;
+    var tot=e+b;
+    tTotalRow.push({h:(mi===0||!tot)?'<span class="dash">—</span>':fmtTons(tot)});
+  });
+  tTotalRow.push({h:fmtTons(VM.filter(m=>m>0).reduce((a,mi)=>{
+    var e=tons[mi-1]||0;
+    var bmi=mi-burnDelay;
+    var b=(burnDelay>0&&bmi>=1&&bmi<=36)?(tons[bmi-1]||0):0;
+    return a+e+b;
+  },0))});
+  row(tTotalRow,'subtotal');
+
+  // C — Receita Tokenização
+  const revEntradaRow=[{h:'C — Receita Tokenização (BRL)'}];
+  VM.forEach(mi=>revEntradaRow.push({h:REV_ENTRADA[mi]?`<span class="c-pos">${R$(REV_ENTRADA[mi])}</span>`:'<span class="dash">—</span>'}));
+  revEntradaRow.push({h:REV_ENTRADA.some(v=>v>0)?`<span class="c-pos">${R$(VM.reduce((a,mi)=>a+(REV_ENTRADA[mi]||0),0))}</span>`:'<span class="dash">—</span>'});
+  row(revEntradaRow);
+
+  // D — Receita Burn/Saque
+  const revBurnRow=[{h:'D — Receita Burn/Saque (BRL)'}];
+  VM.forEach(mi=>revBurnRow.push({h:REV_BURN[mi]?`<span class="c-pos">${R$(REV_BURN[mi])}</span>`:'<span class="dash">—</span>'}));
+  revBurnRow.push({h:REV_BURN.some(v=>v>0)?`<span class="c-pos">${R$(VM.reduce((a,mi)=>a+(REV_BURN[mi]||0),0))}</span>`:'<span class="dash">—</span>'});
+  row(revBurnRow);
+
+  // Receita Acumulada (C+D)
+  const racumRow=[{h:'Receita Acumulada (C+D) (BRL)'}];
   VM.forEach(mi=>racumRow.push({h:RACUM[mi]?`<span class="c-pos">${R$(RACUM[mi])}</span>`:'<span class="dash">—</span>'}));
   racumRow.push({h:`<span class="c-pos">${R$(RACUM[lastVM])}</span>`});
   row(racumRow,'rev-sub');
@@ -2175,7 +2225,9 @@ function buildTable(){
     row(cells,cls||'dre-margin');
   }
 
-  const rbRow=[{h:'Receita Bruta'},{h:'R$'}];
+  dreRow('  Receita Tokenização (Entrada)','R$','recEntrada','dre-sub');
+  dreRow('  Receita Burn/Saque','R$','recBurn','dre-sub');
+  const rbRow=[{h:'(=) Receita Bruta Total'},{h:'R$'}];
   VM.forEach(mi=>rbRow.push({h:pnl[mi]?.recBruta?`<span class="c-pos">${R$(pnl[mi].recBruta).replace(/<[^>]*>/g,'')}</span>`:'<span class="dash">—</span>'}));
   rbRow.push({h:sumP('recBruta')?`<span class="c-pos">${R$(sumP('recBruta')).replace(/<[^>]*>/g,'')}</span>`:'<span class="dash">—</span>'});
   row(rbRow);
@@ -2248,14 +2300,35 @@ function calcAliquota(receitaAnual, anexo){
 
 // Calcula alíquota efetiva por ano para um cenário
 // Retorna array [taxa_m0..m36] — uma taxa por mês conforme o ano
+function _revMiSc(sc, mi, pt){
+  // Receita do mês mi incluindo fee de burn com delay
+  if(mi<=0) return 0;
+  var entrada=Math.round((sc.tons[mi-1]||0)*pt);
+  var bd=sc.burnDelay||0;
+  var bmi=mi-bd;
+  var burn=(bd>0&&bmi>=1&&bmi<=36)?Math.round((sc.tons[bmi-1]||0)*pt):0;
+  return entrada+burn;
+}
+
+function _revEntradaSc(sc, mi, pt){
+  if(mi<=0) return 0;
+  return Math.round((sc.tons[mi-1]||0)*pt);
+}
+function _revBurnSc(sc, mi, pt){
+  if(mi<=0) return 0;
+  var bd=sc.burnDelay||0;
+  var bmi=mi-bd;
+  return (bd>0&&bmi>=1&&bmi<=36)?Math.round((sc.tons[bmi-1]||0)*pt):0;
+}
+
 function calcTaxRatesPorAno(SCEN, scenarioKey, RC){
   const sc = SCEN[scenarioKey];
   const pt = RC.soy * RC.fx * RC.feeC / 100;
   const anexo = RC.anexo || 'V';
-  // Receita bruta por ano
-  const recA1 = Array.from({length:12},(_,i)=>i+1).reduce((a,mi)=>a+Math.round((sc.tons[mi-1]||0)*pt),0);
-  const recA2 = Array.from({length:12},(_,i)=>i+13).reduce((a,mi)=>a+Math.round((sc.tons[mi-1]||0)*pt),0);
-  const recA3 = Array.from({length:12},(_,i)=>i+25).reduce((a,mi)=>a+Math.round((sc.tons[mi-1]||0)*pt),0);
+  // Receita bruta por ano (inclui burn delay)
+  const recA1 = Array.from({length:12},(_,i)=>i+1).reduce((a,mi)=>a+_revMiSc(sc,mi,pt),0);
+  const recA2 = Array.from({length:12},(_,i)=>i+13).reduce((a,mi)=>a+_revMiSc(sc,mi,pt),0);
+  const recA3 = Array.from({length:12},(_,i)=>i+25).reduce((a,mi)=>a+_revMiSc(sc,mi,pt),0);
   const tA1 = calcAliquota(recA1, anexo).rate;
   const tA2 = calcAliquota(recA2, anexo).rate;
   const tA3 = calcAliquota(recA3, anexo).rate;
@@ -2274,7 +2347,7 @@ function getTaxInfoCenario(scenKey){
     {label:'Ano 3', mis:Array.from({length:12},(_,i)=>i+25)},
   ];
   return anos.map(a=>{
-    const rec = a.mis.reduce((s,mi)=>s+Math.round((sc.tons[mi-1]||0)*pt),0);
+    const rec = a.mis.reduce((s,mi)=>s+_revMiSc(sc,mi,pt),0);
     const info = calcAliquota(rec, anexo);
     return {...info, ano:a.label, rec};
   });
@@ -2292,8 +2365,9 @@ function calcularPnLContango(DATA, RC, SCEN, scenarioKey){
   const ao=DATA.oneshots.filter(x=>x.active);
 
   return Array.from({length:37}, (_,mi)=>{
-    const tons    =mi===0?0:(sc.tons[mi-1]||0);
-    const recBruta=Math.round(tons*pt);
+    const recEntrada=_revEntradaSc(sc,mi,pt);
+    const recBurn=_revBurnSc(sc,mi,pt);
+    const recBruta=recEntrada+recBurn;
     const tax=taxRates[mi]||0;
     const impostos=recBruta>0?-Math.round(recBruta*tax):0;
     const recLiq  =recBruta+impostos;
@@ -2312,7 +2386,7 @@ function calcularPnLContango(DATA, RC, SCEN, scenarioKey){
     const lucroLiq=ebitda;
     const pct=v=>recLiq?Math.round(v/recLiq*100):null;
 
-    return {recBruta,impostos,recLiq,cogsTech,cogsCS,cogsOps,cogs,
+    return {recBruta,recEntrada,recBurn,impostos,recLiq,cogsTech,cogsCS,cogsOps,cogs,
             lucroBruto,mbPct:pct(lucroBruto),
             sgaVendas,sgaMktg,sgaGA,sga,
             ebitda,ebitdaPct:pct(ebitda),
@@ -2429,7 +2503,16 @@ function buildTonsInputs(){
         📂 CSV <input type="file" accept=".csv,.txt" style="display:none" onchange="importTonsCsv('${k}',this)">
       </label>
     </div>`;
-    wrap.innerHTML=`<div style="display:flex;gap:4px;margin-bottom:8px">${tabs}</div>${bulk}<div class="sc-tons-grid" id="tons-${k}">${cols}</div>`;
+    const bdVal = SCEN[k].burnDelay || 0;
+    const bdField = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px 12px;background:rgba(185,213,67,.05);border:1px solid rgba(185,213,67,.2);border-radius:7px">
+      <span style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap">Prazo de Circulação</span>
+      <input type="number" value="${bdVal}" min="0" max="36" step="1"
+        style="width:60px;background:rgba(185,213,67,.07);border:1px solid rgba(185,213,67,.25);border-radius:5px;color:var(--green);padding:4px 8px;font-family:var(--mono);font-size:12px;text-align:center;outline:none"
+        onchange="SCEN['${k}'].burnDelay=+this.value;markDirty()">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text2)">meses após tokenização → fee de burn creditado</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">(0 = desativado)</span>
+    </div>`;
+    wrap.innerHTML=`<div style="display:flex;gap:4px;margin-bottom:8px">${tabs}</div>${bdField}${bulk}<div class="sc-tons-grid" id="tons-${k}">${cols}</div>`;
   });
 }
 
@@ -2781,6 +2864,13 @@ function applyChanges(){
     const startI=(cfgYear-1)*12;
     inputs.forEach((inp,i)=>{ if(startI+i<36)SCEN[k].tons[startI+i]=+inp.value||0; });
   });
+  // sync burnDelay (já atualizado via onchange, garantia extra)
+  ['c','m','p'].forEach(k=>{
+    const wrap=document.getElementById('tons-'+k+'-wrap');
+    if(!wrap)return;
+    const bdInp=wrap.querySelector('input[type="number"][max="36"]');
+    if(bdInp) SCEN[k].burnDelay=+bdInp.value||0;
+  });
   updateRevCalc(); updateDerate();
   dirty=false;
   document.getElementById('applyBar').style.display='none';
@@ -2876,7 +2966,7 @@ function bulkRecorrente(id,dir,miStart,miEnd){
 /* ════════════════════════════════════════════
    RESULTADOS + BUDGET VS ACTUAL
    Schema: BVA_DATA[sc][itemKey][mi] = actualValue
-   itemKey = item.id para despesas, "_rev" para receita
+   itemKey = item.id para despesas, "_rev_entrada" tokenização, "_rev_burn" burn/saque
 ════════════════════════════════════════════ */
 let BVA_DATA = {};
 let bvaScenario = 'c';
@@ -2895,13 +2985,18 @@ function setBvaItem(sc,itemKey,mi,val){
 }
 // Legacy compat for old schema getBva(sc,mi,key)
 function getBva(sc,mi,key){
-  if(key==='rev') return getBvaItem(sc,'_rev',mi);
+  if(key==='rev'){
+    var e=getBvaItem(sc,'_rev_entrada',mi);
+    var b=getBvaItem(sc,'_rev_burn',mi);
+    if(e===null&&b===null)return null;
+    return (e||0)+(b||0);
+  }
   if(key==='burn'){
     // sum all non-rev items
     if(!BVA_DATA[sc])return null;
     let sum=0,has=false;
     Object.keys(BVA_DATA[sc]).forEach(k=>{
-      if(k==='_rev')return;
+      if(k==='_rev'||k==='_rev_entrada'||k==='_rev_burn')return;
       const v=getBvaItem(sc,k,mi);
       if(v!==null){sum+=v;has=true;}
     });
@@ -3001,16 +3096,27 @@ function buildResTable(){
     tr.innerHTML=html; _tbody.appendChild(tr);
   }
 
-  // RECEITA — no topo
+  // RECEITA — no topo (split entrada + burn/saque)
   secHdr('RECEITA');
   {
-    const bVals={};VM.forEach(mi=>bVals[mi]=pnl[mi]?.recBruta||0);
-    const tr=document.createElement('tr'); tr.className='rev-sub';
-    const bP=VM.reduce((a,mi)=>a+(bVals[mi]||0),0);
-    let html='<td style="text-align:left;font-weight:600">Receita Bruta (Tokenização)</td>';
-    VM.forEach(mi=>html+=actCell('_rev',mi,bVals[mi]||0));
-    html+=`<td style="border-left:1px solid var(--blue-bd);vertical-align:top">${fmtB(bP)}${periodActual('_rev')}</td>`;
-    tr.innerHTML=html; _tbody.appendChild(tr);
+    // Linha C — Receita Tokenização (Entrada)
+    const bValsE={};VM.forEach(mi=>bValsE[mi]=pnl[mi]?.recEntrada||0);
+    const trE=document.createElement('tr'); trE.className='rev-sub';
+    const bPE=VM.reduce((a,mi)=>a+(bValsE[mi]||0),0);
+    let htmlE='<td style="text-align:left;font-weight:600">C — Receita Tokenização (Entrada)</td>';
+    VM.forEach(mi=>htmlE+=actCell('_rev_entrada',mi,bValsE[mi]||0));
+    htmlE+=`<td style="border-left:1px solid var(--blue-bd);vertical-align:top">${fmtB(bPE)}${periodActual('_rev_entrada')}</td>`;
+    trE.innerHTML=htmlE; _tbody.appendChild(trE);
+  }
+  {
+    // Linha D — Receita Burn/Saque
+    const bValsB={};VM.forEach(mi=>bValsB[mi]=pnl[mi]?.recBurn||0);
+    const trB=document.createElement('tr'); trB.className='rev-sub';
+    const bPB=VM.reduce((a,mi)=>a+(bValsB[mi]||0),0);
+    let htmlB='<td style="text-align:left;font-weight:600">D — Receita Burn/Saque</td>';
+    VM.forEach(mi=>htmlB+=actCell('_rev_burn',mi,bValsB[mi]||0));
+    htmlB+=`<td style="border-left:1px solid var(--blue-bd);vertical-align:top">${fmtB(bPB)}${periodActual('_rev_burn')}</td>`;
+    trB.innerHTML=htmlB; _tbody.appendChild(trB);
   }
 
   const divRow=()=>{const tr=document.createElement('tr');tr.innerHTML=`<td colspan="${VM.length+2}" style="padding:0;height:3px;background:rgba(16,90,166,.1)"></td>`;_tbody.appendChild(tr);};
@@ -3064,7 +3170,9 @@ function exportBvaCsv(){
   const rows=[['Month','Budget Revenue','Actual Revenue','Δ Revenue','Budget COGS','Actual COGS','Δ COGS','Budget SGA','Actual SGA','Δ SGA','Budget EBITDA','Actual EBITDA','Δ EBITDA']];
   for(let mi=1;mi<=36;mi++){
     const p=pnl[mi];
-    const aRev=getBvaItem(bvaScenario,'_rev',mi);
+    const aRevE=getBvaItem(bvaScenario,'_rev_entrada',mi);
+    const aRevB=getBvaItem(bvaScenario,'_rev_burn',mi);
+    const aRev=(aRevE!==null||aRevB!==null)?(aRevE||0)+(aRevB||0):null;
     let aCogs=0,hasCogs=false,aSga=0,hasSga=false;
     [...ap,...ar,...ao].forEach(item=>{
       const v=getBvaItem(bvaScenario,item.id,mi);
@@ -3094,7 +3202,14 @@ function buildBvaTable(){
   const pnl=calcularPnLContango(DATA,RC,SCEN,sc);
   const allItems=[...DATA.pessoas,...DATA.recorrentes,...DATA.oneshots];
 
-  function aRevMi(mi){ return getBvaItem(sc,'_rev',mi); }
+  function aRevEntradaMi(mi){ return getBvaItem(sc,'_rev_entrada',mi); }
+  function aRevBurnMi(mi){ return getBvaItem(sc,'_rev_burn',mi); }
+  function aRevMi(mi){
+    var e=getBvaItem(sc,'_rev_entrada',mi);
+    var b=getBvaItem(sc,'_rev_burn',mi);
+    if(e===null&&b===null)return null;
+    return (e||0)+(b||0);
+  }
   function aBurnMi(mi){
     let s=0,has=false;
     allItems.forEach(item=>{const v=getBvaItem(sc,item.id,mi);if(v!==null){s+=v;has=true;}});
@@ -3157,7 +3272,11 @@ function buildBvaTable(){
   }
 
   secHdr('▸ RECEITA');
-  addRow('Receita Bruta',
+  addRow('Receita Tokenização (Entrada)',
+    mi=>pnl[mi]?.recEntrada||0, mi=>aRevEntradaMi(mi), 'bva-b-row dre-sub',true);
+  addRow('Receita Burn/Saque',
+    mi=>pnl[mi]?.recBurn||0, mi=>aRevBurnMi(mi), 'bva-b-row dre-sub',true);
+  addRow('(=) Receita Bruta Total',
     mi=>pnl[mi]?.recBruta||0, mi=>aRevMi(mi), 'bva-b-row bold');
   addRow('(-) Impostos (Simples)',
     mi=>Math.abs(pnl[mi]?.impostos||0),
@@ -3217,7 +3336,9 @@ function updateBvaKpis(){
     let ab=0,hab=false;
     allKeys.forEach(k=>{const v=getBvaItem(sc,k,mi);if(v!==null){ab+=v;hab=true;}});
     if(hab){aBurn+=ab;hasABurn=true;}
-    const ar2=getBvaItem(sc,'_rev',mi); if(ar2!==null){aRev+=ar2;hasARev=true;}
+    var ar2e=getBvaItem(sc,'_rev_entrada',mi);
+    var ar2b=getBvaItem(sc,'_rev_burn',mi);
+    if(ar2e!==null||ar2b!==null){aRev+=(ar2e||0)+(ar2b||0);hasARev=true;}
   }
   const _avgTax=(()=>{const tr=calcTaxRatesPorAno(SCEN,sc,RC);const r=tr.filter(v=>v>0);return r.length?r.reduce((a,v)=>a+v,0)/r.length:0;})();
   const aEb=hasARev&&hasABurn?Math.round(aRev*(1-_avgTax))-aBurn:null;
@@ -3242,6 +3363,44 @@ function setDreScenario(key,btn){
     b.className='tg-btn '+(k==='c'?'sc-cons':k==='m'?'sc-meta':'sc-pot')+(k===key?' active':'');
   });
   buildDreAnnual();
+}
+
+function exportDreAnnualCsv(){
+  var sc=dreAnnualScenario;
+  var pnl=calcularPnLContango(DATA,RC,SCEN,sc);
+  var anos=[
+    {label:'Ano 1', mis:[]},
+    {label:'Ano 2', mis:[]},
+    {label:'Ano 3', mis:[]},
+    {label:'Total 36m', mis:[]}
+  ];
+  for(var i=0;i<12;i++){anos[0].mis.push(i+1);anos[1].mis.push(i+13);anos[2].mis.push(i+25);}
+  for(var i=1;i<=36;i++) anos[3].mis.push(i);
+  function sm(key,mis){return mis.reduce(function(a,mi){return a+((pnl[mi]&&pnl[mi][key])||0);},0);}
+  var rows=[
+    ['Item','Ano 1','Ano 2','Ano 3','Total 36m'],
+    ['Receita Tokenizacao (Entrada)',Math.round(sm('recEntrada',anos[0].mis)),Math.round(sm('recEntrada',anos[1].mis)),Math.round(sm('recEntrada',anos[2].mis)),Math.round(sm('recEntrada',anos[3].mis))],
+    ['Receita Burn/Saque',           Math.round(sm('recBurn',anos[0].mis)),   Math.round(sm('recBurn',anos[1].mis)),   Math.round(sm('recBurn',anos[2].mis)),   Math.round(sm('recBurn',anos[3].mis))],
+    ['(=) Receita Bruta Total',      Math.round(sm('recBruta',anos[0].mis)),  Math.round(sm('recBruta',anos[1].mis)),  Math.round(sm('recBruta',anos[2].mis)),  Math.round(sm('recBruta',anos[3].mis))],
+    ['(-) Impostos (Simples)',        Math.round(sm('impostos',anos[0].mis)),  Math.round(sm('impostos',anos[1].mis)),  Math.round(sm('impostos',anos[2].mis)),  Math.round(sm('impostos',anos[3].mis))],
+    ['(=) Receita Liquida',          Math.round(sm('recLiq',anos[0].mis)),    Math.round(sm('recLiq',anos[1].mis)),    Math.round(sm('recLiq',anos[2].mis)),    Math.round(sm('recLiq',anos[3].mis))],
+    ['(-) COGS Tecnologia',          Math.round(-sm('cogsTech',anos[0].mis)), Math.round(-sm('cogsTech',anos[1].mis)), Math.round(-sm('cogsTech',anos[2].mis)), Math.round(-sm('cogsTech',anos[3].mis))],
+    ['(-) COGS CS',                  Math.round(-sm('cogsCS',anos[0].mis)),   Math.round(-sm('cogsCS',anos[1].mis)),   Math.round(-sm('cogsCS',anos[2].mis)),   Math.round(-sm('cogsCS',anos[3].mis))],
+    ['(-) COGS Operacao',            Math.round(-sm('cogsOps',anos[0].mis)),  Math.round(-sm('cogsOps',anos[1].mis)),  Math.round(-sm('cogsOps',anos[2].mis)),  Math.round(-sm('cogsOps',anos[3].mis))],
+    ['Total COGS',                   Math.round(sm('cogs',anos[0].mis)),      Math.round(sm('cogs',anos[1].mis)),      Math.round(sm('cogs',anos[2].mis)),      Math.round(sm('cogs',anos[3].mis))],
+    ['(=) Lucro Bruto',              Math.round(sm('lucroBruto',anos[0].mis)),Math.round(sm('lucroBruto',anos[1].mis)),Math.round(sm('lucroBruto',anos[2].mis)),Math.round(sm('lucroBruto',anos[3].mis))],
+    ['(-) SGA Vendas',               Math.round(-sm('sgaVendas',anos[0].mis)),Math.round(-sm('sgaVendas',anos[1].mis)),Math.round(-sm('sgaVendas',anos[2].mis)),Math.round(-sm('sgaVendas',anos[3].mis))],
+    ['(-) SGA Marketing',            Math.round(-sm('sgaMktg',anos[0].mis)),  Math.round(-sm('sgaMktg',anos[1].mis)),  Math.round(-sm('sgaMktg',anos[2].mis)),  Math.round(-sm('sgaMktg',anos[3].mis))],
+    ['(-) SGA G&A',                  Math.round(-sm('sgaGA',anos[0].mis)),    Math.round(-sm('sgaGA',anos[1].mis)),    Math.round(-sm('sgaGA',anos[2].mis)),    Math.round(-sm('sgaGA',anos[3].mis))],
+    ['Total SGA',                    Math.round(sm('sga',anos[0].mis)),       Math.round(sm('sga',anos[1].mis)),       Math.round(sm('sga',anos[2].mis)),       Math.round(sm('sga',anos[3].mis))],
+    ['(=) EBITDA',                   Math.round(sm('ebitda',anos[0].mis)),    Math.round(sm('ebitda',anos[1].mis)),    Math.round(sm('ebitda',anos[2].mis)),    Math.round(sm('ebitda',anos[3].mis))],
+    ['(=) Lucro Liquido',            Math.round(sm('lucroLiq',anos[0].mis)),  Math.round(sm('lucroLiq',anos[1].mis)),  Math.round(sm('lucroLiq',anos[2].mis)),  Math.round(sm('lucroLiq',anos[3].mis))]
+  ];
+  var csv=rows.map(function(r){return r.join(',');}).join('\n');
+  var link=document.createElement('a');
+  link.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  link.download='contango-dre-anual-'+sc+'-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }
 
 function buildDreAnnual(){
@@ -3294,7 +3453,9 @@ function buildDreAnnual(){
   }
 
   secHdrD('▸ RECEITA');
-  addRow('Receita Bruta',mis=>sum('recBruta',mis),'bva-b-row bold');
+  addRow('Receita Tokenização (Entrada)',mis=>sum('recEntrada',mis),'bva-b-row dre-sub',true);
+  addRow('Receita Burn/Saque',mis=>sum('recBurn',mis),'bva-b-row dre-sub',true);
+  addRow('(=) Receita Bruta Total',mis=>sum('recBruta',mis),'bva-b-row bold');
   addRow('(-) Impostos (Simples)',mis=>sum('impostos',mis),'bva-b-row dre-tax',true);
   addRow('(=) Receita Líquida',mis=>sum('recLiq',mis),'bva-b-row dre-netliq bold');
   divRow();
@@ -3426,7 +3587,7 @@ function saveHTML(){
    - Sempre adicione novas migrations no final
    - Cada migration recebe o estado anterior e retorna o atualizado
 ════════════════════════════════════════════ */
-const SCHEMA_VERSION = 2; // incrementar ao adicionar nova migration
+const SCHEMA_VERSION = 4; // incrementar ao adicionar nova migration
 
 const MIGRATIONS = [
   // v1 → v2: adicionar itens operacionais e eventos agro
@@ -3490,8 +3651,31 @@ const MIGRATIONS = [
     s._schema_version = 2;
     return s;
   }
-  // Adicionar novas migrations aqui no futuro:
-  // function migrate_v2_to_v3(s) { ... }
+  ,
+  // v2 → v3: adicionar burnDelay por cenário
+  function migrate_v2_to_v3(s) {
+    ['c','m','p'].forEach(function(k){
+      if(s.SCEN && s.SCEN[k] && s.SCEN[k].burnDelay === undefined){
+        s.SCEN[k].burnDelay = 6;
+      }
+    });
+    s._schema_version = 3;
+    return s;
+  }
+  ,
+  // v3 → v4: renomear _rev → _rev_entrada no BVA (receita split entrada+burn)
+  function migrate_v3_to_v4(s) {
+    if(s.BVA){
+      ['c','m','p'].forEach(function(k){
+        if(s.BVA[k] && s.BVA[k]['_rev'] && !s.BVA[k]['_rev_entrada']){
+          s.BVA[k]['_rev_entrada'] = s.BVA[k]['_rev'];
+          delete s.BVA[k]['_rev'];
+        }
+      });
+    }
+    s._schema_version = 4;
+    return s;
+  }
 ];
 
 function migrateData(s){
@@ -3511,8 +3695,20 @@ function migrateData(s){
     if(s.SCEN&&s.SCEN[k]&&s.SCEN[k].tons){
       while(s.SCEN[k].tons.length<36) s.SCEN[k].tons.push(0);
     }
+    if(s.SCEN&&s.SCEN[k]&&s.SCEN[k].burnDelay===undefined){
+      s.SCEN[k].burnDelay=6;
+    }
   });
   if(s.RC&&!s.RC.anexo) s.RC.anexo='V';
+  // Normalização BVA: _rev legado → _rev_entrada
+  if(s.BVA){
+    ['c','m','p'].forEach(function(k){
+      if(s.BVA[k]&&s.BVA[k]['_rev']&&!s.BVA[k]['_rev_entrada']){
+        s.BVA[k]['_rev_entrada']=s.BVA[k]['_rev'];
+        delete s.BVA[k]['_rev'];
+      }
+    });
+  }
 
   // Rodar migrations pendentes em ordem
   var currentVersion = s._schema_version || 1;
